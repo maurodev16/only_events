@@ -1,0 +1,24 @@
+{
+  "name": "velhodalancha_api_node_mongo",
+  "version": "1.0.0",
+  "description": "Api para Acompanhantes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maurodev16/velhodalancha.git"
+  },
+  "keywords": [
+    "mongodb",
+    "javascript",
+    "nodejs"
+  ],
+  "author": "Mauro Rodrigues",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maurodev16/velhodalancha/issues"
+  },
+  "homepage": "https://github.com/maurodev16/velhodalancha#readme"
+}
