@@ -4,8 +4,9 @@ const express = require("express")
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
 
-const app = express()
+const app = express();
 
+const PORT = process.env.PORT || 3000;
 
 //read json
 app.use(
@@ -39,8 +40,10 @@ const CLUSTER = process.env.CLUSTER
 
 mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`)
     .then(() => {
-        console.log("Parabens!!!! You are connected")
-        app.listen(3000);
+       
+        app.listen(PORT, ()=>{
+             console.log("Parabens!!!! You are connected")
+        });
     })
     .catch((err) => console.log(err))
 
