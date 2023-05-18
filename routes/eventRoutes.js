@@ -168,9 +168,10 @@ router.get('/fetchEventByCountry/:country', async (req, res) => {
     try {
       const isFeatured = req.params.isFeatured;
   
-      const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured');;
+      const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured');
+      console.log(events)
   
-      if (!events.isFeatured) {
+      if (events.length === 0) {
         return res.status(404).json({ msg: `No Featured events so far` });
 
       }
@@ -180,7 +181,7 @@ router.get('/fetchEventByCountry/:country', async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
-  
+
   router.get('/fetchEventByOrganizedBy/:organized_by', async (req, res) => {
     try {
       const organized_by = req.params.organized_by;
