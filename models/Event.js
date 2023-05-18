@@ -54,7 +54,8 @@ const eventSchema = new mongoose.Schema({
 
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
-    likesCount: { type: Number, default: 0 }
+    likesCount: { type: Number, default: 0 },
+    isFeatured:{ type: Boolean, default: false}
 });
 
 // Atualiza o valor de likesCount sempre que um like for adicionado ou removido
