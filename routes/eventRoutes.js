@@ -2,13 +2,15 @@ const router = require('express').Router();
 const Event = require('../models/Event');
 const Promoter = require('../models/Promoter');
 const checkPromoterToken = require('../middleware/checkPromoterToken');
+const admin = require('firebase-admin');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
+
 
 router.post('/create', checkPromoterToken, async (req, res) => {
   try {
     const {
       title,
-      bannerUrl,
-      photoGalerie,
       country,
       city,
       street,
@@ -28,7 +30,7 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       socialMedia,
       created,
       updated,
-    
+      isFeatured
     } = req.body;
 
     const promoterId = req.promoter._id; // Promoter ID obtained from the token
@@ -37,13 +39,11 @@ router.post('/create', checkPromoterToken, async (req, res) => {
     if (!promoterData) {
       return res.status(404).json({ error: "Promoter not found" });
     }
-  
+
     const event = new Event({
       title,
       country,
       city,
-      bannerUrl,
-      photoGalerie,
       street,
       number,
       place_name,
@@ -51,7 +51,7 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       entrance_price,
       organized_by,
       for_adults_only,
-      likesCount, 
+      likesCount,
       artists,
       socialMedia,
       paymentInfo,
@@ -62,9 +62,54 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       created,
       updated,
       promoter: promoterData._id, // Associate the event with the Promoter by setting the "Promoter" field to the Promoter's ID
-     isFeatured
+      isFeatured
     });
 
+    // Verificar se foi enviado um arquivo de banner
+    if (req.files && req.files.bannerFile) {
+      const bannerFile = req.files.bannerFile;
+
+      // Upload do banner para o Firebase Storage
+      const bucket = admin.storage().bucket();
+      const bannerPath = `banners/${promoterId}-${uuidv4()}_${bannerFile.name}`;
+      const bannerFileRef = bucket.file(bannerPath);
+      const bannerFileOptions = {
+        metadata: {
+          contentType: bannerFile.mimetype
+        }
+      };
+      await bannerFileRef.save(bannerFile.data, bannerFileOptions);
+
+      // Atualizar a URL do banner com o caminho no Firebase Storage
+      event.bannerUrl = `https://storage.googleapis.com/${bucket.name}/${bannerPath}`;
+
+    }
+
+
+    // Verificar se foram enviadas fotos para a galeria
+    if (req.files && req.files.galerie) {
+      const galerieFiles = Array.isArray(req.files.galerie) ? req.files.galerie : [req.files.galerie];
+
+      // Fazer o upload das fotos da galeria para o Firebase Storage
+      const galerieUrls = [];
+      for (
+        let index = 0; index < galerieFiles.length; index++) {
+        const galerieFile = galerieFiles[index];
+        const galeriePath = `galerie/${promoterId}-${uuidv4()}_${bannerFile.name}`;
+        const galerieFileRef = bucket.file(galeriePath);
+        const galerieFileOptions = {
+          metadata: {
+            contentType: galerieFile.mimetype
+          }
+        };
+        await galerieFileRef.save(galerieFile.data, galerieFileOptions);
+        galerieUrls.push(`https://storage.googleapis.com/${bucket.name}/${galeriePath}`)
+
+        // Atualizar as URLs da galeria com os caminhos no Firebase Storage
+        event.photoGallery = galerieUrls;
+      }
+
+    }
     const savedEvent = await event.save();
     res.status(201).json(savedEvent);
   } catch (error) {
@@ -73,131 +118,132 @@ router.post('/create', checkPromoterToken, async (req, res) => {
   }
 });
 
+///
 router.get('/fetch', async (req, res) => {
-    try {
-        const events = await Event.find({}).select('-isFeatured');
-        if (events.length === 0) {
-      return  res.status(404).json({ msg: "Events not found" });  
-             
-        }
-        res.status(200).json(events);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-        return [];
+  try {
+    const events = await Event.find({}).select('-isFeatured');
+    if (events.length === 0) {
+      return res.status(404).json({ msg: "Events not found" });
+
     }
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    return [];
+  }
 });
 
 router.get('/:id', async (req, res) => {
-    const id = req.params.id;
+  const id = req.params.id;
 
-    try {
-        const event = await Event.findById(id, '-isFeatured');
-        if (!event) {
-            res.status(404).json({ msg:  `Event not found for id ${id}` });
-            return [];
-        }
-        res.status(200).json(event)
-    } catch (error) {
-        res.status(500).json({ error: error })
+  try {
+    const event = await Event.findById(id, '-isFeatured');
+    if (!event) {
+      res.status(404).json({ msg: `Event not found for id ${id}` });
+      return [];
     }
+    res.status(200).json(event)
+  } catch (error) {
+    res.status(500).json({ error: error })
+  }
 });
 
 
 router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
-    try {
-        const promoterId = req.params.promoterId;
-        const events = await Event.find({ promoter: promoterId }).select('-isFeatured');
-        if (events.length === 0) {
-            return res.status(404).json({ msg: "No event found for this Promoter" });
-        }
-        res.status(200).json(events);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  try {
+    const promoterId = req.params.promoterId;
+    const events = await Event.find({ promoter: promoterId }).select('-isFeatured');
+    if (events.length === 0) {
+      return res.status(404).json({ msg: "No event found for this Promoter" });
     }
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.get('/fetchEventByCountry/:country', async (req, res) => {
-    try {
-      const country = req.params.country;
-  
-      const events = await Event.find({ country: country }).select('-isFeatured');
-  
-      if (events.length === 0) {
-        return res.status(404).json({ msg: "No events found for this country" });
-      }
-  
-      res.status(200).json(events);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
-  router.get('/fetchEventByCity/:city', async (req, res) => {
-    try {
-      const city = req.params.city;
-  
-      const events = await Event.find({ city: city }).select('-isFeatured');;
-  
-      if (events.length === 0) {
-        return res.status(404).json({ msg: "No events found for this city" });
-      }
-  
-      res.status(200).json(events);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+  try {
+    const country = req.params.country;
 
-  router.get('/fetchEventsForAdults/:for_adults_only?', async (req, res) => {
-    try {
-      const forAdultsOnly = req.params.for_adults_only || true;
-  
-      const events = await Event.find({ for_adults_only: forAdultsOnly }).select('-isFeatured');;
-  
-      if (events.length === 0) {
-        return res.status(404).json({ msg: "Nenhum evento para adultos encontrado" });
-      }
-  
-      res.status(200).json(events);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
-  router.get('/fetchEventIsFeatured/:isFeatured', async (req, res) => {
-    try {
-      const isFeatured = req.params.isFeatured;
-  
-      const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured');
-      console.log(events)
-  
-      if (events.length === 0) {
-        return res.status(404).json({ msg: `No Featured events so far` });
+    const events = await Event.find({ country: country }).select('-isFeatured');
 
-      }
-  
-      res.status(200).json(events);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+    if (events.length === 0) {
+      return res.status(404).json({ msg: "No events found for this country" });
     }
-  });
 
-  router.get('/fetchEventByOrganizedBy/:organized_by', async (req, res) => {
-    try {
-      const organized_by = req.params.organized_by;
-  
-      const events = await Event.find({ organized_by: organized_by }).select('-isFeatured');;
-  
-      if (events.length === 0) {
-        return res.status(404).json({ msg: `${organized_by} has not organized any events so far` });
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-      }
-  
-      res.status(200).json(events);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+router.get('/fetchEventByCity/:city', async (req, res) => {
+  try {
+    const city = req.params.city;
+
+    const events = await Event.find({ city: city }).select('-isFeatured');;
+
+    if (events.length === 0) {
+      return res.status(404).json({ msg: "No events found for this city" });
     }
-  });
+
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/fetchEventsForAdults/:for_adults_only?', async (req, res) => {
+  try {
+    const forAdultsOnly = req.params.for_adults_only || true;
+
+    const events = await Event.find({ for_adults_only: forAdultsOnly }).select('-isFeatured');;
+
+    if (events.length === 0) {
+      return res.status(404).json({ msg: "Nenhum evento para adultos encontrado" });
+    }
+
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/fetchEventIsFeatured/:isFeatured', async (req, res) => {
+  try {
+    const isFeatured = req.params.isFeatured;
+
+    const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured');
+    console.log(events)
+
+    if (events.length === 0) {
+      return res.status(404).json({ msg: `No Featured events so far` });
+
+    }
+
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/fetchEventByOrganizedBy/:organized_by', async (req, res) => {
+  try {
+    const organized_by = req.params.organized_by;
+
+    const events = await Event.find({ organized_by: organized_by }).select('-isFeatured');;
+
+    if (events.length === 0) {
+      return res.status(404).json({ msg: `${organized_by} has not organized any events so far` });
+
+    }
+
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 router.get('/fetchEventByDateRange/:startDate/:endDate', async (req, res) => {
   try {
@@ -272,11 +318,11 @@ router.delete('/deleteEvent/:eventId', checkPromoterToken, async (req, res) => {
       return res.status(404).json({ msg: "Event not found" });
     }
 
-   // Verificar se o Promoter tem permissão para editar o evento
-   if (event.promoter.toString() !== req.promoter._id) {
-    console.log(event.promoter.toString())
-    return res.status(403).json({ msg: "Unauthorized access" });
-  }
+    // Verificar se o Promoter tem permissão para editar o evento
+    if (event.promoter.toString() !== req.promoter._id) {
+      console.log(event.promoter.toString())
+      return res.status(403).json({ msg: "Unauthorized access" });
+    }
     // Delete the event
     await Event.deleteOne({ _id: eventId });
 

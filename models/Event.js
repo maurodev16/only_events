@@ -5,6 +5,8 @@ const Artist = require('./Artist');
 const countriesList = require('countries-list');
 const Like = require('./Likes');
 require('dotenv').config();
+
+
 IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 IMAGE_BANNER_DEFAULT_TOKEN = process.env.IMAGE_BANNER_DEFAULT_TOKEN;
 

@@ -18,6 +18,25 @@ const eventRoutes= require('./routes/eventRoutes');
 const artistRoutes= require('./routes/artistRoutes');
 const authParticipantRoutes = require('./routes/authParticipantRoutes');
 const authPromoter = require('./routes/authPromoterRoutes');
+const admin = require('firebase-admin');
+
+admin.initializeApp({
+    credential:admin.credential.cert({
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+    projectId:process.env.FIREBASE_PROJECT_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY
+    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/gm, "\n")
+    : undefined,
+    clientEmail:process.env.FIREBASE_CLIENT_EMAIL,
+}),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+
+
+});
 
 // Register routers
 app.use('/api/v1/promoter', promoterRoutes);
@@ -26,8 +45,6 @@ app.use('/api/v1/event', eventRoutes);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/authParticipant', authParticipantRoutes);
 app.use('/api/v1/authPromoter', authPromoter);
-
-
 
 //initial endpoint
 app.get('/', (_req, _res) => {
@@ -51,7 +68,7 @@ mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?re
     })
     .catch((err) =>{
         console.error('Failed to connect to MongoDB', err);
-    });
+});
 
 
 
