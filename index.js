@@ -43,8 +43,8 @@ app.use('/api/v1/promoter', promoterRoutes);
 app.use('/api/v1/participant', participantRoutes);
 app.use('/api/v1/event', eventRoutes);
 app.use('/api/v1/artist', artistRoutes);
-app.use('/api/v1/authParticipant', authParticipantRoutes);
-app.use('/api/v1/authPromoter', authPromoter);
+app.use('/api/v1/auth', authParticipantRoutes);
+app.use('/api/v1/auth', authPromoter);
 
 //initial endpoint
 app.get('/', (_req, _res) => {
