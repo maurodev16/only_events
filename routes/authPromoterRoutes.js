@@ -53,8 +53,8 @@ router.post('/loginPromoter', async (req, res) => {
     // Generate token
     const token = jwt.sign({ promoterId: promoter._id }, PROMOTER_SECRET_KEY);
 
-    // Return the authentication token
-    res.status(200).json({ msg: "Authentication successful!", token });
+     // Return the authentication token, ID, and email
+     res.status(200).json({ msg: "Authentication successful!", token, id: promoter._id,nickname:promoter.nickname, email: promoter.email });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "An error occurred during login." });
