@@ -7,7 +7,7 @@ const checkPromoterToken = require('../middleware/checkPromoterToken');
 
 router.post('/register', async (req, res) => {
     //body
-    const { name, email, password,company, age, country, city, post_code, street, contact, phone, avatarUrl } = req.body;
+    const { name, email, password, company, age, country, city, post_code, street, contact, phone, avatarUrl } = req.body;
     try {
 
         //Valida os daos do Promoter 
@@ -15,14 +15,10 @@ router.post('/register', async (req, res) => {
             res.status(422).json({ msg: "Nome completo obrigatorio!" });
             return;
         }
-        
-        if (!age) {
-            res.status(422).json({ msg: "data Aniversario obrigatorio!" });
-            return;
-        }
+     
       
-        if (!phone) {
-            res.status(422).json({ msg: "Phone obrigatorio!" });
+        if (!company) {
+            res.status(422).json({ msg: "company obrigatorio!" });
             return;
         }
 
