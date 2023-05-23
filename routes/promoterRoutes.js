@@ -80,12 +80,12 @@ router.post('/register', async (req, res) => {
 
 router.get('/fetch', checkPromoterToken, async (req, res) => {
     try {
-        const promoter = await Promoter.find();
+        const promoter = await Promoter.find().select('-password');
         if (!promoter) {
-           return   res.status(404).json({ msg: "Promoters nao encontrados" });
+           return res.status(404).json({ msg: "Promoters nao encontrados" });
            
         }
-        res.status(200).json(user)
+        res.status(200).json(promoter)
     } catch (error) {
         res.status(500).json({ error: error })
     }

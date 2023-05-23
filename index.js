@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const admin = require('firebase-admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +19,9 @@ const eventRoutes= require('./routes/eventRoutes');
 const artistRoutes= require('./routes/artistRoutes');
 const authParticipantRoutes = require('./routes/authParticipantRoutes');
 const authPromoter = require('./routes/authPromoterRoutes');
-const admin = require('firebase-admin');
+const cityRoutes = require('./routes/cityRoutes');
+
+
 
 admin.initializeApp({
     credential:admin.credential.cert({
@@ -45,6 +48,7 @@ app.use('/api/v1/event', eventRoutes);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/auth', authParticipantRoutes);
 app.use('/api/v1/auth', authPromoter);
+app.use('/api/v1/city', cityRoutes);
 
 //initial endpoint
 app.get('/', (_req, _res) => {
