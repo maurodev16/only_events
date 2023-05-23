@@ -7,7 +7,6 @@ IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 
 const promoterSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  nickname: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   company: { type: String },

@@ -7,17 +7,12 @@ const checkPromoterToken = require('../middleware/checkPromoterToken');
 
 router.post('/register', async (req, res) => {
     //body
-    const { name, nickname, email, password,company, age, country, city, post_code, street, contact, phone, avatarUrl } = req.body;
+    const { name, email, password,company, age, country, city, post_code, street, contact, phone, avatarUrl } = req.body;
     try {
 
         //Valida os daos do Promoter 
         if (!name) {
             res.status(422).json({ msg: "Nome completo obrigatorio!" });
-            return;
-        }
-
-        if (!nickname) {
-            res.status(422).json({ msg: "Nickname obrigatorio!" });
             return;
         }
         
@@ -31,18 +26,10 @@ router.post('/register', async (req, res) => {
             return;
         }
 
-    
         //check if Promoter email exists
         const emailExists = await Promoter.findOne({ email: email });
         if (emailExists) {
             res.status(422).json({ msg: "ja existe um usuario com este email!" });
-            return;
-        }
-
-        //check if user nickname exists
-        const nicknameExists = await Promoter.findOne({ nickname: nickname });
-        if (nicknameExists) {
-            res.status(422).json({ msg: "ja existe um Promoter com este nickname!" });
             return;
         }
 
@@ -53,7 +40,6 @@ router.post('/register', async (req, res) => {
         //Create Promoter
         const promoter = new Promoter({ 
             name, 
-            nickname,
             email, 
             password: passwordhash,
             company, 

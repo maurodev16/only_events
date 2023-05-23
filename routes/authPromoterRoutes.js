@@ -9,32 +9,32 @@ const PROMOTER_SECRET_KEY = process.env.PROMOTER_SECRET_KEY;
 // Login route
 router.post('/loginPromoter', async (req, res) => {
   try {
-    const { nicknameOrEmail, password } = req.body;
+    const { email, password } = req.body;
 
     // Validate Promoter data
-    if (!nicknameOrEmail) {
-      res.status(422).json({ msg: "Please provide a valid nickname or email!" });
-      console.log(nicknameOrEmail);
+    if (!email) {
+      res.status(422).json({ msg: "Please provide a valid email!" });
+      console.log(email);
       return;
     }
 
     let promoter;
 
    // Check if nicknameOrEmail is an email using regular expression
-   const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nicknameOrEmail);
+   const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
    if (isEmail) {
-    promoter = await Promoter.findOne({ email: nicknameOrEmail });
-    console.log(nicknameOrEmail);
+    promoter = await Promoter.findOne({ email: email });
+    console.log(email);
 
    } else {
      // Find promoter using nickname
-     promoter = await Promoter.findOne({ nickname: { $regex: `^${nicknameOrEmail}`, $options: 'i' } });
+     promoter = await Promoter.findOne({ email: { $regex: `^${email}`, $options: 'i' } });
      console.log(promoter);
    }
 
     if (!promoter) {
-      res.status(404).json({ msg: "No Promoter found with this nickname/email!" });
+      res.status(404).json({ msg: "No Promoter found with this email!" });
       return;
     }
 
@@ -54,7 +54,7 @@ router.post('/loginPromoter', async (req, res) => {
     const token = jwt.sign({ promoterId: promoter._id }, PROMOTER_SECRET_KEY);
 
      // Return the authentication token, ID, and email
-     res.status(200).json({ msg: "Authentication successful!", token, id: promoter._id,nickname:promoter.nickname, email: promoter.email });
+     res.status(200).json({ msg: "Authentication successful!", token, id: promoter._id, email: promoter.email });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "An error occurred during login." });
