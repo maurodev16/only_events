@@ -20,7 +20,6 @@ router.post('/register',checkPromoterToken, async (req, res) => {
             return;
         }
 
-
         //Create City
         const city = new City({ 
             cityName, 
