@@ -20,7 +20,7 @@ router.post('/register',checkPromoterToken, async (req, res) => {
             return;
         }
 
-      
+
         //Create City
         const city = new City({ 
             cityName, 
@@ -39,7 +39,7 @@ router.post('/register',checkPromoterToken, async (req, res) => {
 });
 
 
-router.get('/fetch', checkPromoterToken, async (req, res) => {
+router.get('/fetch', async (req, res) => {
     try {
         const city = await City.find();
         if (!city) {
