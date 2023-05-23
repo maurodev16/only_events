@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Promoter = require("./Promoter");
+const City = require('./City');
 const accounting = require('accounting');
 const Artist = require('./Artist');
 const countriesList = require('countries-list');
@@ -24,7 +25,8 @@ const eventSchema = new mongoose.Schema({
       currency: { type: String },
       languages: [String]
     },
-    city: { type: String, required: true },
+    cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true },
+    cityName: { type: String, required: true },
     street: { type: String, required: true },
     number: { type: String, required: true },
     place_name: { type: String, required: true },
@@ -53,7 +55,6 @@ const eventSchema = new mongoose.Schema({
     name: { type: String },
     genre: { type: String },
     avatarUrl: { type: String, default: `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}` },
-
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
     likesCount: { type: Number, default: 0 },

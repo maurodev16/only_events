@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Event = require('../models/Event');
+const City = require('../models/City');
 const Promoter = require('../models/Promoter');
 const checkPromoterToken = require('../middleware/checkPromoterToken');
 const admin = require('firebase-admin');
@@ -12,10 +13,11 @@ router.post('/create', checkPromoterToken, async (req, res) => {
     const {
       title,
       country,
-      city,
       street,
       number,
       place_name,
+      cityId,
+      //cityName,
       description,
       entrance_price,
       organized_by,
@@ -32,18 +34,27 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       updated,
       isFeatured
     } = req.body;
-
+    
+  
+    
     const promoterId = req.promoter._id; // Promoter ID obtained from the token
-
     const promoterData = await Promoter.findById(promoterId);
     if (!promoterData) {
       return res.status(404).json({ error: "Promoter not found" });
     }
+    
+    const cityData = await City.findById(cityId);
+    
+    if (!cityData) {
+      return res.status(404).json({ error: "City not found" });
+    }
+    const name =  cityData.cityName;
 
     const event = new Event({
       title,
       country,
-      city,
+      cityId: cityData._id,
+      cityName: name,
       street,
       number,
       place_name,
@@ -111,10 +122,12 @@ router.post('/create', checkPromoterToken, async (req, res) => {
 
     }
     const savedEvent = await event.save();
-    res.status(201).json(savedEvent);
+    if (savedEvent === 0) {
+     return res.status(200).json({ msg: `${savedEvent.name} Created Sucessfuly!` });
+    }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Failed to create the event" });
+    console.log(`Erro ao criar Event: ${error}`)
+    res.status(500).json({ msg: "Erro ao cadastrar o evento, tente novamente mais tarde!" })
   }
 });
 
@@ -137,7 +150,7 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
 
   try {
-    const event = await Event.findById(id, '-isFeatured');
+    const event = await Event.findById(id, '-isFeatured').populate('city','cityName');
     if (!event) {
       res.status(404).json({ msg: `Event not found for id ${id}` });
       return [];
@@ -152,7 +165,7 @@ router.get('/:id', async (req, res) => {
 router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
   try {
     const promoterId = req.params.promoterId;
-    const events = await Event.find({ promoter: promoterId }).select('-isFeatured');
+    const events = await Event.find({ promoter: promoterId }).select('-isFeatured').populate('city');
     if (events.length === 0) {
       return res.status(404).json({ msg: "No event found for this Promoter" });
     }
@@ -166,7 +179,7 @@ router.get('/fetchEventByCountry/:country', async (req, res) => {
   try {
     const country = req.params.country;
 
-    const events = await Event.find({ country: country }).select('-isFeatured');
+    const events = await Event.find({ country: country }).select('-isFeatured').populate('city');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "No events found for this country" });
@@ -198,7 +211,7 @@ router.get('/fetchEventsForAdults/:for_adults_only?', async (req, res) => {
   try {
     const forAdultsOnly = req.params.for_adults_only || true;
 
-    const events = await Event.find({ for_adults_only: forAdultsOnly }).select('-isFeatured');;
+    const events = await Event.find({ for_adults_only: forAdultsOnly }).select('-isFeatured').populate('city');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "Nenhum evento para adultos encontrado" });
@@ -214,7 +227,7 @@ router.get('/fetchEventIsFeatured/:isFeatured', async (req, res) => {
   try {
     const isFeatured = req.params.isFeatured;
 
-    const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured');
+    const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured').populate('city');
     console.log(events)
 
     if (events.length === 0) {
@@ -232,7 +245,7 @@ router.get('/fetchEventByOrganizedBy/:organized_by', async (req, res) => {
   try {
     const organized_by = req.params.organized_by;
 
-    const events = await Event.find({ organized_by: organized_by }).select('-isFeatured');;
+    const events = await Event.find({ organized_by: organized_by }).select('-isFeatured').populate('city');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: `${organized_by} has not organized any events so far` });
@@ -256,7 +269,7 @@ router.get('/fetchEventByDateRange/:startDate/:endDate', async (req, res) => {
     }).select('-isFeatured');
 
     if (events.length === 0) {
-      return res.status(404).json({ msg: "No events found within the date range" });
+      return res.status(404).json({ msg: "No events found within the date range" }).populate('city');
     }
 
     res.status(200).json(events);
@@ -271,7 +284,7 @@ router.put('/editEvent/:eventId', checkPromoterToken, async (req, res) => {
     const eventData = req.body;
 
     // Verificar se o evento existe
-    const event = await Event.findById(eventId).select('-isFeatured');;
+    const event = await Event.findById(eventId).select('-isFeatured').populate('city');
     if (!event) {
       return res.status(404).json({ msg: "Event not found" });
     }
