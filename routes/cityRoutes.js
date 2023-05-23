@@ -37,18 +37,17 @@ router.post('/register',checkPromoterToken, async (req, res) => {
 
 });
 
-
 router.get('/fetch', async (req, res) => {
     try {
-        const city = await City.find();
-        if (!city) {
-           return res.status(404).json({ msg: "cities not Found" });
-           
+        const cities = await City.find().sort({ cityName: 1 }).select('-__v');
+        if (!cities || cities.length === 0) {
+            return res.status(404).json({ msg: "Cities not found" });
         }
-        res.status(200).json(city)
+        res.status(200).json(cities);
     } catch (error) {
-        res.status(500).json({ error: error })
+        res.status(500).json({ error: error });
     }
 });
+
 
 module.exports = router;
