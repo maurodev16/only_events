@@ -165,7 +165,7 @@ router.get('/:id', async (req, res) => {
 router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
   try {
     const promoterId = req.params.promoterId;
-    const events = await Event.find({ promoter: promoterId }).select('-isFeatured').populate('city');
+    const events = await Event.find({ promoter: promoterId }).select('-isFeatured').populate('cityId');
     if (events.length === 0) {
       return res.status(404).json({ msg: "No event found for this Promoter" });
     }
@@ -179,7 +179,7 @@ router.get('/fetchEventByCountry/:country', async (req, res) => {
   try {
     const country = req.params.country;
 
-    const events = await Event.find({ country: country }).select('-isFeatured').populate('city');
+    const events = await Event.find({ country: country }).select('-isFeatured').populate('cityId');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "No events found for this country" });
@@ -211,7 +211,7 @@ router.get('/fetchEventsForAdults/:for_adults_only?', async (req, res) => {
   try {
     const forAdultsOnly = req.params.for_adults_only || true;
 
-    const events = await Event.find({ for_adults_only: forAdultsOnly }).select('-isFeatured').populate('city');
+    const events = await Event.find({ for_adults_only: forAdultsOnly }).select('-isFeatured').populate('cityId');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "Nenhum evento para adultos encontrado" });
@@ -227,7 +227,7 @@ router.get('/fetchEventIsFeatured/:isFeatured', async (req, res) => {
   try {
     const isFeatured = req.params.isFeatured;
 
-    const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured').populate('city');
+    const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured').populate('cityId');
     console.log(events)
 
     if (events.length === 0) {
@@ -245,7 +245,7 @@ router.get('/fetchEventByOrganizedBy/:organized_by', async (req, res) => {
   try {
     const organized_by = req.params.organized_by;
 
-    const events = await Event.find({ organized_by: organized_by }).select('-isFeatured').populate('city');
+    const events = await Event.find({ organized_by: organized_by }).select('-isFeatured').populate('cityId');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: `${organized_by} has not organized any events so far` });
@@ -269,7 +269,7 @@ router.get('/fetchEventByDateRange/:startDate/:endDate', async (req, res) => {
     }).select('-isFeatured');
 
     if (events.length === 0) {
-      return res.status(404).json({ msg: "No events found within the date range" }).populate('city');
+      return res.status(404).json({ msg: "No events found within the date range" }).populate('cityId');
     }
 
     res.status(200).json(events);
@@ -284,7 +284,7 @@ router.put('/editEvent/:eventId', checkPromoterToken, async (req, res) => {
     const eventData = req.body;
 
     // Verificar se o evento existe
-    const event = await Event.findById(eventId).select('-isFeatured').populate('city');
+    const event = await Event.findById(eventId).select('-isFeatured').populate('cityId');
     if (!event) {
       return res.status(404).json({ msg: "Event not found" });
     }
