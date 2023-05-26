@@ -134,7 +134,7 @@ router.post('/create', checkPromoterToken, async (req, res) => {
 ///
 router.get('/fetch', async (req, res) => {
   try {
-    const events = await Event.find({}).select('-isFeatured').populate('cityId');;
+    const events = await Event.find({}).select('-isFeatured').populate('cityId');
     if (events.length === 0) {
       return res.status(404).json({ msg: "Events not found" });
 
