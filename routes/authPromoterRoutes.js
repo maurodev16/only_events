@@ -20,7 +20,7 @@ router.post('/loginPromoter', async (req, res) => {
 
     let promoter;
 
-   // Check if nicknameOrEmail is an email using regular expression
+   // Check if Email is an email using regular expression
    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
    if (isEmail) {
@@ -28,7 +28,7 @@ router.post('/loginPromoter', async (req, res) => {
     console.log(email);
 
    } else {
-     // Find promoter using nickname
+     // Find promoter using email
      promoter = await Promoter.findOne({ email: { $regex: `^${email}`, $options: 'i' } });
      console.log(promoter);
    }
