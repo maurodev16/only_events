@@ -3,7 +3,6 @@ const Promoter = require("./Promoter");
 const City = require('./City');
 const accounting = require('accounting');
 const Artist = require('./Artist');
-const countriesList = require('countries-list');
 const Like = require('./Likes');
 require('dotenv').config();
 
@@ -15,16 +14,7 @@ const eventSchema = new mongoose.Schema({
     title: { type: String, required: true },
     bannerUrl: { type: String, default: `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/Blue%20Pink%20Gradient%20Fashion%20Banner.png?alt=media&token=${IMAGE_BANNER_DEFAULT_TOKEN}`},
     photoGallery: [{ type: String }],
-    country: {
-      code: { type: String, },
-      name: { type: String, required: true},
-      emoji: { type: String },
-      emojiUnicode: { type: String },
-      capital: { type: String },
-      continent: { type: String },
-      currency: { type: String },
-      languages: [String]
-    },
+ 
     cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true },
     cityName: { type: String, required: true },
     street: { type: String, required: true },
@@ -67,21 +57,7 @@ eventSchema.post('save', async function (doc) {
     doc.likesCount = likesCount;
     await doc.save();
 });
-// Pré-salvar o documento para adicionar as informações do país
-eventSchema.pre('save', function(next) {
-  const countryData = countriesList.countries[this.country.code];
-  if (countryData) {
-    this.country.code = countryData.code;
-    this.country.name = countryData.name;
-    this.country.emoji = countryData.emoji;
-    this.country.emojiUnicode = countryData.emojiU;
-    this.country.capital = countryData.capital;
-    this.country.continent = countryData.continent;
-    this.country.currency = countryData.currency;
-    this.country.languages = countryData.languages;
-  }
-  next();
-});
+
 const Event = mongoose.model('Event', eventSchema);
 
 module.exports = Event;

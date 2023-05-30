@@ -6,7 +6,7 @@ const checkParticipantToken = require('../middleware/checkParticipantToken');
 
 router.post('/register', async (req, res) => {
     //body
-    const { fullname, nickname, email, password, phone, country, age, avatarUrl, musicPreferences } = req.body;
+    const { fullname, nickname, email, password, phone, age, avatarUrl, musicPreferences } = req.body;
     try {
 
         //Valida os daos do Participant 
@@ -59,12 +59,13 @@ router.post('/register', async (req, res) => {
             password: passwordhash,
             phone,
             age,
-            country,
             musicPreferences
         });
         const createdParticipant = await participant.save();
-        if (createdParticipant) {
+        if (createdParticipant) {  
+            console.log(createdParticipant)
             res.status(200).json({ msg: `Bem vindo(a) ${createdParticipant.fullname}!` });
+          
         }
 
     } catch (error) {

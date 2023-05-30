@@ -12,7 +12,6 @@ router.post('/create', checkPromoterToken, async (req, res) => {
   try {
     const {
       title,
-      country,
       street,
       number,
       place_name,
@@ -52,7 +51,6 @@ router.post('/create', checkPromoterToken, async (req, res) => {
 
     const event = new Event({
       title,
-      country,
       cityId: cityData._id,
       cityName: name,
       street,
@@ -175,21 +173,6 @@ router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
   }
 });
 
-router.get('/fetchEventByCountry/:country', async (req, res) => {
-  try {
-    const country = req.params.country;
-
-    const events = await Event.find({ country: country }).select('-isFeatured').populate('cityId');
-
-    if (events.length === 0) {
-      return res.status(404).json({ msg: "No events found for this country" });
-    }
-
-    res.status(200).json(events);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 router.get('/fetchEventByCity/:city', async (req, res) => {
   try {
@@ -297,7 +280,6 @@ router.put('/editEvent/:eventId', checkPromoterToken, async (req, res) => {
 
     // Atualizar os dados do evento
     event.title = eventData.title;
-    event.country = eventData.country;
     event.city = eventData.city;
     event.street = eventData.street;
     event.number = eventData.number;

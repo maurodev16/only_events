@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Artist = require('../models/Artist');
 const Promoter = require('../models/Promoter');
-const countriesList = require('countries-list');
 const checkPromoterToken = require('../middleware/checkPromoterToken');
 
 router.post('/create', checkPromoterToken, async (req, res) => {
     try {
-      const { artist_name, genre, biography, country, banner, photos, socialMedia, contact, discography, streamingLinks, awards } = req.body;
+      const { artist_name, genre, biography,  banner, photos, socialMedia, contact, discography, streamingLinks, awards } = req.body;
   
       // Verifique se o usuário logado é um promotor antes de permitir a criação do artista
       const promoterId = req.promoter._id; // Promoter ID obtained from the token
@@ -21,16 +20,6 @@ router.post('/create', checkPromoterToken, async (req, res) => {
         artist_name,
         genre,
         biography,
-        country: {
-          code: country.code,
-          name: country.name,
-          emoji: country.emoji,
-          emojiUnicode: country.emojiUnicode,
-          capital: country.capital,
-          continent: country.continent,
-          currency: country.currency,
-          languages: country.languages
-        },
         banner,
         photos,
         socialMedia,
