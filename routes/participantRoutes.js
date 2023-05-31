@@ -1,12 +1,14 @@
 const router = require('express').Router()
 const Participant = require('../models/Participant');
+const City = require('../models/City');
+
 const bcrypt = require('bcrypt');
 const checkParticipantToken = require('../middleware/checkParticipantToken');
 
 
 router.post('/register', async (req, res) => {
     //body
-    const { fullname, nickname, email, password, phone, age, avatarUrl, musicPreferences } = req.body;
+    const { fullname, nickname, email, cityName, password, phone, age, avatarUrl, musicPreferences } = req.body;
     try {
 
         //Valida os daos do Participant 
@@ -17,6 +19,18 @@ router.post('/register', async (req, res) => {
 
         if (!nickname) {
             res.status(422).json({ msg: "Nickname obrigatorio!" });
+            return;
+        }
+
+        if (!cityName) {
+            res.status(422).json({ msg: "Nome da cidade obrigatório!" });
+            return;
+        }
+
+        // Verifica se a cidade já existe no banco de dados
+        let city = await City.findOne({ cityName });
+        if (!city) {
+            res.status(422).json({ msg: "Cidade não encontrada!" });
             return;
         }
         if (!email) {
@@ -55,6 +69,7 @@ router.post('/register', async (req, res) => {
             fullname,
             avatarUrl,
             nickname,
+            city: city._id,
             email,
             password: passwordhash,
             phone,
@@ -62,10 +77,10 @@ router.post('/register', async (req, res) => {
             musicPreferences
         });
         const createdParticipant = await participant.save();
-        if (createdParticipant) {  
+        if (createdParticipant) {
             console.log(createdParticipant)
             res.status(200).json({ msg: `Bem vindo(a) ${createdParticipant.fullname}!` });
-          
+
         }
 
     } catch (error) {

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Artist = require('./Artist');
 const Event = require('./Event');
+const City = require('./City');
 require('dotenv').config();
 
 IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
@@ -9,6 +10,7 @@ const participantSchema = new mongoose.Schema({
     nickname: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' }, // Referência para o modelo City
     phone: { type: String },
     avatarUrl: { type: String, default: `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}` },
     age: { type: Number, required: true },

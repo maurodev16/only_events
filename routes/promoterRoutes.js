@@ -1,68 +1,73 @@
 require('dotenv').config();
 const router = require('express').Router()
 const Promoter = require('../models/Promoter');
+const City = require('../models/City');
 const bcrypt = require('bcrypt');
 const checkPromoterToken = require('../middleware/checkPromoterToken');
 
 
 router.post('/register', async (req, res) => {
-    //body
-    const { fullname, email, password, company, age, city, post_code, street, adrress_number, contact, phone, avatarUrl } = req.body;
-    try {
+  const { fullname, email, password, company, age, cityName, post_code, street, address_number, contact, phone, avatarUrl } = req.body;
 
-        //Valida os daos do Promoter 
-        if (!fullname) {
-            res.status(422).json({ msg: "Nome completo obrigatorio!" });
-            return;
-        }
-     
-      
-        if (!city) {
-          res.status(422).json({ msg: "City obrigatorio!" });
-          return;
-      } 
-
-      if (!company) {
-          res.status(422).json({ msg: "Company name obrigatorio!" });
-          return;
-      }
-
-        //check if Promoter email exists
-        const emailExists = await Promoter.findOne({ email: email });
-        if (emailExists) {
-            res.status(422).json({ msg: "ja existe um usuario com este email!" });
-            return;
-        }
-
-        // Create password
-        const salt = await bcrypt.genSalt(12);
-        const passwordhash = await bcrypt.hash(password, salt);
-
-        //Create Promoter
-        const promoter = new Promoter({ 
-            fullname, 
-            email, 
-            password: passwordhash,
-            company, 
-            age,
-            city, 
-            post_code, 
-            street, 
-            adrress_number,
-            contact, 
-            phone, 
-           avatarUrl,
-        });
-        const createdPromoter = await promoter.save();
-        if (createdPromoter) {
-            res.status(200).json({ msg: `Bem vindo(a) ${createdPromoter.fullname}!` });
-        }
-
-    } catch (error) {
-        console.log(`Erro ao cadastar usuario: ${error}`)
-        res.status(500).json({ msg: "Erro ao cadastrar Promoter, tente novamente mais tarde!" })
+  try {
+    // Valida os dados do Promoter
+    if (!fullname) {
+      res.status(422).json({ msg: "Nome completo obrigatório!" });
+      return;
     }
 
+    if (!company) {
+      res.status(422).json({ msg: "Nome da empresa obrigatório!" });
+      return;
+    }
+
+    if (!cityName) {
+      res.status(422).json({ msg: "Nome da cidade obrigatório!" });
+      return;
+    }
+
+    // Verifica se a cidade já existe no banco de dados
+    let city = await City.findOne({ cityName });
+    if (!city) {
+      res.status(422).json({ msg: "Cidade não encontrada!" });
+      return;
+    }
+
+    // Verifica se o email do Promoter já está em uso
+    const emailExists = await Promoter.findOne({ email: email });
+    if (emailExists) {
+      res.status(422).json({ msg: "Já existe um usuário com este email!" });
+      return;
+    }
+
+    // Cria o hash da senha
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Cria o Promoter
+    const promoter = new Promoter({ 
+      fullname, 
+      email, 
+      password: passwordHash,
+      company, 
+      age,
+      city: city._id, 
+      post_code, 
+      street, 
+      address_number,
+      contact, 
+      phone, 
+      avatarUrl,
+    });
+
+    const createdPromoter = await promoter.save();
+    if (createdPromoter) {
+      res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.fullname}!` });
+    }
+  } catch (error) {
+    console.log(`Erro ao cadastrar Promoter: ${error}`);
+    res.status(500).json({ msg: "Erro ao cadastrar Promoter, tente novamente mais tarde!" });
+  }
 });
 
 router.get('/fetch', checkPromoterToken, async (req, res) => {
