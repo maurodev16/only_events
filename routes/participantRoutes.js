@@ -8,11 +8,11 @@ const checkParticipantToken = require('../middleware/checkParticipantToken');
 
 router.post('/register', async (req, res) => {
     //body
-    const { fullname, nickname, email, cityName, password, phone, age, avatarUrl, musicPreferences } = req.body;
+    const { full_name, nickname, email, cityName, password, phone, age, avatarUrl, musicPreferences } = req.body;
     try {
 
         //Valida os daos do Participant 
-        if (!fullname) {
+        if (!full_name) {
             res.status(422).json({ msg: "Nome completo obrigatorio!" });
             return;
         }
@@ -66,7 +66,7 @@ router.post('/register', async (req, res) => {
 
         //Create Participant
         const participant = new Participant({
-            fullname,
+            full_name,
             avatarUrl,
             nickname,
             city: city._id,
@@ -79,7 +79,7 @@ router.post('/register', async (req, res) => {
         const createdParticipant = await participant.save();
         if (createdParticipant) {
             console.log(createdParticipant)
-            res.status(200).json({ msg: `Bem vindo(a) ${createdParticipant.fullname}!` });
+            res.status(200).json({ msg: `Bem vindo(a) ${createdParticipant.full_name}!` });
 
         }
 
@@ -137,7 +137,7 @@ router.put('/editParticipant/:participantId', checkParticipantToken, async (req,
 
         // Update the Participant data
         // Atualizar os dados do Participant
-        participant.fullname = participantData.fullname;
+        participant.full_name = participantData.full_name;
         participant.nickname = participantData.nickname;
         participant.password = participantData.password;
         participant.dateOfBirth = participantData.dateOfBirth;

@@ -7,11 +7,11 @@ const checkPromoterToken = require('../middleware/checkPromoterToken');
 
 
 router.post('/register', async (req, res) => {
-  const { fullname, email, password, company, age, cityName, post_code, street, address_number, contact, phone, avatarUrl } = req.body;
+  const { full_name, email, password, company, age, cityName, post_code, street_name, number, contact, phone, avatar_url } = req.body;
 
   //try {
     // Valida os dados do Promoter
-    if (!fullname) {
+    if (!full_name) {
       res.status(422).json({ msg: "Nome completo obrigatório!" });
       return;
     }
@@ -46,23 +46,23 @@ router.post('/register', async (req, res) => {
 
     // Cria o Promoter
     const promoter = new Promoter({ 
-      fullname, 
+      full_name, 
       email, 
       password: passwordHash,
       company, 
       age,
       city: city._id, 
       post_code, 
-      street, 
-      address_number,
+      street_name, 
+      number,
       contact, 
       phone, 
-      avatarUrl,
+      avatar_url,
     });
 
     const createdPromoter = await promoter.save();
     if (createdPromoter) {
-      res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.fullname}!` });
+      res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.full_name}!` });
     }
   // } catch (error) {
   //   console.log(`Erro ao cadastrar Promoter: ${error}`);
@@ -110,15 +110,15 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
       }
   
       // Atualizar os dados do user
-      promoter.fullname = promoterData.fullname;
+      promoter.full_name = promoterData.full_name;
       promoter.password = promoterData.password;
       promoter.dateOfBirth = promoterData.dateOfBirth;
       promoter.gender = promoterData.gender;
       promoter.interest = promoterData.interest;
-      promoter.adrress_number = promoterData.adrress_number;
-      promoter.street = promoterData.street;
+      promoter.number = promoterData.number;
+      promoter.street_name = promoterData.street_name;
       promoter.phone = promoterData.phone;
-      promoter.avatarUrl = promoterData.avatarUrl;
+      promoter.avatar_url = promoterData.avatar_url;
       promoter.updated = Date.now();
   
       // Salvar as alterações no banco de dados
@@ -148,15 +148,15 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
   
       // Update the promoter data
          // Atualizar os dados do promoter
-         promoter.fullname = promoterData.fullname;
+         promoter.full_name = promoterData.full_name;
          promoter.password = promoterData.password;
          promoter.dateOfBirth = promoterData.dateOfBirth;
          promoter.gender = promoterData.gender;
          promoter.interest = promoterData.interest;
-         promoter.adrress_number = promoterData.adrress_number;
-         promoter.street = promoterData.street;
+         promoter.number = promoterData.number;
+         promoter.street_name = promoterData.street_name;
          promoter.phone = promoterData.phone;
-         promoter.avatarUrl = promoterData.avatarUrl;
+         promoter.avatar_url = promoterData.avatar_url;
          promoter.updated = Date.now();
   
       // Save the updated promoter data to the database

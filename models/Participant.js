@@ -6,7 +6,7 @@ require('dotenv').config();
 
 IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 const participantSchema = new mongoose.Schema({
-    fullname: { type: String, required: true },
+    full_name: { type: String, required: true },
     nickname: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
