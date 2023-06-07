@@ -9,7 +9,7 @@ const checkPromoterToken = require('../middleware/checkPromoterToken');
 router.post('/register', async (req, res) => {
   const { full_name, email, password, company, age, cityName, post_code, street_name, number, contact, phone, avatar_url } = req.body;
 
-  //try {
+  try {
     // Valida os dados do Promoter
     if (!full_name) {
       res.status(422).json({ msg: "Nome completo obrigatório!" });
@@ -64,10 +64,10 @@ router.post('/register', async (req, res) => {
     if (createdPromoter) {
       res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.full_name}!` });
     }
-  // } catch (error) {
-  //   console.log(`Erro ao cadastrar Promoter: ${error}`);
-  //   res.status(500).json({ msg: "Erro ao cadastrar Promoter, tente novamente mais tarde!" });
-  // }
+  } catch (error) {
+    console.log(`Erro ao cadastrar Promoter: ${error}`);
+    res.status(500).json({ msg: error });
+  }
 });
 
 router.get('/fetch', checkPromoterToken, async (req, res) => {
