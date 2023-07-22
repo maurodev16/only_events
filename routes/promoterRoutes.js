@@ -4,12 +4,21 @@ const Promoter = require('../models/Promoter');
 const City = require('../models/City');
 const bcrypt = require('bcrypt');
 const checkPromoterToken = require('../middleware/checkPromoterToken');
+const uploadAvatar = require('../middleware/multerPromoterMiddleware');
+const { uploadToCloudinary } = require('../services/cloudinary');
+const fs = require('fs');
+const mongoose  = require('mongoose');
 
+IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 
-router.post('/register', async (req, res) => {
-  const { full_name, email, password, company, age, cityName, post_code, street_name, number, contact, phone, avatar_url } = req.body;
+router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
+  const { full_name, email, password, company, age, cityName, post_code, street_name, number, contact, phone } = req.body;
+
+  const session = await mongoose.startSession();
 
   try {
+    session.startTransaction(); // Iniciar transação
+
     // Valida os dados do Promoter
     if (!full_name) {
       res.status(422).json({ msg: "Nome completo obrigatório!" });
@@ -44,128 +53,155 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    let avatar_url = ''; // Inicializa a variável da URL da imagem
+
+    if (req.file) {
+      // Faz o upload da imagem para o Cloudinary
+      const imagePath = req.file.path;
+      const folder = 'avatars'; // Pasta no Cloudinary onde deseja armazenar a imagem
+      const result = await uploadToCloudinary(imagePath, folder);
+      avatar_url = result.url // Define a URL da imagem retornada pelo Cloudinary
+
+       // Deleta a imagem do servidor após o upload para o Cloudinary
+       fs.unlinkSync(imagePath);
+    } else {
+      // Define uma URL padrão caso nenhuma imagem tenha sido enviada
+      avatar_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
+    }
+
     // Cria o Promoter
-    const promoter = new Promoter({ 
-      full_name, 
-      email, 
+    const promoter = new Promoter({
+      full_name,
+      email,
       password: passwordHash,
-      company, 
+      company,
       age,
-      city: city._id, 
-      post_code, 
-      street_name, 
+      city: city._id,
+      post_code,
+      street_name,
       number,
-      contact, 
-      phone, 
+      contact,
+      phone,
       avatar_url,
     });
 
-    const createdPromoter = await promoter.save();
-    if (createdPromoter) {
-      res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.full_name}!` });
+    const createdPromoter = await promoter.save({ session });
+
+    // Verificação do resultado do salvamento
+    if (!createdPromoter) {
+      throw new Error('Erro ao salvar o Promoter no banco de dados');
     }
+
+    await session.commitTransaction(); // Confirmar transação
+    session.endSession(); // Encerrar a sessão
+
+    res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.full_name}!` });
   } catch (error) {
+    await session.abortTransaction(); // Rollback da transação
+    session.endSession(); // Encerrar a sessão
+
     console.log(`Erro ao cadastrar Promoter: ${error}`);
     res.status(500).json({ msg: error });
   }
 });
 
+
 router.get('/fetch', checkPromoterToken, async (req, res) => {
-    try {
-        const promoter = await Promoter.find().select('-password');
-        if (!promoter) {
-           return res.status(404).json({ msg: "Promoters nao encontrados" });
-           
-        }
-        res.status(200).json(promoter)
-    } catch (error) {
-        res.status(500).json({ error: error })
+  try {
+    const promoter = await Promoter.find().select('-password');
+    if (!promoter) {
+      return res.status(404).json({ msg: "Promoters nao encontrados" });
+
     }
+    res.status(200).json(promoter)
+  } catch (error) {
+    res.status(500).json({ error: error })
+  }
 });
 
 router.get('/:id', checkPromoterToken, async (req, res) => {
-    const id = req.params.id;
+  const id = req.params.id;
 
-    try {
-        const promoter = await Promoter.findById(id, '-password');
-        if (!promoter) {
-         return     res.status(404).json({ msg: "Usuario nao encontrado" });
-           
-        }
-        res.status(200).json(promoter)
-    } catch (error) {
-        res.status(500).json({ error: error })
+  try {
+    const promoter = await Promoter.findById(id, '-password');
+    if (!promoter) {
+      return res.status(404).json({ msg: "Usuario nao encontrado" });
+
     }
+    res.status(200).json(promoter)
+  } catch (error) {
+    res.status(500).json({ error: error })
+  }
 });
 
 router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => {
-    try {
-      const promoterId = req.params.userId;
-      const promoterData = req.body;
-  
-      // Verificar se o user existe
-      const promoter = await Promoter.findById(promoterId);
-      if (!promoter) {
-        return res.status(404).json({ msg: "Promoter não encontrado" });
-      }
-  
-      // Atualizar os dados do user
-      promoter.full_name = promoterData.full_name;
-      promoter.password = promoterData.password;
-      promoter.dateOfBirth = promoterData.dateOfBirth;
-      promoter.gender = promoterData.gender;
-      promoter.interest = promoterData.interest;
-      promoter.number = promoterData.number;
-      promoter.street_name = promoterData.street_name;
-      promoter.phone = promoterData.phone;
-      promoter.avatar_url = promoterData.avatar_url;
-      promoter.updated = Date.now();
-  
-      // Salvar as alterações no banco de dados
-      const updatedpromoter = await promoter.save();
-  
-      res.status(200).json(updatedpromoter);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+  try {
+    const promoterId = req.params.userId;
+    const promoterData = req.body;
 
-  router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => {
-    try {
-      const promoterId = req.params.promoterId;
-      const promoterData = req.body;
-  
-      // Check if the promoter exists
-      const promoter = await Promoter.findById(promoterId);
-      if (!promoterData) {
-        return res.status(404).json({ msg: "Promoter not found" });
-      }
-  
-      // Check if the logged-in promoter has permission to edit the user
-      if (promoter._id.toString() !== req.promoter._id) {
-        return res.status(403).json({ msg: "Unauthorized access" });
-      }
-  
-      // Update the promoter data
-         // Atualizar os dados do promoter
-         promoter.full_name = promoterData.full_name;
-         promoter.password = promoterData.password;
-         promoter.dateOfBirth = promoterData.dateOfBirth;
-         promoter.gender = promoterData.gender;
-         promoter.interest = promoterData.interest;
-         promoter.number = promoterData.number;
-         promoter.street_name = promoterData.street_name;
-         promoter.phone = promoterData.phone;
-         promoter.avatar_url = promoterData.avatar_url;
-         promoter.updated = Date.now();
-  
-      // Save the updated promoter data to the database
-      const updatedPromoter = await promoter.save();
-  
-      res.status(200).json(updatedPromoter);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+    // Verificar se o user existe
+    const promoter = await Promoter.findById(promoterId);
+    if (!promoter) {
+      return res.status(404).json({ msg: "Promoter não encontrado" });
     }
-  });
-  
+
+    // Atualizar os dados do user
+    promoter.full_name = promoterData.full_name;
+    promoter.password = promoterData.password;
+    promoter.dateOfBirth = promoterData.dateOfBirth;
+    promoter.gender = promoterData.gender;
+    promoter.interest = promoterData.interest;
+    promoter.number = promoterData.number;
+    promoter.street_name = promoterData.street_name;
+    promoter.phone = promoterData.phone;
+    promoter.avatar_url = promoterData.avatar_url;
+    promoter.updated = Date.now();
+
+    // Salvar as alterações no banco de dados
+    const updatedpromoter = await promoter.save();
+
+    res.status(200).json(updatedpromoter);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => {
+  try {
+    const promoterId = req.params.promoterId;
+    const promoterData = req.body;
+
+    // Check if the promoter exists
+    const promoter = await Promoter.findById(promoterId);
+    if (!promoterData) {
+      return res.status(404).json({ msg: "Promoter not found" });
+    }
+
+    // Check if the logged-in promoter has permission to edit the user
+    if (promoter._id.toString() !== req.promoter._id) {
+      return res.status(403).json({ msg: "Unauthorized access" });
+    }
+
+    // Update the promoter data
+    // Atualizar os dados do promoter
+    promoter.full_name = promoterData.full_name;
+    promoter.password = promoterData.password;
+    promoter.dateOfBirth = promoterData.dateOfBirth;
+    promoter.gender = promoterData.gender;
+    promoter.interest = promoterData.interest;
+    promoter.number = promoterData.number;
+    promoter.street_name = promoterData.street_name;
+    promoter.phone = promoterData.phone;
+    promoter.avatar_url = promoterData.avatar_url;
+    promoter.updated = Date.now();
+
+    // Save the updated promoter data to the database
+    const updatedPromoter = await promoter.save();
+
+    res.status(200).json(updatedPromoter);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router

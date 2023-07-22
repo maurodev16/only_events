@@ -6,15 +6,13 @@ const Artist = require('./Artist');
 const Like = require('./Likes');
 require('dotenv').config();
 
-
 IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 IMAGE_BANNER_DEFAULT_TOKEN = process.env.IMAGE_BANNER_DEFAULT_TOKEN;
 
 const eventSchema = new mongoose.Schema({
     title: { type: String, required: true },
-    bannerUrl: { type: String, default: `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/Blue%20Pink%20Gradient%20Fashion%20Banner.png?alt=media&token=${IMAGE_BANNER_DEFAULT_TOKEN}`},
+    bannerUrl: { type: String },
     photoGallery: [{ type: String }],
- 
     cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true },
     cityName: { type: String, required: true },
     street: { type: String, required: true },

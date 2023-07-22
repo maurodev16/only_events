@@ -4,6 +4,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const admin = require('firebase-admin');
+// To upload image to server
+const cloudinary = require("cloudinary").v2;
+
+// To extract data from incoming request
+const bodyParser = require('body-parser');
+
+// To get file paths, remove files
+const fs = require('fs')
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
