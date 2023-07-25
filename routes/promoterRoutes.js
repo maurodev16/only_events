@@ -21,7 +21,7 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
     phone,
     cityName,
     street_name,
-    street_number,
+    hause_number,
     post_code
   } = req.body;
 
@@ -32,31 +32,45 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
 
     // Valida os dados do Promoter
     if (!full_name) {
-      res.status(422).json({ msg: "Nome completo obrigatório!" });
+      res.status(422).json({ msg: "Full name required!" });
       return;
     }
 
     if (!company) {
-      res.status(422).json({ msg: "Nome da empresa obrigatório!" });
+      res.status(422).json({ msg: "Company name required!" });
       return;
     }
 
     if (!cityName) {
-      res.status(422).json({ msg: "Nome da cidade obrigatório!" });
+      res.status(422).json({ msg: "City name required!" });
+      return;
+    }
+
+    if (!street_name) {
+      res.status(422).json({ msg: "Street name required!" });
+      return;
+    }
+
+    if (!hause_number) {
+      res.status(422).json({ msg: "Hause number required!" });
+      return;
+    }
+    if (!post_code) {
+      res.status(422).json({ msg: "Postcode required!" });
       return;
     }
 
     // Verifica se a cidade já existe no banco de dados
     let city = await City.findOne({ cityName });
     if (!city) {
-      res.status(422).json({ msg: "Cidade não encontrada!" });
+      res.status(422).json({ msg: "City not found!" });
       return;
     }
 
     // Verifica se o email do Promoter já está em uso
     const emailExists = await Promoter.findOne({ email: email });
     if (emailExists) {
-      res.status(422).json({ msg: "Já existe um usuário com este email!" });
+      res.status(422).json({ msg: "Email already exists!" });
       return;
     }
 
@@ -90,7 +104,7 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
       phone,
       city: city._id,
       street_name,
-      street_number,
+      hause_number,
       post_code,
 
     });
@@ -105,11 +119,11 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.full_name}!` });
+    res.status(200).json({ msg: `Welcome ${createdPromoter.full_name}!` });
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
-    console.log(`Erro to register Promoter: ${error}`);
+    console.log(`Erro to register Company: ${error}`);
     res.status(500).send({msg:`Erro to register Promoter: ${error}`});
   }
 });
@@ -118,7 +132,7 @@ router.get('/fetch', checkPromoterToken, async (req, res) => {
   try {
      const promoter = await Promoter.find().select('-password');
     if (!promoter) {
-      return res.status(404).json({ msg: "Promoters not Found" });
+      return res.status(404).json({ msg: "Company not Found" });
     }
     res.status(200).json(promoter)
   } catch (error) {
@@ -132,7 +146,7 @@ router.get('/:id', checkPromoterToken, async (req, res) => {
   try {
     const promoter = await Promoter.findById(id, '-password');
     if (!promoter) {
-      return res.status(404).json({ msg: "Usuario nao encontrado" });
+      return res.status(404).json({ msg: "Company not Found!" });
     }
     res.status(200).json(promoter)
   } catch (error) {
@@ -147,7 +161,7 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     // Verificar se o user existe
     const promoter = await Promoter.findById(promoterId);
     if (!promoter) {
-      return res.status(404).json({ msg: "Promoter não encontrado" });
+      return res.status(404).json({ msg: "Company not Found!" });
     }
 
     // Atualizar os dados do user
@@ -156,8 +170,8 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     promoter.dateOfBirth = promoterData.dateOfBirth;
     promoter.gender = promoterData.gender;
     promoter.interest = promoterData.interest;
-    promoter.number = promoterData.number;
     promoter.street_name = promoterData.street_name;
+    promoter.hause_number = promoterData.hause_name;
     promoter.phone = promoterData.phone;
     promoter.logo_url = promoterData.logo_url;
     promoter.updated = Date.now();
@@ -179,7 +193,7 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     // Check if the promoter exists
     const promoter = await Promoter.findById(promoterId);
     if (!promoterData) {
-      return res.status(404).json({ msg: "Promoter not found" });
+      return res.status(404).json({ msg: "Company not Found!" });
     }
 
     // Check if the logged-in promoter has permission to edit the user
@@ -194,7 +208,7 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     promoter.dateOfBirth = promoterData.dateOfBirth;
     promoter.gender = promoterData.gender;
     promoter.interest = promoterData.interest;
-    promoter.number = promoterData.number;
+    promoter.hause_number = promoterData.hause_number;
     promoter.street_name = promoterData.street_name;
     promoter.phone = promoterData.phone;
     promoter.logo_url = promoterData.logo_url;

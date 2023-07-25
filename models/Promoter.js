@@ -13,7 +13,7 @@ const promoterSchema = new mongoose.Schema({
   phone:{type: String},
   city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' }, // Referência para o modelo City
   street_name: { type: String },
-  street_number: { type: String },
+  hause_number: { type: String },
   post_code: { type: String },
 });
 
