@@ -12,8 +12,6 @@ const bodyParser = require('body-parser');
 
 // To get file paths, remove files
 const fs = require('fs')
-
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -30,8 +28,6 @@ const authParticipantRoutes = require('./routes/authParticipantRoutes');
 const authPromoter = require('./routes/authPromoterRoutes');
 const cityRoutes = require('./routes/cityRoutes');
 
-
-
 admin.initializeApp({
     credential:admin.credential.cert({
     apiKey: process.env.FIREBASE_API_KEY,
@@ -46,8 +42,6 @@ admin.initializeApp({
     clientEmail:process.env.FIREBASE_CLIENT_EMAIL,
 }),
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-
-
 });
 
 // Register routers

@@ -7,12 +7,23 @@ const checkPromoterToken = require('../middleware/checkPromoterToken');
 const uploadAvatar = require('../middleware/multerPromoterMiddleware');
 const { uploadToCloudinary } = require('../services/cloudinary');
 const fs = require('fs');
-const mongoose  = require('mongoose');
+const mongoose = require('mongoose');
 
 IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 
 router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
-  const { full_name, email, password, company, age, cityName, post_code, street_name, number, contact, phone } = req.body;
+  const {
+    full_name,
+    company,
+    email,
+    password,
+    logo_url,
+    phone,
+    cityName,
+    street_name,
+    street_number,
+    post_code
+  } = req.body;
 
   const session = await mongoose.startSession();
 
@@ -53,65 +64,61 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    let avatar_url = ''; // Inicializa a variável da URL da imagem
+    let logo_url = ''; // Inicializa a variável da URL da imagem
 
     if (req.file) {
       // Faz o upload da imagem para o Cloudinary
       const imagePath = req.file.path;
       const folder = 'avatars'; // Pasta no Cloudinary onde deseja armazenar a imagem
       const result = await uploadToCloudinary(imagePath, folder);
-      avatar_url = result.url // Define a URL da imagem retornada pelo Cloudinary
+      logo_url = result.url // Define a URL da imagem retornada pelo Cloudinary
 
-       // Deleta a imagem do servidor após o upload para o Cloudinary
-       fs.unlinkSync(imagePath);
+      // Deleta a imagem do servidor após o upload para o Cloudinary
+      fs.unlinkSync(imagePath);
     } else {
       // Define uma URL padrão caso nenhuma imagem tenha sido enviada
-      avatar_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
+      logo_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
     }
 
     // Cria o Promoter
     const promoter = new Promoter({
       full_name,
+      company,
       email,
       password: passwordHash,
-      company,
-      age,
-      city: city._id,
-      post_code,
-      street_name,
-      number,
-      contact,
+      logo_url,
       phone,
-      avatar_url,
+      city: city._id,
+      street_name,
+      street_number,
+      post_code,
+
     });
 
     const createdPromoter = await promoter.save({ session });
 
     // Verificação do resultado do salvamento
     if (!createdPromoter) {
-      throw new Error('Erro ao salvar o Promoter no banco de dados');
+      throw new Error('Erro to save promoter on Database');
     }
 
-    await session.commitTransaction(); // Confirmar transação
-    session.endSession(); // Encerrar a sessão
+    await session.commitTransaction(); // Confirm Transaction
+    session.endSession(); // End seccion
 
     res.status(200).json({ msg: `Bem-vindo(a) ${createdPromoter.full_name}!` });
   } catch (error) {
-    await session.abortTransaction(); // Rollback da transação
-    session.endSession(); // Encerrar a sessão
-
-    console.log(`Erro ao cadastrar Promoter: ${error}`);
-    res.status(500).json({ msg: error });
+    await session.abortTransaction(); // Rollback da Transaction
+    session.endSession(); // End Section
+    console.log(`Erro to register Promoter: ${error}`);
+    res.status(500).send({msg:`Erro to register Promoter: ${error}`});
   }
 });
 
-
 router.get('/fetch', checkPromoterToken, async (req, res) => {
   try {
-    const promoter = await Promoter.find().select('-password');
+     const promoter = await Promoter.find().select('-password');
     if (!promoter) {
-      return res.status(404).json({ msg: "Promoters nao encontrados" });
-
+      return res.status(404).json({ msg: "Promoters not Found" });
     }
     res.status(200).json(promoter)
   } catch (error) {
@@ -126,7 +133,6 @@ router.get('/:id', checkPromoterToken, async (req, res) => {
     const promoter = await Promoter.findById(id, '-password');
     if (!promoter) {
       return res.status(404).json({ msg: "Usuario nao encontrado" });
-
     }
     res.status(200).json(promoter)
   } catch (error) {
@@ -138,7 +144,6 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
   try {
     const promoterId = req.params.userId;
     const promoterData = req.body;
-
     // Verificar se o user existe
     const promoter = await Promoter.findById(promoterId);
     if (!promoter) {
@@ -154,7 +159,7 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     promoter.number = promoterData.number;
     promoter.street_name = promoterData.street_name;
     promoter.phone = promoterData.phone;
-    promoter.avatar_url = promoterData.avatar_url;
+    promoter.logo_url = promoterData.logo_url;
     promoter.updated = Date.now();
 
     // Salvar as alterações no banco de dados
@@ -192,7 +197,7 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     promoter.number = promoterData.number;
     promoter.street_name = promoterData.street_name;
     promoter.phone = promoterData.phone;
-    promoter.avatar_url = promoterData.avatar_url;
+    promoter.logo_url = promoterData.logo_url;
     promoter.updated = Date.now();
 
     // Save the updated promoter data to the database
