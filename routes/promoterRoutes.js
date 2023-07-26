@@ -32,45 +32,45 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
 
     // Valida os dados do Promoter
     if (!full_name) {
-      res.status(422).json({ msg: "Full name required!" });
+      res.status(422).send("Full name required!");
       return;
     }
 
     if (!company) {
-      res.status(422).json({ msg: "Company name required!" });
+      res.status(422).send("Company name required!");
       return;
     }
 
     if (!cityName) {
-      res.status(422).json({ msg: "City name required!" });
+      res.status(422).send("City name required!");
       return;
     }
 
     if (!street_name) {
-      res.status(422).json({ msg: "Street name required!" });
+      res.status(422).send("Street name required!");
       return;
     }
 
     if (!hause_number) {
-      res.status(422).json({ msg: "Hause number required!" });
+      res.status(422).send("Hause number required!");
       return;
     }
     if (!post_code) {
-      res.status(422).json({ msg: "Postcode required!" });
+      res.status(422).send("Postcode required!");
       return;
     }
 
     // Verifica se a cidade já existe no banco de dados
     let city = await City.findOne({ cityName });
     if (!city) {
-      res.status(422).json({ msg: "City not found!" });
+      res.status(422).send("City not found!");
       return;
     }
 
     // Verifica se o email do Promoter já está em uso
     const emailExists = await Promoter.findOne({ email: email });
     if (emailExists) {
-      res.status(422).json({ msg: "Email already exists!" });
+      res.status(422).send("Email already exists!");
       return;
     }
 
@@ -119,12 +119,12 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    res.status(200).json({ msg: `Welcome ${createdPromoter.full_name}!` });
+    res.status(200).send(`Welcome ${createdPromoter.full_name}!`);
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
     console.log(`Erro to register Company: ${error}`);
-    res.status(500).send({msg:`Erro to register Promoter: ${error}`});
+    res.status(500).send('Erro to register Promoter');
   }
 });
 
@@ -132,9 +132,9 @@ router.get('/fetch', checkPromoterToken, async (req, res) => {
   try {
      const promoter = await Promoter.find().select('-password');
     if (!promoter) {
-      return res.status(404).json({ msg: "Company not Found" });
+      return res.status(404).send("Company not Found");
     }
-    res.status(200).json(promoter)
+    res.status(200).send(promoter)
   } catch (error) {
     res.status(500).json({ error: error })
   }
@@ -146,7 +146,7 @@ router.get('/:id', checkPromoterToken, async (req, res) => {
   try {
     const promoter = await Promoter.findById(id, '-password');
     if (!promoter) {
-      return res.status(404).json({ msg: "Company not Found!" });
+      return res.status(404).send("Company not Found!");
     }
     res.status(200).json(promoter)
   } catch (error) {
@@ -161,7 +161,7 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     // Verificar se o user existe
     const promoter = await Promoter.findById(promoterId);
     if (!promoter) {
-      return res.status(404).json({ msg: "Company not Found!" });
+      return res.status(404).send("Company not Found!");
     }
 
     // Atualizar os dados do user
@@ -193,12 +193,12 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
     // Check if the promoter exists
     const promoter = await Promoter.findById(promoterId);
     if (!promoterData) {
-      return res.status(404).json({ msg: "Company not Found!" });
+      return res.status(404).send("Company not Found!");
     }
 
     // Check if the logged-in promoter has permission to edit the user
     if (promoter._id.toString() !== req.promoter._id) {
-      return res.status(403).json({ msg: "Unauthorized access" });
+      return res.status(403).send("Unauthorized access");
     }
 
     // Update the promoter data
