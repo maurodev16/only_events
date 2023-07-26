@@ -70,7 +70,7 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
     // Verifica se o email do Promoter já está em uso
     const emailExists = await Promoter.findOne({ email: email });
     if (emailExists) {
-      res.status(422).send("Email already exists!");
+      res.status(422).send("EmailAlreadyExistsException");
       return;
     }
 
