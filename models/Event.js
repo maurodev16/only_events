@@ -31,7 +31,8 @@ const eventSchema = new mongoose.Schema({
     is_fixed_date: { type: Boolean },
     extra_info: { type: String },
     selected_week_days: [{ type: String }],
-    cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true },
+  city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' }, // Referência para o modelo City
+
     entrance_price: {
       type: Number, default: 0,
       get: (value) => accounting.formatMoney(value / 100, "€", 2),

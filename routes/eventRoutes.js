@@ -46,12 +46,15 @@ router.post('/create', checkPromoterToken, async (req, res) => {
     if (!promoterData) {
       return res.status(404).json({ error: "Promoter not found" });
     }
+   // Verifica se a cidade já existe no banco de dados
+   let city = await City.findOne({ cityName });
+   if (!city) {
+     res.status(422).send("CityNotFoundException");
+     return;
+   }
 
-    const cityData = await City.findById(cityId);
-    if (!cityData) {
-      return res.status(404).json({ error: "City not found" });
-    }
-    const name =  cityData.cityName;
+  
+    const name =  city.cityName;
  
     const event = new Event({
       title,
@@ -65,7 +68,7 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       start_time: startTime,
       end_time: endTime,
       entrance_price: entrancePrice,
-      cityId: cityData._id,
+      city: city._id,
       cityName:  name,
       week_days: weekDays,
       is_age_verified: isAgeVerified,
