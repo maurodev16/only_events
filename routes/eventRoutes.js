@@ -78,7 +78,6 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       is_fixed_date: isFixedDate,
       extra_info: extraInfo,
       selected_week_days: selectedWeekDays,
-      for_adults_only: forAdultsOnly,
       promoter: promoterData._id,
       likes:likes,
       likes_count: likesCount,
@@ -279,7 +278,7 @@ router.put('/editEvent/:eventId', checkPromoterToken, async (req, res) => {
     event.description = eventData.description;
     event.entrance_price = eventData.entrance_price;
     event.organized_by = eventData.organized_by;
-    event.for_adults_only = eventData.for_adults_only;
+    event.is_age_verified = eventData.is_age_verified;
     event.start_date = eventData.start_date;
     event.end_date = eventData.end_date;
     event.start_time = eventData.start_time;
