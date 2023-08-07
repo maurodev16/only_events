@@ -22,7 +22,8 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
     cityName,
     street_name,
     hause_number,
-    post_code
+    post_code,
+    is_company
   } = req.body;
 
   const session = await mongoose.startSession();
@@ -106,6 +107,7 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
       street_name,
       hause_number,
       post_code,
+      is_company: true,
 
     });
 

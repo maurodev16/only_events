@@ -10,52 +10,49 @@ IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 IMAGE_BANNER_DEFAULT_TOKEN = process.env.IMAGE_BANNER_DEFAULT_TOKEN;
 
 const eventSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    bannerUrl: { type: String },
-    photoGallery: [{ type: String }],
-    cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true },
-    cityName: { type: String, required: true },
-    street: { type: String, required: true },
-    number: { type: String, required: true },
-    place_name: { type: String, required: true },
-    description: { type: String, required: true },
-    entrance_price: {
-        type: Number, required: true, default: 0,
-        get: (value) => accounting.formatMoney(value / 100, "€", 2),
-        set: (value) => accounting.unformat(value) * 100
-    },
-    organized_by: { type: String, required: true },
-    for_adults_only: { type: Boolean, required: true },
-    start_date: { type: Date, required: true },
-    end_date: { type: Date, required: true },
-    start_time: { type: String, required: true },
+    photo_gallery: [{ type: String }],
+    title: { type: String },
+    street_name: { type: String },
+    place_name: { type: String },
+    number: { type: String },
+    phone: { type: String },
+    post_code: { type: String },
+    start_date: { type: Date },
+    end_date: { type: Date },
+    start_time: { type: String },
     end_time: { type: String },
-    paymentInfo: { type: String },
-    socialMedia: {
-        facebook: { type: String },
-        instagram: { type: String },
-        twitter: { type: String }
+    cityName: { type: String },
+    week_days: [{ type: String }],
+    is_age_verified: { type: Boolean },
+    selected_age: { type: String },
+    is_free_entry: { type: Boolean },
+    can_pay_with_card_entry: { type: Boolean },
+    can_pay_with_card_consumption: { type: Boolean },
+    is_fixed_date: { type: Boolean },
+    extra_info: { type: String },
+    selected_week_days: [{ type: String }],
+    cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true },
+    entrance_price: {
+      type: Number, default: 0,
+      get: (value) => accounting.formatMoney(value / 100, "€", 2),
+      set: (value) => accounting.unformat(value) * 100
     },
     created: { type: Date, required: true, default: Date.now },
     updated: { type: Date, required: true, default: Date.now },
     promoter: { type: mongoose.Schema.Types.ObjectId, ref: 'Promoter', required: true },
-    artists:{
-    name: { type: String },
-    genre: { type: String },
-    avatarUrl: { type: String, default: `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}` },
-    },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
-    likesCount: { type: Number, default: 0 },
-    isFeatured:{ type: Boolean, default: false}
-});
-
-// Atualiza o valor de likesCount sempre que um like for adicionado ou removido
-eventSchema.post('save', async function (doc) {
-    const likesCount = await Like.countDocuments({ event: doc._id });
-    doc.likesCount = likesCount;
+    likes_count: { type: Number, default: 0 },
+    isFeatured: { type: Boolean, default: false }
+  });
+  
+  // Atualiza o valor de likes_count sempre que um like for adicionado ou removido
+  eventSchema.post('save', async function (doc) {
+    const likes_count = await Like.countDocuments({ event: doc._id });
+    doc.likes_count = likes_count;
     await doc.save();
-});
-
-const Event = mongoose.model('Event', eventSchema);
-
-module.exports = Event;
+  });
+  
+  const Event = mongoose.model('Event', eventSchema);
+  
+  module.exports = Event;
+  

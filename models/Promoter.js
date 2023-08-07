@@ -15,6 +15,7 @@ const promoterSchema = new mongoose.Schema({
   street_name: { type: String },
   hause_number: { type: String },
   post_code: { type: String },
+  is_company:{type: Boolean, default: true}, 
 });
 
 const Promoter = mongoose.model('Promoter', promoterSchema);

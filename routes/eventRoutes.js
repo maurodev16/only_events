@@ -12,122 +12,113 @@ router.post('/create', checkPromoterToken, async (req, res) => {
   try {
     const {
       title,
-      street,
+      placeName,
+      streetName,
       number,
-      place_name,
+      phone,
+      postCode,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      entrancePrice,
       cityId,
-      //cityName,
-      description,
-      entrance_price,
-      organized_by,
-      artists,
-      for_adults_only,
+      cityName,
+      weekDays,
+      isAgeVerified,
+      selectedAge,
+      isFreeEntry,
+      canPayWithCardEntry,
+      entryPrice,
+      canPayWithCardConsumption,
+      isFixedDate,
+      extraInfo,
+      selectedWeekDays,
+      likes,
       likesCount,
-      start_date,
-      end_date,
-      start_time,
-      end_time,
-      paymentInfo,
-      socialMedia,
+      isFeatured,
       created,
       updated,
-      isFeatured
+
     } = req.body;
-    
-  
-    
-    const promoterId = req.promoter._id; // Promoter ID obtained from the token
+
+    const promoterId = req.promoter._id;
     const promoterData = await Promoter.findById(promoterId);
     if (!promoterData) {
       return res.status(404).json({ error: "Promoter not found" });
     }
-    
+
     const cityData = await City.findById(cityId);
-    
     if (!cityData) {
       return res.status(404).json({ error: "City not found" });
     }
-    const name =  cityData.cityName;
 
+ 
     const event = new Event({
       title,
-      cityId: cityData._id,
-      cityName: name,
-      street,
+      place_name: placeName,
+      street_name: streetName,
       number,
-      place_name,
-      description,
-      entrance_price,
-      organized_by,
-      for_adults_only,
-      likesCount,
-      artists,
-      socialMedia,
-      paymentInfo,
-      start_date,
-      end_date,
-      start_time,
-      end_time,
+      phone,
+      post_code: postCode,
+      start_date: startDate,
+      end_date: endDate,
+      start_time: startTime,
+      end_time: endTime,
+      entrance_price: entrancePrice,
+      cityId: cityData._id,
+      cityName,
+      week_days: weekDays,
+      is_age_verified: isAgeVerified,
+      selected_age: selectedAge,
+      is_free_entry: isFreeEntry,
+      can_pay_with_card_entry: canPayWithCardEntry,
+      can_pay_with_card_consumption: canPayWithCardConsumption,
+      is_fixed_date: isFixedDate,
+      extra_info: extraInfo,
+      selected_week_days: selectedWeekDays,
+      for_adults_only: forAdultsOnly,
+      promoter: promoterData._id,
+      likes,
+      likes_count: likesCount,
       created,
       updated,
-      promoter: promoterData._id, // Associate the event with the Promoter by setting the "Promoter" field to the Promoter's ID
-      isFeatured
+      isFeatured,
     });
+   // Verificar se foram enviadas fotos para a galeria
+   if (req.files && req.files.galerie) {
+    const galerieFiles = Array.isArray(req.files.galerie) ? req.files.galerie : [req.files.galerie];
 
-    // Verificar se foi enviado um arquivo de banner
-    if (req.files && req.files.bannerFile) {
-      const bannerFile = req.files.bannerFile;
-
-      // Upload do banner para o Firebase Storage
-      const bucket = admin.storage().bucket();
-      const bannerPath = `banners/${promoterId}-${uuidv4()}_${bannerFile.name}`;
-      const bannerFileRef = bucket.file(bannerPath);
-      const bannerFileOptions = {
+    // Fazer o upload das fotos da galeria para o Firebase Storage
+    const galerieUrls = [];
+    for (
+      let index = 0; index < galerieFiles.length; index++) {
+      const galerieFile = galerieFiles[index];
+      const galeriePath = `galerie/${promoterId}-${uuidv4()}_${bannerFile.name}`;
+      const galerieFileRef = bucket.file(galeriePath);
+      const galerieFileOptions = {
         metadata: {
-          contentType: bannerFile.mimetype
+          contentType: galerieFile.mimetype
         }
       };
-      await bannerFileRef.save(bannerFile.data, bannerFileOptions);
+      await galerieFileRef.save(galerieFile.data, galerieFileOptions);
+      galerieUrls.push(`https://storage.googleapis.com/${bucket.name}/${galeriePath}`)
 
-      // Atualizar a URL do banner com o caminho no Firebase Storage
-      event.bannerUrl = `https://storage.googleapis.com/${bucket.name}/${bannerPath}`;
-
+      // Atualizar as URLs da galeria com os caminhos no Firebase Storage
+      event.photo_gallery = galerieUrls;
     }
 
-
-    // Verificar se foram enviadas fotos para a galeria
-    if (req.files && req.files.galerie) {
-      const galerieFiles = Array.isArray(req.files.galerie) ? req.files.galerie : [req.files.galerie];
-
-      // Fazer o upload das fotos da galeria para o Firebase Storage
-      const galerieUrls = [];
-      for (
-        let index = 0; index < galerieFiles.length; index++) {
-        const galerieFile = galerieFiles[index];
-        const galeriePath = `galerie/${promoterId}-${uuidv4()}_${bannerFile.name}`;
-        const galerieFileRef = bucket.file(galeriePath);
-        const galerieFileOptions = {
-          metadata: {
-            contentType: galerieFile.mimetype
-          }
-        };
-        await galerieFileRef.save(galerieFile.data, galerieFileOptions);
-        galerieUrls.push(`https://storage.googleapis.com/${bucket.name}/${galeriePath}`)
-
-        // Atualizar as URLs da galeria com os caminhos no Firebase Storage
-        event.photoGallery = galerieUrls;
-      }
-
-    }
+  }
     const savedEvent = await event.save();
-    if (savedEvent === 0) {
-     return res.status(200).json({ msg: `${savedEvent.name} Created Sucessfuly!` });
+    if (savedEvent) {
+      return res.status(200).json({ msg: `${savedEvent.title} Created Successfully!` });
     }
   } catch (error) {
-    console.log(`Erro ao criar Event: ${error}`)
-    res.status(500).json({ msg: "Erro ao cadastrar o evento, tente novamente mais tarde!" })
+    console.log(`Error creating Event: ${error}`);
+    res.status(500).json({ msg: "Error creating event, please try again later!" });
   }
 });
+
 
 ///
 router.get('/fetch', async (req, res) => {
@@ -148,7 +139,7 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
 
   try {
-    const event = await Event.findById(id, '-isFeatured').populate('city','cityName');
+    const event = await Event.findById(id, '-isFeatured').populate('city', 'cityName');
     if (!event) {
       res.status(404).json({ msg: `Event not found for id ${id}` });
       return [];
