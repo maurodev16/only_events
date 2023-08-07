@@ -29,7 +29,6 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       selectedAge,
       isFreeEntry,
       canPayWithCardEntry,
-      entryPrice,
       canPayWithCardConsumption,
       isFixedDate,
       extraInfo,
@@ -52,7 +51,7 @@ router.post('/create', checkPromoterToken, async (req, res) => {
     if (!cityData) {
       return res.status(404).json({ error: "City not found" });
     }
-
+    const name =  cityData.cityName;
  
     const event = new Event({
       title,
@@ -67,7 +66,7 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       end_time: endTime,
       entrance_price: entrancePrice,
       cityId: cityData._id,
-      cityName,
+      cityName:  name,
       week_days: weekDays,
       is_age_verified: isAgeVerified,
       selected_age: selectedAge,
