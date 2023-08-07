@@ -22,7 +22,6 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       startTime,
       endTime,
       entrancePrice,
-      cityId,
       cityName,
       weekDays,
       isAgeVerified,
@@ -57,11 +56,11 @@ router.post('/create', checkPromoterToken, async (req, res) => {
     const name =  city.cityName;
  
     const event = new Event({
-      title,
+      title:title,
       place_name: placeName,
       street_name: streetName,
-      number,
-      phone,
+      number:number,
+      phone:phone,
       post_code: postCode,
       start_date: startDate,
       end_date: endDate,
@@ -81,11 +80,11 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       selected_week_days: selectedWeekDays,
       for_adults_only: forAdultsOnly,
       promoter: promoterData._id,
-      likes,
+      likes:likes,
       likes_count: likesCount,
-      created,
-      updated,
-      isFeatured,
+      created: created,
+      updated: updated,
+      isFeatured: isFeatured,
     });
    // Verificar se foram enviadas fotos para a galeria
    if (req.files && req.files.galerie) {

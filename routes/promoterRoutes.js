@@ -17,13 +17,11 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
     company,
     email,
     password,
-    logo_url,
     phone,
     cityName,
     street_name,
     hause_number,
     post_code,
-    is_company
   } = req.body;
 
   const session = await mongoose.startSession();
