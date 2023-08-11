@@ -10,7 +10,7 @@ IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 
 
 // Rota para fazer o upload da imagem do promoter
-router.post('/upload-logo/:promoterId', uploadSingle.single('logo'), checkPromoterToken, async (req, res) => {
+router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkPromoterToken, async (req, res) => {
     const { promoterId } = req.params;
     var folderPath = `promoters/logos/${promoterId}`
     try {
@@ -41,7 +41,7 @@ router.post('/upload-logo/:promoterId', uploadSingle.single('logo'), checkPromot
             console.log("Image url", promoter.logo_url)
             await promoter.save()
 
-            return res.status(200).json({ message: 'Image uploaded successfully' });
+            return res.status(200).json({ message: 'Image uploaded successfully', imageUrl });
         } else {
             promoter.logo_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
             return res.status(400).json({ message: 'No image provided' });
