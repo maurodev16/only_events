@@ -8,7 +8,7 @@ router.post('/create', checkPromoterToken, async (req, res) => {
     try {
       const { artist_name, genre, biography,  banner, photos, socialMedia, contact, discography, streamingLinks, awards } = req.body;
   
-      // Verifique se o usuário logado é um promotor antes de permitir a criação do artista
+      // Verifique se o usuário logado é um promotor antes de permitir a criação do art
       const promoterId = req.promoter._id; // Promoter ID obtained from the token
       const promoterData = await Promoter.findById(promoterId);
       if (!promoterData) {
