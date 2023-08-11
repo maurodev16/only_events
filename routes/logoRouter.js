@@ -17,7 +17,7 @@ router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkPromote
         // Verificar se o promoter existe
         const promoter = await Promoter.findById(promoterId);
         if (!promoter) {
-            return res.status(404).json({ message: 'Promoter not found' });
+            return res.status(404).send('Promoter not found');
         }
 
         // Caminho do arquivo na pasta local
@@ -44,11 +44,11 @@ router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkPromote
             return res.status(200).send(imageUrl);
         } else {
             promoter.logo_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
-            return res.status(400).json({ message: 'No image provided' });
+            return res.status(400).send('No image provided');
         }
     } catch (error) {
         console.error('Error uploading image:', error);
-        res.status(500).json({ message: 'Failed to upload image' });
+        res.status(500).send('Failed to upload image');
     }
 });
 module.exports = router
