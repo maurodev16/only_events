@@ -10,7 +10,7 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
 
-router.post('/create', uploadArray.array('imagesPost', 6), checkPromoterToken, async (req, res) => {
+router.post('/create', uploadArray.array('post_images_urls', 6), checkPromoterToken, async (req, res) => {
   try {
     const {
       title,
@@ -49,10 +49,7 @@ router.post('/create', uploadArray.array('imagesPost', 6), checkPromoterToken, a
     }
     // Verifica se a cidade já existe no banco de dados
     let city = await City.findOne({ cityName });
-    // if (!city) {
-    //   res.status(422).send("CityNotFoundException");
-    //   return;
-    // }
+
 
     const event = new Event({
       title: title,
@@ -88,12 +85,11 @@ router.post('/create', uploadArray.array('imagesPost', 6), checkPromoterToken, a
       return res.status(400).json({ message: 'No images provided' });
     }
 
-
     // Fazer o upload das fotos da galeria para o Firebase Storage
    const postImages = [];
     for (const file of req.files) {
       const public_id = `${promoterId}-${file.originalname.split('.')[0]}`;
-      const folderPath = `promoters/posts/${promoterId}`;
+      const folderPath = `promoters/posts/${promoterId}-${uuidv4()}`;
 
       const result = await cloudinary.uploader.upload(file.path, {
         public_id: public_id,
@@ -101,18 +97,18 @@ router.post('/create', uploadArray.array('imagesPost', 6), checkPromoterToken, a
         folder: folderPath,
         transformation: [
           { height: 500, width: 500, crop: 'fit' }
-        ]
+      ],
       });
       postImages.push(result.secure_url);
+      console.log("PUSH::::::", postImages)
     }
 
     // Atualizar as URLs da galeria com os caminhos no Firebase Storage
     event.post_images_urls = postImages;
-
     savedEvent=  await event.save();
-    if (savedEvent) {
-      return res.status(200).json({ msg: `Post Created Successfully!` });
-    }
+    res.status(200).json({ msg: `Post Created Successfully!` });
+  
+
   } catch (error) {
     console.log(`Error creating Event: ${error}`);
     res.status(500).json({ msg: "Error creating post, please try again later!" });

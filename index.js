@@ -21,7 +21,6 @@ app.use(express.json());
 // Import routers
 const promoterRoutes = require('./routes/promoterRoutes');
 const logoImageRoutes = require('./routes/logoRouter');
-const imagesPostRouter = require('./routes/imagesPostRouter');
 const participantRoutes= require('./routes/participantRoutes');
 const eventRoutes= require('./routes/eventRoutes');
 const artistRoutes= require('./routes/artistRoutes');
@@ -54,7 +53,6 @@ admin.initializeApp({
 // Register routers
 app.use('/api/v1/promoter', promoterRoutes);
 app.use('/api/v1/logo-image', logoImageRoutes);
-app.use('/api/v1/images-post', imagesPostRouter);
 app.use('/api/v1/participant', participantRoutes);
 app.use('/api/v1/event', eventRoutes);
 app.use('/api/v1/artist', artistRoutes);

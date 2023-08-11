@@ -30,7 +30,7 @@ const eventSchema = new mongoose.Schema({
     can_pay_with_card_consumption: { type: Boolean },
     is_fixed_date: { type: Boolean },
     extra_info: { type: String, default: "" },
-    selected_week_days: [{ type: String, default: "" }],
+    selected_week_days: [{ type: String }],
   city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' }, // Referência para o modelo City
 
     entrance_price: {
