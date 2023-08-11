@@ -4,8 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const admin = require('firebase-admin');
-// To upload image to server
-const cloudinary = require("cloudinary").v2;
+const claudinary = require("cloudinary").v2;
 
 // To extract data from incoming request
 const bodyParser = require('body-parser');
@@ -21,6 +20,8 @@ app.use(express.json());
 
 // Import routers
 const promoterRoutes = require('./routes/promoterRoutes');
+const logoImageRoutes = require('./routes/logoRouter');
+const imagesPostRouter = require('./routes/imagesPostRouter');
 const participantRoutes= require('./routes/participantRoutes');
 const eventRoutes= require('./routes/eventRoutes');
 const artistRoutes= require('./routes/artistRoutes');
@@ -40,12 +41,20 @@ admin.initializeApp({
     ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/gm, "\n")
     : undefined,
     clientEmail:process.env.FIREBASE_CLIENT_EMAIL,
+    
 }),
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+
 });
+
+
+
+
 
 // Register routers
 app.use('/api/v1/promoter', promoterRoutes);
+app.use('/api/v1/logo-image', logoImageRoutes);
+app.use('/api/v1/images-post', imagesPostRouter);
 app.use('/api/v1/participant', participantRoutes);
 app.use('/api/v1/event', eventRoutes);
 app.use('/api/v1/artist', artistRoutes);

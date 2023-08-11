@@ -4,14 +4,12 @@ const Promoter = require('../models/Promoter');
 const City = require('../models/City');
 const bcrypt = require('bcrypt');
 const checkPromoterToken = require('../middleware/checkPromoterToken');
-const uploadAvatar = require('../middleware/multerPromoterMiddleware');
-const { uploadToCloudinary } = require('../services/cloudinary');
-const fs = require('fs');
+
+
 const mongoose = require('mongoose');
 
-IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 
-router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
+router.post('/register',  async (req, res) => {
   const {
     full_name,
     company,
@@ -72,42 +70,26 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
       res.status(422).send("EmailAlreadyExistsException");
       return;
     }
-
+    
     // Cria o hash da senha
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    let logo_url = ''; // Inicializa a variável da URL da imagem
-
-    if (req.file) {
-      // Faz o upload da imagem para o Cloudinary
-      const imagePath = req.file.path;
-      const folder = 'avatars'; // Pasta no Cloudinary onde deseja armazenar a imagem
-      const result = await uploadToCloudinary(imagePath, folder);
-      logo_url = result.url // Define a URL da imagem retornada pelo Cloudinary
-
-      // Deleta a imagem do servidor após o upload para o Cloudinary
-      fs.unlinkSync(imagePath);
-    } else {
-      // Define uma URL padrão caso nenhuma imagem tenha sido enviada
-      logo_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
-    }
-
+  
     // Cria o Promoter
     const promoter = new Promoter({
       full_name,
       company,
       email,
       password: passwordHash,
-      logo_url,
       phone,
       city: city._id,
       street_name,
       hause_number,
       post_code,
       is_company: true,
-
     });
+
 
     const createdPromoter = await promoter.save({ session });
 
@@ -128,9 +110,12 @@ router.post('/register', uploadAvatar.single('avatar'), async (req, res) => {
   }
 });
 
+
+
+
 router.get('/fetch', checkPromoterToken, async (req, res) => {
   try {
-     const promoter = await Promoter.find().select('-password');
+    const promoter = await Promoter.find().select('-password');
     if (!promoter) {
       return res.status(404).send("CompanyNotFoundException");
     }

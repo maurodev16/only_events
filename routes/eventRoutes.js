@@ -1,14 +1,16 @@
 const router = require('express').Router();
 const Event = require('../models/Event');
+const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
 const Promoter = require('../models/Promoter');
 const checkPromoterToken = require('../middleware/checkPromoterToken');
-const admin = require('firebase-admin');
+const uploadArray = require('../middleware/multerArrayMiddleware');
+
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
 
-router.post('/create', checkPromoterToken, async (req, res) => {
+router.post('/create', uploadArray.array('imagesPost', 6), checkPromoterToken, async (req, res) => {
   try {
     const {
       title,
@@ -45,30 +47,26 @@ router.post('/create', checkPromoterToken, async (req, res) => {
     if (!promoterData) {
       return res.status(404).json({ error: "Promoter not found" });
     }
-   // Verifica se a cidade já existe no banco de dados
-   let city = await City.findOne({ cityName });
-   if (!city) {
-     res.status(422).send("CityNotFoundException");
-     return;
-   }
+    // Verifica se a cidade já existe no banco de dados
+    let city = await City.findOne({ cityName });
+    // if (!city) {
+    //   res.status(422).send("CityNotFoundException");
+    //   return;
+    // }
 
-  
-    const name =  city.cityName;
- 
     const event = new Event({
-      title:title,
+      title: title,
       place_name: placeName,
       street_name: streetName,
-      number:number,
-      phone:phone,
+      number: number,
+      phone: phone,
       post_code: postCode,
       start_date: startDate,
       end_date: endDate,
       start_time: startTime,
       end_time: endTime,
       entrance_price: entrancePrice,
-      city: city._id,
-      cityName:  name,
+      cityName: city,
       week_days: weekDays,
       is_age_verified: isAgeVerified,
       selected_age: selectedAge,
@@ -79,43 +77,45 @@ router.post('/create', checkPromoterToken, async (req, res) => {
       extra_info: extraInfo,
       selected_week_days: selectedWeekDays,
       promoter: promoterData._id,
-      likes:likes,
+      likes: likes,
       likes_count: likesCount,
       created: created,
       updated: updated,
       isFeatured: isFeatured,
     });
-   // Verificar se foram enviadas fotos para a galeria
-   if (req.files && req.files.galerie) {
-    const galerieFiles = Array.isArray(req.files.galerie) ? req.files.galerie : [req.files.galerie];
-
-    // Fazer o upload das fotos da galeria para o Firebase Storage
-    const galerieUrls = [];
-    for (
-      let index = 0; index < galerieFiles.length; index++) {
-      const galerieFile = galerieFiles[index];
-      const galeriePath = `galerie/${promoterId}-${uuidv4()}_${bannerFile.name}`;
-      const galerieFileRef = bucket.file(galeriePath);
-      const galerieFileOptions = {
-        metadata: {
-          contentType: galerieFile.mimetype
-        }
-      };
-      await galerieFileRef.save(galerieFile.data, galerieFileOptions);
-      galerieUrls.push(`https://storage.googleapis.com/${bucket.name}/${galeriePath}`)
-
-      // Atualizar as URLs da galeria com os caminhos no Firebase Storage
-      event.photo_gallery = galerieUrls;
+    // Verificar se foram enviadas fotos para a galeria
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No images provided' });
     }
 
-  }
-    const savedEvent = await event.save();
+
+    // Fazer o upload das fotos da galeria para o Firebase Storage
+   const postImages = [];
+    for (const file of req.files) {
+      const public_id = `${promoterId}-${file.originalname.split('.')[0]}`;
+      const folderPath = `promoters/posts/${promoterId}`;
+
+      const result = await cloudinary.uploader.upload(file.path, {
+        public_id: public_id,
+        overwrite: false,
+        folder: folderPath,
+        transformation: [
+          { height: 500, width: 500, crop: 'fit' }
+        ]
+      });
+      postImages.push(result.secure_url);
+    }
+
+    // Atualizar as URLs da galeria com os caminhos no Firebase Storage
+    event.post_images_urls = postImages;
+
+    savedEvent=  await event.save();
     if (savedEvent) {
-      return res.status(200).json({ msg: `${savedEvent.title} Created Successfully!` });
+      return res.status(200).json({ msg: `Post Created Successfully!` });
     }
   } catch (error) {
     console.log(`Error creating Event: ${error}`);
-    res.status(500).json({ msg: "Error creating event, please try again later!" });
+    res.status(500).json({ msg: "Error creating post, please try again later!" });
   }
 });
 
