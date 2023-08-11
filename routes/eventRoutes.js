@@ -150,7 +150,7 @@ router.get('/:id', async (req, res) => {
 router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
   try {
     const promoterId = req.params.promoterId;
-    const events = await Event.find({ promoter: promoterId }).select('-isFeatured').populate('cityId');
+    const events = await Event.find({ promoter: promoterId }).select('-isFeatured');
     if (events.length === 0) {
       return res.status(404).json({ msg: "You dont have Event" });
     }
