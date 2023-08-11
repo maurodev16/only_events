@@ -41,7 +41,7 @@ router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkPromote
             console.log("Image url", promoter.logo_url)
             await promoter.save()
 
-            return res.status(200).json({ message: 'Image uploaded successfully', imageUrl });
+            return res.status(200).send(imageUrl);
         } else {
             promoter.logo_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
             return res.status(400).json({ message: 'No image provided' });
