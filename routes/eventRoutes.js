@@ -151,14 +151,17 @@ router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
   try {
     const promoterId = req.params.promoterId;
     const events = await Event.find({ promoter: promoterId }).select('-isFeatured');
+    
     if (events.length === 0) {
-      return res.status(404).json({ msg: "You dont have Event" });
+      return res.status(200).send([]); // Retorna um array vazio como resposta
     }
-    res.status(200).json(events);
+    
+    return res.status(200).json(events); // Retorna os eventos encontrados
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
+
 
 
 router.get('/fetchEventByCity/:city', async (req, res) => {
