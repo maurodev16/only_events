@@ -21,6 +21,7 @@ const eventSchema = new mongoose.Schema({
     end_date: { type: Date },
     start_time: { type: String, default: "" },
     end_time: { type: String, default: "" },
+    cityId:{type: String},
     cityName: { type: String, default: "" },
     week_days: [{ type: String, default: "" }],
     is_age_verified: { type: Boolean },
