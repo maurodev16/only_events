@@ -8,6 +8,7 @@ const uploadArray = require('../middleware/multerArrayMiddleware');
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const { populate } = require('../models/Artist');
 
 
 router.post('/create', uploadArray.array('post_images_urls', 6), checkPromoterToken, async (req, res) => {
@@ -119,17 +120,28 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkPromoterTo
 ///
 router.get('/fetch', async (req, res) => {
   try {
-    const events = await Event.find({}).select('-isFeatured').populate('cityId');
+    const events = await Event.find({})
+      .select('-isFeatured')
+      .populate({
+        path: 'cityId',
+        populate: {
+          path: 'promoterId',
+          select: 'company logo_url', // Seleciona os campos desejados do promotor
+        },
+      })
+      .populate('promoter', 'full_name company logo_url'); // Popula os dados do promotor
+
     if (events.length === 0) {
       return res.status(404).json({ msg: "Events not found" });
-
     }
+
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
-    return [];
   }
 });
+
+
 
 router.get('/:id', async (req, res) => {
   const id = req.params.id;
