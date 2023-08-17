@@ -1,9 +1,9 @@
 const router = require('express').Router();
-const Event = require('../models/Event');
+const Event = require('../models/Post');
 const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
-const Promoter = require('../models/Promoter');
-const checkPromoterToken = require('../middleware/checkPromoterToken');
+const Promoter = require('../models/User');
+const checkPromoterToken = require('../middleware/checkToken');
 const uploadArray = require('../middleware/multerArrayMiddleware');
 
 const multer = require('multer');

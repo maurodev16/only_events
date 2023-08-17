@@ -17,17 +17,6 @@ const PORT = process.env.PORT || 3000;
 //read json
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// Import routers
-const promoterRoutes = require('./routes/promoterRoutes');
-const logoImageRoutes = require('./routes/logoRouter');
-const participantRoutes= require('./routes/participantRoutes');
-const eventRoutes= require('./routes/eventRoutes');
-const artistRoutes= require('./routes/artistRoutes');
-const authParticipantRoutes = require('./routes/authParticipantRoutes');
-const authPromoter = require('./routes/authPromoterRoutes');
-const cityRoutes = require('./routes/cityRoutes');
-
 admin.initializeApp({
     credential:admin.credential.cert({
     apiKey: process.env.FIREBASE_API_KEY,
@@ -46,18 +35,21 @@ admin.initializeApp({
 
 });
 
-
-
-
+// Import routers
+const userRoutes = require('./routes/userRouter');
+const logoImageRoutes = require('./routes/logoRouter');
+const postRoutes= require('./routes/postRoutes');
+const artistRoutes= require('./routes/artistRoutes');
+const authRoutes = require('./routes/authRouters');
+//const authPromoter = require('./routes/authPromoterRoutes');
+const cityRoutes = require('./routes/cityRoutes');
 
 // Register routers
-app.use('/api/v1/promoter', promoterRoutes);
-app.use('/api/v1/logo-image', logoImageRoutes);
-app.use('/api/v1/participant', participantRoutes);
-app.use('/api/v1/event', eventRoutes);
+app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/logo', logoImageRoutes);
+app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/artist', artistRoutes);
-app.use('/api/v1/auth', authParticipantRoutes);
-app.use('/api/v1/auth', authPromoter);
 app.use('/api/v1/city', cityRoutes);
 
 //initial endpoint

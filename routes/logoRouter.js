@@ -1,7 +1,7 @@
 const cloudinary = require('../services/cloudinaryConfig');
-const Promoter = require('../models/Promoter');
+const Promoter = require('../models/User');
 const uploadSingle = require('../middleware/multerSingleMiddleware');
-const checkPromoterToken = require('../middleware/checkPromoterToken');
+const checkPromoterToken = require('../middleware/checkToken');
 const { deleteImageFromCloudinary } = require("../services/cloudinary")
 const router = require('express').Router()
 

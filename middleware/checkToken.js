@@ -1,9 +1,9 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const PROMOTER_SECRET_KEY = process.env.PROMOTER_SECRET_KEY;
+const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
-// Middleware to check promoter token
-function checkPromoterToken(req, res, next) {
+// Middleware to check token
+function checkToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -11,15 +11,15 @@ function checkPromoterToken(req, res, next) {
     return res.status(401).json({ auth: false, msg: 'Token not provided.' });
   }
 
-  jwt.verify(token, PROMOTER_SECRET_KEY, function (err, decoded) {
+  jwt.verify(token, AUTH_SECRET_KEY, function (err, decoded) {
     if (err) {
       return res.status(500).json({ auth: false, msg: 'Failed to authenticate token.' });
     }
 
-    // If the token is valid, save the promoter ID in the request
-    req.promoter = { _id: decoded.promoterId };
+    // If the token is valid, save the Auth ID in the request
+    req.auth = { _id: decoded.authId };
     next();
   });
 }
 
-module.exports =  checkPromoterToken;
+module.exports =  checkToken;

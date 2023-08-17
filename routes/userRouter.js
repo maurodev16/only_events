@@ -1,71 +1,40 @@
 require('dotenv').config();
 const router = require('express').Router()
-const Promoter = require('../models/Promoter');
+const User = require('../models/User');
 const City = require('../models/City');
 const bcrypt = require('bcrypt');
-const checkPromoterToken = require('../middleware/checkPromoterToken');
+const checkToken = require('../middleware/checkToken');
 
 
 const mongoose = require('mongoose');
 
-
-router.post('/register',  async (req, res) => {
+router.post('/signup',  async (req, res) => {
   const {
+    logo_url,
     full_name,
     company,
     email,
     password,
     phone,
-    cityName,
     street_name,
     hause_number,
     post_code,
+    is_company,
+    music_preferences,
+    city,
   } = req.body;
 
   const session = await mongoose.startSession();
 
-  try {
-    session.startTransaction(); // Iniciar transação
+try {
+   session.startTransaction(); // Iniciar transação
 
-    // Valida os dados do Promoter
-    if (!full_name) {
-      res.status(422).send("FullNameRequiredException");
-      return;
-    }
+    // // Verifica se a cidade já existe no banco de dados
+    // let cityName = await City.findOne({ cityName });
+   
 
-    if (!company) {
-      res.status(422).send("CompanyNameRequiredException");
-      return;
-    }
-
-    if (!cityName) {
-      res.status(422).send("CityNameRequiredException");
-      return;
-    }
-
-    if (!street_name) {
-      res.status(422).send("StreetNameRequiredException");
-      return;
-    }
-
-    if (!hause_number) {
-      res.status(422).send("HauseNumberRequiredException");
-      return;
-    }
-    if (!post_code) {
-      res.status(422).send("PostCodeRequiredException");
-      return;
-    }
-
-    // Verifica se a cidade já existe no banco de dados
-    let city = await City.findOne({ cityName });
-    if (!city) {
-      res.status(422).send("CityNotFoundException");
-      return;
-    }
-
-    // Verifica se o email do Promoter já está em uso
-    const emailExists = await Promoter.findOne({ email: email });
+    // Verifica se o email do User já está em uso
+    const emailExists = await User.findOne({ email: email });
     if (emailExists) {
       res.status(422).send("EmailAlreadyExistsException");
       return;
@@ -73,35 +42,36 @@ router.post('/register',  async (req, res) => {
     
     // Cria o hash da senha
     const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  
-    // Cria o Promoter
-    const promoter = new Promoter({
-      full_name,
-      company,
-      email,
-      password: passwordHash,
-      phone,
-      city: city._id,
-      street_name,
-      hause_number,
-      post_code,
-      is_company: true,
-    });
+   // Create a new user
+   const newUser = new User({
+    logo_url,
+    full_name,
+    company,
+    email,
+    password: hashedPassword,
+    phone,
+    street_name,
+    hause_number,
+    post_code,
+    is_company,
+    city,
+    music_preferences,
+    role: is_company ? 'company' : 'private'
+  });
 
-
-    const createdPromoter = await promoter.save({ session });
+    const created = await newUser.save({ session });
 
     // Verificação do resultado do salvamento
-    if (!createdPromoter) {
+    if (!created) {
       throw new Error('ErroSavePromoterOnDatabaseException');
     }
 
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    res.status(200).send(`Welcome ${createdPromoter.full_name}!`);
+    res.status(201).send('User registered successfully');
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
@@ -113,7 +83,7 @@ router.post('/register',  async (req, res) => {
 
 
 
-router.get('/fetch', checkPromoterToken, async (req, res) => {
+router.get('/fetch', checkToken, async (req, res) => {
   try {
     const promoter = await Promoter.find().select('-password');
     if (!promoter) {
@@ -125,7 +95,7 @@ router.get('/fetch', checkPromoterToken, async (req, res) => {
   }
 });
 
-router.get('/:id', checkPromoterToken, async (req, res) => {
+router.get('/:id', checkToken, async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -139,7 +109,7 @@ router.get('/:id', checkPromoterToken, async (req, res) => {
   }
 });
 
-router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => {
+router.put('/editPromoter/:promoterId', checkToken, async (req, res) => {
   try {
     const promoterId = req.params.userId;
     const promoterData = req.body;
@@ -170,7 +140,7 @@ router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => 
   }
 });
 
-router.put('/editPromoter/:promoterId', checkPromoterToken, async (req, res) => {
+router.put('/editPromoter/:promoterId', checkToken, async (req, res) => {
   try {
     const promoterId = req.params.promoterId;
     const promoterData = req.body;

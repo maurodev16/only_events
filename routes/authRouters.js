@@ -1,40 +1,41 @@
 require('dotenv').config();
 const router = require('express').Router();
-const Promoter = require('../models/Promoter');
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const PROMOTER_SECRET_KEY = process.env.PROMOTER_SECRET_KEY;
+const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 // Login route
-router.post('/loginPromoter', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate Promoter data
+ 
+    // Validate User data
     if (!email) {
       res.status(422).json({ msg: "Please provide a valid email!" });
       console.log(email);
       return;
     }
 
-    let promoter;
+    let user;
 
    // Check if Email is an email using regular expression
    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
    if (isEmail) {
-    promoter = await Promoter.findOne({ email: email });
+    user = await User.findOne({ email: email });
     console.log(email);
 
    } else {
-     // Find promoter using email
-     promoter = await Promoter.findOne({ email: { $regex: `^${email}`, $options: 'i' } });
-     console.log(promoter);
+     // Find user using email
+     user = await User.findOne({ email: { $regex: `^${email}`, $options: 'i' } });
+     console.log(user);
    }
 
-    if (!promoter) {
-      res.status(404).json({ msg: "No Promoter found with this email!" });
+    if (!user) {
+      res.status(404).json({ msg: "No User found with this email!" });
       return;
     }
 
@@ -43,18 +44,19 @@ router.post('/loginPromoter', async (req, res) => {
       return;
     }
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, promoter.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       res.status(422).json({ msg: 'Incorrect password' });
       return;
     }
 
+
     // Generate token
-    const token = jwt.sign({ promoterId: promoter._id }, PROMOTER_SECRET_KEY);
+    const token = jwt.sign({ userId: user._id, userType: user.role }, AUTH_SECRET_KEY);
 
      // Return the authentication token, ID, and email
-     res.status(200).json({ msg: "Authentication successful!", token, id: promoter._id, email: promoter.email });
+     res.status(200).json({ msg: "Authentication successful!", token, id: user._id, email: user.email, userType: user.role });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "An error occurred during login." });

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Promoter = require("./Promoter");
+const User = require("./User");
 const City = require('./City');
 const accounting = require('accounting');
 const Artist = require('./Artist');
@@ -9,7 +9,7 @@ require('dotenv').config();
 IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 IMAGE_BANNER_DEFAULT_TOKEN = process.env.IMAGE_BANNER_DEFAULT_TOKEN;
 
-const eventSchema = new mongoose.Schema({
+const postSchema = new mongoose.Schema({
     post_images_urls: [{ type: String }],
     title: { type: String, default: "" },
     street_name: { type: String, default: "" },
@@ -41,20 +41,20 @@ const eventSchema = new mongoose.Schema({
     },
     created: { type: Date, required: true, default: Date.now },
     updated: { type: Date, required: true, default: Date.now },
-    promoter: { type: mongoose.Schema.Types.ObjectId, ref: 'Promoter', required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
     likes_count: { type: Number, default: 0 },
     isFeatured: { type: Boolean, default: false }
   });
   
   // Atualiza o valor de likes_count sempre que um like for adicionado ou removido
-  eventSchema.post('save', async function (doc) {
-    const likes_count = await Like.countDocuments({ event: doc._id });
+  postSchema.post('save', async function (doc) {
+    const likes_count = await Like.countDocuments({ post: doc._id });
     doc.likes_count = likes_count;
     await doc.save();
   });
   
-  const Event = mongoose.model('Event', eventSchema);
+  const Post = mongoose.model('Post', postSchema);
   
-  module.exports = Event;
+  module.exports = Post;
   

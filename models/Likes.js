@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const Promoter = require("./Promoter");
-const Event = require("./Event");
+const User = require("./User");
+const Post = require("./Post");
 
 const likeSchema = new mongoose.Schema({
-  participant: { type: mongoose.Schema.Types.ObjectId, ref: 'Participant' },
-  event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
+  post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
 const Like = mongoose.model('Like', likeSchema);
