@@ -1,7 +1,7 @@
 const cloudinary = require('../services/cloudinaryConfig');
 const Promoter = require('../models/User');
 const uploadSingle = require('../middleware/multerSingleMiddleware');
-const checkPromoterToken = require('../middleware/checkToken');
+const checkToken = require('../middleware/checkToken');
 const { deleteImageFromCloudinary } = require("../services/cloudinary")
 const router = require('express').Router()
 
@@ -10,7 +10,7 @@ IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 
 
 // Rota para fazer o upload da imagem do promoter
-router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkPromoterToken, async (req, res) => {
+router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkToken, async (req, res) => {
     const { promoterId } = req.params;
     var folderPath = `promoters/logos/${promoterId}`
     try {

@@ -2,8 +2,8 @@ const router = require('express').Router();
 const Event = require('../models/Post');
 const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
-const Promoter = require('../models/User');
-const checkPromoterToken = require('../middleware/checkToken');
+const User = require('../models/User');
+const checkToken = require('../middleware/checkToken');
 const uploadArray = require('../middleware/multerArrayMiddleware');
 
 const multer = require('multer');
@@ -11,7 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const { populate } = require('../models/Artist');
 
 
-router.post('/create', uploadArray.array('post_images_urls', 6), checkPromoterToken, async (req, res) => {
+router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, async (req, res) => {
   try {
     const {
       title,
@@ -43,10 +43,10 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkPromoterTo
 
     } = req.body;
 
-    const promoterId = req.promoter._id;
-    const promoterData = await Promoter.findById(promoterId);
-    if (!promoterData) {
-      return res.status(404).json({ error: "Promoter not found" });
+    const userId = req.user._id;
+    const userData = await User.findById(userId);
+    if (!userData) {
+      return res.status(404).json({ error: "user not found" });
     }
     // Verifica se a cidade já existe no banco de dados
     let city = await City.findOne({ cityName });
@@ -74,7 +74,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkPromoterTo
       is_fixed_date: isFixedDate,
       extra_info: extraInfo,
       selected_week_days: selectedWeekDays,
-      promoter: promoterData._id,
+      user: userData._id,
       likes: likes,
       likes_count: likesCount,
       created: created,
@@ -263,7 +263,7 @@ router.get('/fetchEventByDateRange/:startDate/:endDate', async (req, res) => {
   }
 });
 
-router.put('/editEvent/:eventId', checkPromoterToken, async (req, res) => {
+router.put('/editEvent/:eventId', checkToken, async (req, res) => {
   try {
     const eventId = req.params.eventId;
     const eventData = req.body;
@@ -305,7 +305,7 @@ router.put('/editEvent/:eventId', checkPromoterToken, async (req, res) => {
   }
 });
 
-router.delete('/deleteEvent/:eventId', checkPromoterToken, async (req, res) => {
+router.delete('/deleteEvent/:eventId', checkToken, async (req, res) => {
   try {
     const eventId = req.params.eventId;
 

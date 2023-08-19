@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   company: { type: String,},
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['private', 'company'], required: true },
+  role: { type: String, enum: ['private', 'company'], required: true, default: 'undefined'},
   is_company:{type: Boolean},
   phone:{type: String}, 
   street_name: { type: String },

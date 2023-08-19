@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const checkPromoterToken = require('../middleware/checkToken');
+const checkToken = require('../middleware/checkToken');
 const City = require('../models/City');
 
-router.post('/register',checkPromoterToken, async (req, res) => {
+router.post('/register',checkToken, async (req, res) => {
     //body
     const { cityName, capital } = req.body;
     try {

@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Artist = require('../models/Artist');
 const Promoter = require('../models/User');
-const checkPromoterToken = require('../middleware/checkToken');
+const checkToken = require('../middleware/checkToken');
 
-router.post('/create', checkPromoterToken, async (req, res) => {
+router.post('/create', checkToken, async (req, res) => {
     try {
       const { artist_name, genre, biography,  banner, photos, socialMedia, contact, discography, streamingLinks, awards } = req.body;
   
