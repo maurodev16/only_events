@@ -8,18 +8,15 @@ const checkToken = require('../middleware/checkToken');
 
 const mongoose = require('mongoose');
 
-router.post('/signup',  async (req, res) => {
+router.post('/complete-profile',  async (req, res) => {
   const {
     logo_url,
     full_name,
     company,
-    email,
-    password,
     phone,
     street_name,
     hause_number,
     post_code,
-    is_company,
     music_preferences,
     city,
   } = req.body;
@@ -41,24 +38,20 @@ try {
     }
     
     // Cria o hash da senha
-    const salt = await bcrypt.genSalt(12);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(12);
+    // const hashedPassword = await bcrypt.hash(password, salt);
 
    // Create a new user
    const newUser = new User({
     logo_url,
     full_name,
     company,
-    email,
-    password: hashedPassword,
     phone,
     street_name,
     hause_number,
     post_code,
-    is_company,
     city,
     music_preferences,
-    role: is_company ? 'company' : 'private'
   });
 
     const created = await newUser.save({ session });
@@ -85,11 +78,11 @@ try {
 
 router.get('/fetch', checkToken, async (req, res) => {
   try {
-    const promoter = await Promoter.find().select('-password');
-    if (!promoter) {
-      return res.status(404).send("CompanyNotFoundException");
+    const user = await User.find().select('-password');
+    if (!user) {
+      return res.status(404).send("UserNotFoundException");
     }
-    res.status(200).send(promoter)
+    res.status(200).send(user)
   } catch (error) {
     res.status(500).send(error)
   }
@@ -99,80 +92,80 @@ router.get('/:id', checkToken, async (req, res) => {
   const id = req.params.id;
 
   try {
-    const promoter = await Promoter.findById(id, '-password');
-    if (!promoter) {
-      return res.status(404).send("CompanyNotFoundException");
+    const user = await User.findById(id, '-password');
+    if (!user) {
+      return res.status(404).send("UserNotFoundException");
     }
-    res.status(200).json(promoter)
+    res.status(200).json(user)
   } catch (error) {
     res.status(500).json({ error: error })
   }
 });
 
-router.put('/editPromoter/:promoterId', checkToken, async (req, res) => {
+router.put('/editUser/:userId', checkToken, async (req, res) => {
   try {
-    const promoterId = req.params.userId;
-    const promoterData = req.body;
+    const userId = req.params.userId;
+    const userData = req.body;
     // Verificar se o user existe
-    const promoter = await Promoter.findById(promoterId);
-    if (!promoter) {
-      return res.status(404).send("CompanyNotFoundException");
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("UserNotFoundException");
     }
 
     // Atualizar os dados do user
-    promoter.full_name = promoterData.full_name;
-    promoter.password = promoterData.password;
-    promoter.dateOfBirth = promoterData.dateOfBirth;
-    promoter.gender = promoterData.gender;
-    promoter.interest = promoterData.interest;
-    promoter.street_name = promoterData.street_name;
-    promoter.hause_number = promoterData.hause_name;
-    promoter.phone = promoterData.phone;
-    promoter.logo_url = promoterData.logo_url;
-    promoter.updated = Date.now();
+    user.full_name = userData.full_name;
+    user.password = userData.password;
+    user.dateOfBirth = userData.dateOfBirth;
+    user.gender = userData.gender;
+    user.interest = userData.interest;
+    user.street_name = userData.street_name;
+    user.hause_number = userData.hause_name;
+    user.phone = userData.phone;
+    user.logo_url = userData.logo_url;
+    user.updated = Date.now();
 
     // Salvar as alterações no banco de dados
-    const updatedpromoter = await promoter.save();
+    const updateduser = await user.save();
 
-    res.status(200).json(updatedpromoter);
+    res.status(200).json(updateduser);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-router.put('/editPromoter/:promoterId', checkToken, async (req, res) => {
+router.put('/edituser/:userId', checkToken, async (req, res) => {
   try {
-    const promoterId = req.params.promoterId;
-    const promoterData = req.body;
+    const userId = req.params.userId;
+    const userData = req.body;
 
-    // Check if the promoter exists
-    const promoter = await Promoter.findById(promoterId);
-    if (!promoterData) {
-      return res.status(404).send("CompanyNotFoundException");
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!userData) {
+      return res.status(404).send("UserNotFoundException");
     }
 
-    // Check if the logged-in promoter has permission to edit the user
-    if (promoter._id.toString() !== req.promoter._id) {
+    // Check if the logged-in user has permission to edit the user
+    if (user._id.toString() !== req.user._id) {
       return res.status(403).send("UnauthorizedAccessException");
     }
 
-    // Update the promoter data
-    // Atualizar os dados do promoter
-    promoter.full_name = promoterData.full_name;
-    promoter.password = promoterData.password;
-    promoter.dateOfBirth = promoterData.dateOfBirth;
-    promoter.gender = promoterData.gender;
-    promoter.interest = promoterData.interest;
-    promoter.hause_number = promoterData.hause_number;
-    promoter.street_name = promoterData.street_name;
-    promoter.phone = promoterData.phone;
-    promoter.logo_url = promoterData.logo_url;
-    promoter.updated = Date.now();
+    // Update the user data
+    // Atualizar os dados do user
+    user.full_name = userData.full_name;
+    user.password = userData.password;
+    user.dateOfBirth = userData.dateOfBirth;
+    user.gender = userData.gender;
+    user.interest = userData.interest;
+    user.hause_number = userData.hause_number;
+    user.street_name = userData.street_name;
+    user.phone = userData.phone;
+    user.logo_url = userData.logo_url;
+    user.updated = Date.now();
 
-    // Save the updated promoter data to the database
-    const updatedPromoter = await promoter.save();
+    // Save the updated user data to the database
+    const updatedUser = await user.save();
 
-    res.status(200).json(updatedPromoter);
+    res.status(200).json(updatedUser);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
