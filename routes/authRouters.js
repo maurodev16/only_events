@@ -44,7 +44,8 @@ router.post('/signup', async (req, res) => {
     session.endSession(); // End seccion
 
     return res.status(201).json({
-      msg: 'Sign-Up successfully', user: {
+      msg: 'Sign-Up successfully',
+      user: {
         email: newUser.email,
         role: newUser.role,
         is_company: newUser.is_company,
@@ -105,10 +106,14 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign({ userId: user._id, isCompany: user.is_company, role: user.role, }, AUTH_SECRET_KEY);
+    const token = jwt.sign({ userId: user._id, is_company: user.is_company, role: user.role, }, AUTH_SECRET_KEY);
 
     // Return the authentication token, ID, and email
-    res.status(200).json({ msg: "Authentication successful!", token, id: user._id, email: user.email, isCompany: user.is_company, role: user.role });
+    res.status(200).json({
+      msg: "Authentication successful!",
+      user: { 
+        token, userId: user._id, email: user.email, is_company: user.is_company, role: user.role }
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "An error occurred during login." });
