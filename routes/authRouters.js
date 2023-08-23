@@ -43,7 +43,14 @@ router.post('/signup', async (req, res) => {
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    res.status(201).send('Sign-Up successfully');
+    res.status(201).json({
+      msg: 'Sign-Up successfully', user: {
+        email: newUser.email,
+        role: newUser.role,
+        is_company: newUser.is_company,
+      }
+    });
+
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
@@ -130,10 +137,10 @@ router.post('/requestPasswordReset', async (req, res,) => {
 
     sendEmail(
       user.email,
-      "Password Reset Request", 
+      "Password Reset Request",
       {
-        name:user.name,
-        link:link,
+        name: user.name,
+        link: link,
       },
       "./template/requestResetPassword.handlebars"
     );
