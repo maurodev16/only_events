@@ -43,7 +43,7 @@ router.post('/signup', async (req, res) => {
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    res.status(201).json({
+   return res.status(201).json({
       msg: 'Sign-Up successfully', user: {
         email: newUser.email,
         role: newUser.role,
