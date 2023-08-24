@@ -166,7 +166,8 @@ router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
     const events = await Event.find({ promoter: promoterId }).select('-isFeatured');
     
     if (events.length === 0) {
-      return res.status(200).send([]); // Retorna um array vazio como resposta
+      return res.status(404).json({ msg: "Post not found" });
+    }else{
     }
     
     return res.status(200).json(events); // Retorna os eventos encontrados

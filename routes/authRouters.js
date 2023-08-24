@@ -28,8 +28,8 @@ router.post('/signup', async (req, res) => {
     // Verifica se o email do User já está em uso
     const emailExists = await Auth.findOne({ email: email });
     if (emailExists) {
-      res.status(422).send("EmailAlreadyExistsException");
-      return;
+      return res.status(422).send("EmailAlreadyExistsException");
+     
     }
     const newUser = new Auth({ email: email, password: password, role: is_company ? 'company' : 'private', is_company: is_company });
 
@@ -37,7 +37,7 @@ router.post('/signup', async (req, res) => {
     console.log(created);
 
     if (!created) {
-      throw new Error('ErroSignupOnDatabaseException');
+     return  Error('ErroSignupOnDatabaseException');
     }
 
     await session.commitTransaction(); // Confirm Transaction
@@ -56,7 +56,7 @@ router.post('/signup', async (req, res) => {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
     console.log(`Erro to Sign-up: ${error}`);
-    res.status(500).send('ErroSignupException');
+   return res.status(500).send('ErroSignupException');
   }
 });
 
@@ -68,9 +68,10 @@ router.post('/login', async (req, res) => {
 
     // Validate User data
     if (!email) {
-      res.status(422).json({ msg: "Please provide a valid email!" });
       console.log(email);
-      return;
+
+     return res.status(422).json({ msg: "Please provide a valid email!" });
+     
     }
 
     let user;
@@ -89,20 +90,20 @@ router.post('/login', async (req, res) => {
     }
 
     if (!user) {
-      res.status(404).json({ msg: "No User found with this email!" });
-      return;
+        return res.status(404).json({ msg: "No User found with this email!" });
+   
     }
 
     if (!password) {
-      res.status(422).json({ msg: "Password is required!" });
-      return;
+   return  res.status(422).json({ msg: "Password is required!" });
+      
     }
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      res.status(422).json({ msg: 'Incorrect password' });
-      return;
+     return  res.status(422).json({ msg: 'Incorrect password' });
+    
     }
 
     // Generate token
