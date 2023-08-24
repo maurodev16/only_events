@@ -132,10 +132,11 @@ router.get('/fetch', async (req, res) => {
       .populate('promoter', 'full_name company logo_url'); // Popula os dados do promotor
 
     if (events.length === 0) {
-      return res.status(404).json({ msg: "Events not found" });
+      return res.status(404).json({ msg: "Post not found" });
+    }else{
+      return res.status(200).json(events);
     }
-
-    res.status(200).json(events);
+   
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
