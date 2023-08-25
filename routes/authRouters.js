@@ -69,7 +69,7 @@ router.post('/login', async (req, res) => {
     if (!email) {
       console.log(email);
 
-     return res.status(422).json({ msg: "Please provide a valid email!" });
+     return res.status(422).send("Please provide a valid email!");
      
     }
 
@@ -89,18 +89,18 @@ router.post('/login', async (req, res) => {
     }
 
     if (!user) {
-        return res.status(404).json({ msg: "No User found with this email!" });
+        return res.status(404).send("No User found with this email!");
     }
 
     if (!password) {
-   return  res.status(422).json({ msg: "Password is required!" });
+   return  res.status(422).json("Password is required!");
       
     }
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-     return  res.status(422).json({ msg: 'Incorrect password' });
+     return  res.status(422).json('Incorrect password');
     
     }
 
@@ -111,7 +111,7 @@ router.post('/login', async (req, res) => {
   return  res.status(200).json({ token, userId: user._id, email: user.email, is_company: user.is_company, role: user.role });
   } catch (error) {
     console.log(error);
-   return res.status(500).json({ msg: "An error occurred during login.",error});
+   return res.status(500).send("An error occurred during login.");
   }
 });
 
