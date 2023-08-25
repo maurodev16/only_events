@@ -108,7 +108,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ userId: user._id, is_company: user.is_company, role: user.role, }, AUTH_SECRET_KEY);
 
     // Return the authentication token, ID, and email
-  return  res.status(200).json({token, user });
+  return  res.status(200).json({user: { token, userId: user._id, email: user.email, is_company: user.is_company, role: user.role } });
   } catch (error) {
     console.log(error);
    return res.status(500).json({ msg: "An error occurred during login.",error});
