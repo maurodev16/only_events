@@ -31,7 +31,7 @@ router.post('/signup', async (req, res) => {
       return res.status(422).send("EmailAlreadyExistsException");
     }
 
-    const newUser = new Auth({name: name, email: email, password: password, role: is_company ? 'company' : 'private', is_company: is_company });
+    const newUser = new User({name: name, email: email, password: password, role: is_company ? 'company' : 'private', is_company: is_company });
 
     const created = await newUser.save({ session });
     console.log(created);
