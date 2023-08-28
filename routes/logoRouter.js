@@ -1,23 +1,19 @@
 const cloudinary = require('../services/cloudinaryConfig');
-const Promoter = require('../models/User');
+const User = require('../models/Auth');
 const uploadSingle = require('../middleware/multerSingleMiddleware');
 const checkToken = require('../middleware/checkToken');
 const { deleteImageFromCloudinary } = require("../services/cloudinary")
 const router = require('express').Router()
 
-IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
-
-
-
-// Rota para fazer o upload da imagem do promoter
-router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkToken, async (req, res) => {
-    const { promoterId } = req.params;
-    var folderPath = `promoters/logos/${promoterId}`
+// Rota para fazer o upload da imagem do user
+router.put('/upload-logo/:userId', uploadSingle.single('logo'), checkToken, async (req, res) => {
+    const { userId } = req.params;
+    var folderPath = `user/logos/${userId}`
     try {
-        // Verificar se o promoter existe
-        const promoter = await Promoter.findById(promoterId);
-        if (!promoter) {
-            return res.status(404).send('Promoter not found');
+        // Verificar se o user existe
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('User not found');
         }
 
         // Caminho do arquivo na pasta local
@@ -25,7 +21,7 @@ router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkToken, 
 
         if (path) {
             const result = await cloudinary.uploader.upload(path, {
-                public_id: promoterId,
+                public_id: userId,
                 overwrite: true,
                 folder: folderPath,
                 transformation: [
@@ -35,20 +31,17 @@ router.put('/upload-logo/:promoterId', uploadSingle.single('logo'), checkToken, 
           
             const imageUrl = result.secure_url;
      
-            // Atualizar o promoter com a URL da imagem
-            promoter.logo_url = imageUrl;
+            // Atualizar o user com a URL da imagem
+            user.logo_url = imageUrl;
        
-            console.log("Image url", promoter.logo_url)
-            await promoter.save()
+            console.log("Image url", user.logo_url)
+            await user.save()
 
             return res.status(200).send(imageUrl);
-        } else {
-            promoter.logo_url = `https://firebasestorage.googleapis.com/v0/b/evento-app-5a449.appspot.com/o/default-avatar.png?alt=media&token=${IMAGE_AVATAR_DEFAULT_TOKEN}`;
-            return res.status(400).send('No image provided');
         }
     } catch (error) {
         console.error('Error uploading image:', error);
         res.status(500).send('Failed to upload image');
     }
 });
-module.exports = router
+module.exports = router;

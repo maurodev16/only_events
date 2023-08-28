@@ -1,6 +1,6 @@
 require('dotenv').config();
 const router = require('express').Router();
-const Auth = require('../models/Auth');
+const User = require('../models/Auth');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require("crypto");
@@ -14,7 +14,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
 router.post('/signup', async (req, res) => {
-  const { email, password, role, is_company } = req.body;
+  const {name, email, password, role, is_company } = req.body;
 
   const session = await mongoose.startSession();
 
@@ -26,12 +26,12 @@ router.post('/signup', async (req, res) => {
 
 
     // Verifica se o email do User já está em uso
-    const emailExists = await Auth.findOne({ email: email });
+    const emailExists = await User.findOne({ email: email });
     if (emailExists) {
       return res.status(422).send("EmailAlreadyExistsException");
-     
     }
-    const newUser = new Auth({ email: email, password: password, role: is_company ? 'company' : 'private', is_company: is_company });
+
+    const newUser = new Auth({name: name, email: email, password: password, role: is_company ? 'company' : 'private', is_company: is_company });
 
     const created = await newUser.save({ session });
     console.log(created);
@@ -46,6 +46,7 @@ router.post('/signup', async (req, res) => {
     return res.status(201).json({
       msg: 'Sign-Up successfully',
       user: {
+        name: newUser.name,
         email: newUser.email,
         role: newUser.role,
         is_company: newUser.is_company,
@@ -79,12 +80,12 @@ router.post('/login', async (req, res) => {
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     if (isEmail) {
-      user = await Auth.findOne({ email: email });
+      user = await User.findOne({ email: email });
       console.log(email);
 
     } else {
       // Find user using email
-      user = await Auth.findOne({ email: { $regex: `^${email}`, $options: 'i' } });
+      user = await User.findOne({ email: { $regex: `^${email}`, $options: 'i' } });
       console.log(user);
     }
 
@@ -117,7 +118,7 @@ router.post('/login', async (req, res) => {
 
 
 router.post('/requestPasswordReset', async (req, res,) => {
-  const user = await Auth.findOne({ email });
+  const user = await User.findOne({ email });
   if (!user) {
     throw new Error("Email does not exist");
 
@@ -152,7 +153,7 @@ router.post('/requestPasswordReset', async (req, res,) => {
 //   const {userId, token, newPassword } = req.body;
 
 //   try {
-//     const user = await Auth.findOne({ email });
+//     const user = await User.findOne({ email });
 
 //     if (!user) {
 //       return res.status(404).json({ msg: "Usuário não encontrado" });
@@ -174,13 +175,13 @@ router.post('/requestPasswordReset', async (req, res,) => {
 //     const hashedNewPassword = await bcrypt.hash(newPassword, Number(BCRYPT_SALT));
 
 //     // Atualizar a senha e remover o token
-//  await Auth.updateOne(
+//  await User.updateOne(
 //   {_id: user._id},
 //   {$set: { password: hashedNewPassword }},
 //   { new: true },
 //    );
 
-//    const user = await Auth.findById({ _id: userId})
+//    const user = await User.findById({ _id: userId})
 
 //    sendEmail
 //     await user.save();

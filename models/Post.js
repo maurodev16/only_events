@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const User = require("./User");
+const User = require("./Auth");
 const City = require('./City');
 const accounting = require('accounting');
 const Artist = require('./Artist');
@@ -32,7 +32,8 @@ const postSchema = new mongoose.Schema({
     is_fixed_date: { type: Boolean },
     extra_info: { type: String, default: "" },
     selected_week_days: [{ type: String }],
-  city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' }, // Referência para o modelo City
+  city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' }, 
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
 
     entrance_price: {
       type: Number, default: 0,
@@ -41,7 +42,6 @@ const postSchema = new mongoose.Schema({
     },
     created: { type: Date, required: true, default: Date.now },
     updated: { type: Date, required: true, default: Date.now },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
     likes_count: { type: Number, default: 0 },
     isFeatured: { type: Boolean, default: false }

@@ -1,94 +1,37 @@
 require('dotenv').config();
+
 const router = require('express').Router()
-const User = require('../models/User');
+const Logo = require('../models/Logo');
+const User = require('../models/Auth');
 const City = require('../models/City');
 const bcrypt = require('bcrypt');
 const checkToken = require('../middleware/checkToken');
-
-
 const mongoose = require('mongoose');
-
-router.post('/complete-profile',  async (req, res) => {
-  const {
-    logo_url,
-    full_name,
-    company,
-    phone,
-    street_name,
-    hause_number,
-    post_code,
-    music_preferences,
-    city,
-  } = req.body;
-
-  const session = await mongoose.startSession();
-
-try {
-   session.startTransaction(); // Iniciar transação
-
-    // // Verifica se a cidade já existe no banco de dados
-    // let cityName = await City.findOne({ cityName });
-   
-
-    // Verifica se o email do User já está em uso
-    const emailExists = await User.findOne({ email: email });
-    if (emailExists) {
-      res.status(422).send("EmailAlreadyExistsException");
-      return;
-    }
-    
-    // Cria o hash da senha
-    // const salt = await bcrypt.genSalt(12);
-    // const hashedPassword = await bcrypt.hash(password, salt);
-
-   // Create a new user
-   const newUser = new User({
-    logo_url,
-    full_name,
-    company,
-    phone,
-    street_name,
-    hause_number,
-    post_code,
-    city,
-    music_preferences,
-  });
-
-    const created = await newUser.save({ session });
-
-    // Verificação do resultado do salvamento
-    if (!created) {
-      throw new Error('ErroSavePromoterOnDatabaseException');
-    }
-
-    await session.commitTransaction(); // Confirm Transaction
-    session.endSession(); // End seccion
-
-    res.status(201).send('User registered successfully');
-  } catch (error) {
-    await session.abortTransaction(); // Rollback da Transaction
-    session.endSession(); // End Section
-    console.log(`Erro to register Company: ${error}`);
-    res.status(500).send('ErroRegisterPromoterException');
-  }
-});
-
-
 
 
 router.get('/fetch', checkToken, async (req, res) => {
   try {
-    const user = await User.find().select('-password');
-    if (!user) {
+    const users = await User.find().select('-password');
+ 
+    if (!users) {
       return res.status(404).send("UserNotFoundException");
     }
-    res.status(200).send(user)
+
+    const userdata = users.map(user =>{
+      return{
+         id: user._id,
+         name: user.name,
+         email: user.email,
+         logo_url:user.logo_url
+      }
+    })
+    res.status(200).send(userdata)
   } catch (error) {
     res.status(500).send(error)
   }
 });
 
-router.get('/:id', checkToken, async (req, res) => {
+router.get('/fecthBy/:id', checkToken, async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -102,7 +45,7 @@ router.get('/:id', checkToken, async (req, res) => {
   }
 });
 
-router.put('/editUser/:userId', checkToken, async (req, res) => {
+router.put('/editUser/:id', checkToken, async (req, res) => {
   try {
     const userId = req.params.userId;
     const userData = req.body;
@@ -133,7 +76,7 @@ router.put('/editUser/:userId', checkToken, async (req, res) => {
   }
 });
 
-router.put('/edituser/:userId', checkToken, async (req, res) => {
+router.put('/edituser/:id', checkToken, async (req, res) => {
   try {
     const userId = req.params.userId;
     const userData = req.body;
@@ -172,3 +115,71 @@ router.put('/edituser/:userId', checkToken, async (req, res) => {
 });
 
 module.exports = router
+
+
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: User management
+ * /api/v1/complete-profile:
+ *   post:
+ *     summary: Complete Profile
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User completed successfully
+ *       400:
+ *         description: Bad request
+ */
+
+
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: User management
+ * /api/v1/fetch:
+ *   post:
+ *     summary: Fetch user data
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Bad request
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: User management
+ * /api/v1/user/fecthBy/{id}:
+ *   post:
+ *     summary: Fetch user data By ID
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Bad request
+ */

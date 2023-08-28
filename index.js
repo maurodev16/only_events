@@ -1,13 +1,14 @@
 //inital cnfig
 require('dotenv').config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const admin = require('firebase-admin');
 const claudinary = require("cloudinary").v2;
-
 // To extract data from incoming request
 const bodyParser = require('body-parser');
+const swaggerUi = require("swagger-ui-express");
 
 // To get file paths, remove files
 const fs = require('fs')
@@ -36,27 +37,35 @@ admin.initializeApp({
 });
 
 // Import routers
-const userRoutes = require('./routes/userRouter');
+const logoRoutes = require('./routes/logoRouter');
 const logoImageRoutes = require('./routes/logoRouter');
 const postRoutes= require('./routes/postRoutes');
+const userRoutes= require('./routes/userRouter');
 const artistRoutes= require('./routes/artistRoutes');
 const authRoutes = require('./routes/authRouters');
-//const authPromoter = require('./routes/authPromoterRoutes');
 const cityRoutes = require('./routes/cityRoutes');
+const swaggerSpec = require("./services/Swagger/swagger");
 
-// Register routers
-app.use('/api/v1/user', userRoutes);
+
+
+/// Register routers
+app.use('/api/v1/logo', logoRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/logo', logoImageRoutes);
 app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/city', cityRoutes);
+
+// Configuração do Swagger
+app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //initial endpoint
 app.get('/', (_req, _res) => {
     //show req
     _res.send('Welcome!');
 });
+
 
 // Connect to MongoDB
 const DB_USER = process.env.DB_USER

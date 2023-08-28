@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Artist = require('../models/Artist');
-const Promoter = require('../models/User');
+const User = require('../models/Auth');
 const checkToken = require('../middleware/checkToken');
 
 router.post('/create', checkToken, async (req, res) => {
@@ -9,10 +9,10 @@ router.post('/create', checkToken, async (req, res) => {
       const { artist_name, genre, biography,  banner, photos, socialMedia, contact, discography, streamingLinks, awards } = req.body;
   
       // Verifique se o usuário logado é um promotor antes de permitir a criação do art
-      const promoterId = req.promoter._id; // Promoter ID obtained from the token
-      const promoterData = await Promoter.findById(promoterId);
-      if (!promoterData) {
-        return res.status(404).json({ error: "Promoter not found" });
+      const userId = req.user._id; // Promoter ID obtained from the token
+      const userData = await User.findById(userId);
+      if (!userData) {
+        return res.status(404).json({ error: "user not found" });
       }
   
       // Crie um novo objeto do tipo Artist com as informações fornecidas

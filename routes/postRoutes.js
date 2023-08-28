@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const Event = require('../models/Post');
+const Post = require('../models/Post');
 const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
-const User = require('../models/User');
+const Auth = require('../models/Auth');
 const checkToken = require('../middleware/checkToken');
 const uploadArray = require('../middleware/multerArrayMiddleware');
 
@@ -43,16 +43,16 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
 
     } = req.body;
 
-    const userId = req.user._id;
-    const userData = await User.findById(userId);
+    const userId = req.auth._id;
+    const userData = await Auth.findById(userId);
     if (!userData) {
-      return res.status(404).json({ error: "user not found" });
+      return res.status(404).send("user not found");
     }
     // Verifica se a cidade já existe no banco de dados
     let city = await City.findOne({ cityName });
 
 
-    const event = new Event({
+    const post = new Post({
       title: title,
       place_name: placeName,
       street_name: streetName,
@@ -74,7 +74,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       is_fixed_date: isFixedDate,
       extra_info: extraInfo,
       selected_week_days: selectedWeekDays,
-      user: userData._id,
+      auth: userData._id,
       likes: likes,
       likes_count: likesCount,
       created: created,
@@ -83,14 +83,14 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
     });
     // Verificar se foram enviadas fotos para a galeria
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: 'No images provided' });
+      return res.status(400).send('No images provided');
     }
 
     // Fazer o upload das fotos da galeria para o Firebase Storage
    const postImages = [];
     for (const file of req.files) {
-      const public_id = `${promoterId}-${file.originalname.split('.')[0]}`;
-      const folderPath = `promoters/posts/${promoterId}-${uuidv4()}`;
+      const public_id = `${userId}-${file.originalname.split('.')[0]}`;
+      const folderPath = `users/posts/${userId}-${uuidv4()}`;
 
       const result = await cloudinary.uploader.upload(file.path, {
         public_id: public_id,
@@ -105,14 +105,14 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
     }
 
     // Atualizar as URLs da galeria com os caminhos no Firebase Storage
-    event.post_images_urls = postImages;
-    savedEvent=  await event.save();
-    res.status(200).json({ msg: `Post Created Successfully!` });
+    post.post_images_urls = postImages;
+    savedPost=  await post.save();
+    res.status(200).send('Post Created Successfully!');
   
 
   } catch (error) {
-    console.log(`Error creating Event: ${error}`);
-    res.status(500).json({ msg: "Error creating post, please try again later!" });
+    console.log(`Error creating Post: ${error}`);
+    res.status(500).send("Error creating post, please try again later!");
   }
 });
 
@@ -120,7 +120,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
 ///
 router.get('/fetch', async (req, res) => {
   try {
-    const events = await Event.find({})
+    const posts = await Post.find({})
       .select('-isFeatured')
       .populate({
         path: 'cityId',
@@ -131,10 +131,10 @@ router.get('/fetch', async (req, res) => {
       })
       .populate('promoter', 'full_name company logo_url'); // Popula os dados do promotor
 
-    if (events.length === 0) {
+    if (posts.length === 0) {
       return res.status(404).json({ msg: "Post not found" });
     }else{
-      return res.status(200).json(events);
+      return res.status(200).json(posts);
     }
    
   } catch (error) {
@@ -148,29 +148,29 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
 
   try {
-    const event = await Event.findById(id, '-isFeatured').populate('city', 'cityName');
-    if (!event) {
-      res.status(404).json({ msg: `Event not found for id ${id}` });
+    const post = await Event.findById(id, '-isFeatured').populate('city', 'cityName');
+    if (!posts) {
+      res.status(404).json({ msg: `Post not found for id ${id}` });
       return [];
     }
-    res.status(200).json(event)
+    res.status(200).json(posts)
   } catch (error) {
     res.status(500).json({ error: error })
   }
 });
 
 
-router.get('/fetchEventByPromoter/:promoterId', async (req, res) => {
+router.get('/fetchPostByUser/:userId', async (req, res) => {
   try {
-    const promoterId = req.params.promoterId;
-    const events = await Event.find({ promoter: promoterId }).select('-isFeatured');
+    const userId = req.params.userId;
+    const posts = await Post.find({ user: userId }).select('-isFeatured');
     
-    if (events.length === 0) {
+    if (posts.length === 0) {
       return res.status(404).json({ msg: "Post not found" });
     }else{
     }
     
-    return res.status(200).json(events); // Retorna os eventos encontrados
+    return res.status(200).json(posts); // Retorna os eventos encontrados
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -182,7 +182,7 @@ router.get('/fetchEventByCity/:city', async (req, res) => {
   try {
     const city = req.params.city;
 
-    const events = await Event.find({ city: city }).select('-isFeatured');;
+    const events = await Post.find({ city: city }).select('-isFeatured');;
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "No events found for this city" });
@@ -198,7 +198,7 @@ router.get('/fetchEventsForAdults/:for_adults_only?', async (req, res) => {
   try {
     const forAdultsOnly = req.params.for_adults_only || true;
 
-    const events = await Event.find({ for_adults_only: forAdultsOnly }).select('-isFeatured').populate('cityId');
+    const events = await Post.find({ for_adults_only: forAdultsOnly }).select('-isFeatured').populate('cityId');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "Nenhum evento para adultos encontrado" });
@@ -214,7 +214,7 @@ router.get('/fetchEventIsFeatured/:isFeatured', async (req, res) => {
   try {
     const isFeatured = req.params.isFeatured;
 
-    const events = await Event.find({ isFeatured: isFeatured }).select('-isFeatured').populate('cityId');
+    const events = await Post.find({ isFeatured: isFeatured }).select('-isFeatured').populate('cityId');
     console.log(events)
 
     if (events.length === 0) {
@@ -232,7 +232,7 @@ router.get('/fetchEventByOrganizedBy/:organized_by', async (req, res) => {
   try {
     const organized_by = req.params.organized_by;
 
-    const events = await Event.find({ organized_by: organized_by }).select('-isFeatured').populate('cityId');
+    const events = await Post.find({ organized_by: organized_by }).select('-isFeatured').populate('cityId');
 
     if (events.length === 0) {
       return res.status(404).json({ msg: `${organized_by} has not organized any events so far` });
@@ -271,7 +271,7 @@ router.put('/editEvent/:eventId', checkToken, async (req, res) => {
     const eventData = req.body;
 
     // Verificar se o evento existe
-    const event = await Event.findById(eventId).select('-isFeatured').populate('cityId');
+    const event = await Post.findById(eventId).select('-isFeatured').populate('cityId');
     if (!event) {
       return res.status(404).json({ msg: "Event not found" });
     }

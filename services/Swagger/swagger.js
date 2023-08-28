@@ -1,22 +1,24 @@
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
-const express = require('express');
-const app = express();
+require('dotenv').config();
+const swaggerJsDoc = require("swagger-jsdoc");
+const PORT = process.env.PORT || 3000;
 
-const swaggerOptions = {
+const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'API de Autenticação',
-      version: '1.0.0',
-      description: 'Documentação da API de autenticação usando Swagger',
+      title: "API Documentation",
+      version: "1.0.0",
+      description: "API documentation using Swagger",
     },
+    servers: [
+      {
+        url: PORT, 
+      },
+    ],
   },
-  apis: ['swaggerConfig'],
+  apis: ['./routes/*.js'], 
 };
 
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
+const swaggerSpec = swaggerJsDoc(options);
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// ... Restante da configuração da sua aplicação
+module.exports = swaggerSpec;
