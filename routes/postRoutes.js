@@ -2,7 +2,7 @@ const router = require('express').Router();
 const Post = require('../models/Post');
 const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
-const Auth = require('../models/Auth');
+const User = require('../models/Auth');
 const checkToken = require('../middleware/checkToken');
 const uploadArray = require('../middleware/multerArrayMiddleware');
 
