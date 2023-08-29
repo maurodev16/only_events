@@ -74,7 +74,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       is_fixed_date: isFixedDate,
       extra_info: extraInfo,
       selected_week_days: selectedWeekDays,
-      userId: userData._id,
+      userId: userData.id,
       likes: likes,
       likes_count: likesCount,
       created: created,
