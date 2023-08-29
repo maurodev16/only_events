@@ -45,7 +45,10 @@ const postSchema = new mongoose.Schema({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
     likes_count: { type: Number, default: 0 },
     isFeatured: { type: Boolean, default: false }
-  });
+  },
+  {
+    timestamps: true,
+  },);
   
   // Atualiza o valor de likes_count sempre que um like for adicionado ou removido
   postSchema.post('save', async function (doc) {
