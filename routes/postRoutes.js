@@ -74,12 +74,13 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       is_fixed_date: isFixedDate,
       extra_info: extraInfo,
       selected_week_days: selectedWeekDays,
-      auth: userData._id,
+      userId: userData._id,
       likes: likes,
       likes_count: likesCount,
       created: created,
       updated: updated,
       isFeatured: isFeatured,
+
     });
     // Verificar se foram enviadas fotos para a galeria
     if (!req.files || req.files.length === 0) {
@@ -125,11 +126,11 @@ router.get('/fetch', async (req, res) => {
       .populate({
         path: 'cityId',
         populate: {
-          path: 'promoterId',
+          path: 'userId',
           select: 'company logo_url', // Seleciona os campos desejados do promotor
         },
       })
-      .populate('promoter', 'full_name company logo_url'); // Popula os dados do promotor
+      .populate('user', 'full_name company logo_url'); // Popula os dados do promotor
 
     if (posts.length === 0) {
       return res.status(404).json({ msg: "Post not found" });
@@ -148,12 +149,12 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
 
   try {
-    const post = await Event.findById(id, '-isFeatured').populate('city', 'cityName');
-    if (!posts) {
+    const post = await Post.findById(id, '-isFeatured').populate('city', 'cityName');
+    if (!post) {
       res.status(404).json({ msg: `Post not found for id ${id}` });
       return [];
     }
-    res.status(200).json(posts)
+    res.status(200).json(post)
   } catch (error) {
     res.status(500).json({ error: error })
   }
