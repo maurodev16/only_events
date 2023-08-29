@@ -14,7 +14,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
 router.post('/signup', async (req, res) => {
-  const {name, email, password, role, is_company } = req.body;
+  const { name, email, password, role, is_company } = req.body;
 
   const session = await mongoose.startSession();
 
@@ -31,13 +31,20 @@ router.post('/signup', async (req, res) => {
       return res.status(422).send("EmailAlreadyExistsException");
     }
 
-    const newUser = new User({name: name, email: email, password: password, role: is_company ? 'company' : 'private', is_company: is_company });
+    const newUser = new User({
+      name: name,
+      email: email,
+      password: password,
+      role: is_company ? 'company' : 'private',
+      is_company: is_company,
+      logo_url: logo_url
+    });
 
     const created = await newUser.save({ session });
     console.log(created);
 
     if (!created) {
-     return  Error('ErroSignupOnDatabaseException');
+      return Error('ErroSignupOnDatabaseException');
     }
 
     await session.commitTransaction(); // Confirm Transaction
@@ -50,6 +57,7 @@ router.post('/signup', async (req, res) => {
         email: newUser.email,
         role: newUser.role,
         is_company: newUser.is_company,
+        logo_url: newUser.logo_url,
       }
     });
 
@@ -57,7 +65,7 @@ router.post('/signup', async (req, res) => {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
     console.log(`Erro to Sign-up: ${error}`);
-   return res.status(500).send('ErroSignupException');
+    return res.status(500).send('ErroSignupException');
   }
 });
 
@@ -70,8 +78,8 @@ router.post('/login', async (req, res) => {
     if (!email) {
       console.log(email);
 
-     return res.status(422).send("Please provide a valid email!");
-     
+      return res.status(422).send("Please provide a valid email!");
+
     }
 
     let user;
@@ -90,29 +98,29 @@ router.post('/login', async (req, res) => {
     }
 
     if (!user) {
-        return res.status(404).send("No User found with this email!");
+      return res.status(404).send("No User found with this email!");
     }
 
     if (!password) {
-   return  res.status(422).json("Password is required!");
-      
+      return res.status(422).json("Password is required!");
+
     }
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-     return  res.status(422).json('Incorrect password');
-    
+      return res.status(422).json('Incorrect password');
+
     }
 
     // Generate token
     const token = jwt.sign({ userId: user._id, is_company: user.is_company, role: user.role, }, AUTH_SECRET_KEY);
 
     // Return the authentication token, ID, and email
-  return  res.status(200).json({name:user.name,  userId: user._id, email: user.email, is_company: user.is_company, role: user.role, token,});
+    return res.status(200).json({ name: user.name, userId: user._id, email: user.email, is_company: user.is_company, role: user.role, token, logo_url: user.logo_url});
   } catch (error) {
     console.log(error);
-   return res.status(500).send("An error occurred during login.");
+    return res.status(500).send("An error occurred during login.");
   }
 });
 
