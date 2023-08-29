@@ -40,11 +40,12 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       isFeatured,
       created,
       updated,
+      userId,
 
     } = req.body;
 
-    const userId = req.auth.userId;
-    const userData = await User.findById(userId);
+    const id = req.user.userId;
+    const userData = await User.findById(id);
     if (!userData) {
       return res.status(404).send("user not found");
     }
@@ -74,7 +75,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       is_fixed_date: isFixedDate,
       extra_info: extraInfo,
       selected_week_days: selectedWeekDays,
-      userId: userData._id,
+      userId: userData.userId,
       likes: likes,
       likes_count: likesCount,
       created: created,
