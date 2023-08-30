@@ -43,11 +43,11 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
 
     } = req.body;
 
-    const userId = req._id;
+    const userId = req.auth._id;
     console.log(req.req._id)
     console.log(req.auth.userId)
 
-    console.log(req.user._id)
+    console.log(req.auth._id)
     console.log(req.user.userId)
 
     const userData = await User.findById(userId);
