@@ -14,7 +14,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
 router.post('/signup', async (req, res) => {
-  const { name, email, password, role, is_company } = req.body;
+  const { name, email, password, role, is_company, logo_url } = req.body;
 
   const session = await mongoose.startSession();
 
@@ -31,7 +31,7 @@ router.post('/signup', async (req, res) => {
       return res.status(422).send("EmailAlreadyExistsException");
     }
 
-    const newUser = new User({
+    const user = new User({
       name: name,
       email: email,
       password: password,
@@ -40,26 +40,27 @@ router.post('/signup', async (req, res) => {
       logo_url: logo_url
     });
 
-    const created = await newUser.save({ session });
-    console.log(created);
+    const newCreatedUser = await user.save({ session });
+    console.log(newCreatedUser);
 
-    if (!created) {
+    if (!newCreatedUser) {
       return Error('ErroSignupOnDatabaseException');
     }
 
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    return res.status(201).json({
-      msg: 'Sign-Up successfully',
-      user: {
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        is_company: newUser.is_company,
-        logo_url: newUser.logo_url,
-      }
-    });
+    return res.status(201).json({ 
+      id: newCreatedUser._id,
+      name: newCreatedUser.name,
+      email: newCreatedUser.email,
+      role: newCreatedUser.role,
+      is_company: newCreatedUser.is_company,
+      logo_url: newCreatedUser.logo_url,
+      createdAt: newCreatedUser.createdAt,
+      updatedAt: newCreatedUser.updatedAt,
+     }
+    );
 
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction

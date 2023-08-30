@@ -33,18 +33,17 @@ const postSchema = new mongoose.Schema({
     extra_info: { type: String, default: "" },
     selected_week_days: [{ type: String }],
   city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' }, 
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
 
     entrance_price: {
       type: Number, default: 0,
       get: (value) => accounting.formatMoney(value / 100, "€", 2),
       set: (value) => accounting.unformat(value) * 100
     },
-    created: { type: Date, required: true, default: Date.now },
-    updated: { type: Date, required: true, default: Date.now },
+  
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
     likes_count: { type: Number, default: 0 },
-    isFeatured: { type: Boolean, default: false }
+    is_featured: { type: Boolean, default: false }
   },
   {
     timestamps: true,

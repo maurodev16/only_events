@@ -12,17 +12,21 @@ const mongoose = require('mongoose');
 router.get('/fetch', checkToken, async (req, res) => {
   try {
     const users = await User.find().select('-password');
- 
+
     if (!users) {
       return res.status(404).send("UserNotFoundException");
     }
 
-    const userdata = users.map(user =>{
-      return{
-         id: user._id,
-         name: user.name,
-         email: user.email,
-         logo_url:user.logo_url
+    const userdata = users.map(user => {
+      return {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        logo_url: user.logo_url,
+        role: user.role,
+        is_company: user.is_company,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       }
     })
     res.status(200).send(userdata)

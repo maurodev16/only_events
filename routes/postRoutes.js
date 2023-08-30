@@ -13,114 +13,84 @@ const { populate } = require('../models/Artist');
 
 router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, async (req, res) => {
   try {
-    const {
-      title,
-      placeName,
-      streetName,
-      number,
-      phone,
-      postCode,
-      startDate,
-      endDate,
-      startTime,
-      endTime,
-      entrancePrice,
-      cityName,
-      weekDays,
-      isAgeVerified,
-      selectedAge,
-      isFreeEntry,
-      canPayWithCardEntry,
-      canPayWithCardConsumption,
-      isFixedDate,
-      extraInfo,
-      selectedWeekDays,
-      likes,
-      likesCount,
-      isFeatured,
-      created,
-      updated,
-
-    } = req.body;
-    console.log(req)
+    const postData = req.body;
 
     const userId = req.auth._id;
-    console.log(req._id)
-    console.log(req.auth.userId)
-
-    console.log(req.auth._id)
-    console.log(req.user.userId)
-
-    const userData = await User.findById(userId);
-    console.log(userId)
-    console.log(userData)
+    const userObj = await User.findById(userId);
+    console.log("ID DO USUARIO :::::::::::::::",userId)
+    console.log("DADOS DO USUARIO::::::::::::", userObj)
   
-    if (!userData) {
+    if (!userObj) {
       return res.status(404).send("user not found");
     }
+     // Defina a variável cityName a partir dos dados do corpo da solicitação
+     const cityName = postData.cityName;
     // Verifica se a cidade já existe no banco de dados
     let city = await City.findOne({ cityName });
 
-
     const post = new Post({
-      title: title,
-      place_name: placeName,
-      street_name: streetName,
-      number: number,
-      phone: phone,
-      post_code: postCode,
-      start_date: startDate,
-      end_date: endDate,
-      start_time: startTime,
-      end_time: endTime,
-      entrance_price: entrancePrice,
-      cityName: city,
-      week_days: weekDays,
-      is_age_verified: isAgeVerified,
-      selected_age: selectedAge,
-      is_free_entry: isFreeEntry,
-      can_pay_with_card_entry: canPayWithCardEntry,
-      can_pay_with_card_consumption: canPayWithCardConsumption,
-      is_fixed_date: isFixedDate,
-      extra_info: extraInfo,
-      selected_week_days: selectedWeekDays,
-      userId: userData.id,
-      likes: likes,
-      likes_count: likesCount,
-      created: created,
-      updated: updated,
-      isFeatured: isFeatured,
+      title: postData.title,
+      place_name: postData.placeName,
+      street_name: postData.streetName,
+      number: postData.number,
+      phone: postData.phone,
+      post_code: postData.postCode,
+      start_date: postData.startDate,
+      end_date: postData.endDate,
+      start_time: postData.startTime,
+      end_time: postData.endTime,
+      entrance_price: postData.entrancePrice,
+      city: city,
+      week_days: postData.weekDays,
+      is_age_verified: postData.isAgeVerified,
+      selected_age: postData.selectedAge,
+      is_free_entry: postData.isFreeEntry,
+      can_pay_with_card_entry: postData.canPayWithCardEntry,
+      can_pay_with_card_consumption: postData.canPayWithCardConsumption,
+      is_fixed_date: postData.isFixedDate,
+      extra_info: postData.extraInfo,
+      selected_week_days: postData.selectedWeekDays,
+      likes_count: postData.likesCount,
+      created: postData.created,
+      updated: postData.updated,
+      is_featured: postData.isFeatured,
+      user: userObj,
 
     });
-    // Verificar se foram enviadas fotos para a galeria
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).send('No images provided');
-    }
+    console.log("POST::::::::::::::::::::::::::", post);
+  // Verificar se foram enviadas fotos para a galeria
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).send('No images provided');
+  }
 
-    // Fazer o upload das fotos da galeria para o Firebase Storage
-   const postImages = [];
-    for (const file of req.files) {
-      const public_id = `${userId}-${file.originalname.split('.')[0]}`;
-      const folderPath = `users/posts/${userId}-${uuidv4()}`;
+  // Fazer o upload das fotos da galeria para o Firebase Storage
+ const postImages = [];
+  for (const file of req.files) {
+    const public_id = `${userId}-${file.originalname.split('.')[0]}`;
+    const folderPath = `users/posts/${userId}-${uuidv4()}`;
+ 
+    const result = await cloudinary.uploader.upload(file.path, {
+      public_id: public_id,
+      overwrite: false,
+      folder: folderPath,
+      transformation: [
+        { height: 500, width: 500, crop: 'fit' }
 
-      const result = await cloudinary.uploader.upload(file.path, {
-        public_id: public_id,
-        overwrite: false,
-        folder: folderPath,
-        transformation: [
-          { height: 500, width: 500, crop: 'fit' }
-      ],
-      });
-      postImages.push(result.secure_url);
-      console.log("PUSH::::::", postImages)
-    }
+    ],
+    });
+    console.log("RESULTE CLAUDY:::::::::::::::::::::::::::::::::::::::::", result)
+    postImages.push(result.secure_url);
+    console.log("PUSH::::::", postImages)
+    
+  // Atualizar as URLs da galeria com os caminhos no Firebase Storage
+  post.post_images_urls = postImages;
 
-    // Atualizar as URLs da galeria com os caminhos no Firebase Storage
-    post.post_images_urls = postImages;
-    savedPost=  await post.save();
-    res.status(200).send('Post Created Successfully!');
+   const savedPost =  await post.save();
+console.log("SAVED POST ID::::::::::::::::::::::::::", savedPost);
   
-
+   }
+    res.status(200).json(savedPost);
+  
   } catch (error) {
     console.log(`Error creating Post: ${error}`);
     res.status(500).send("Error creating post, please try again later!");
