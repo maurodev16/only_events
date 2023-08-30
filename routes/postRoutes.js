@@ -42,9 +42,10 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       updated,
 
     } = req.body;
+    console.log(req)
 
     const userId = req.auth._id;
-    console.log(req.req._id)
+    console.log(req._id)
     console.log(req.auth.userId)
 
     console.log(req.auth._id)
