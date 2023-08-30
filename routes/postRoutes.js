@@ -49,7 +49,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
 
     console.log(req.user._id)
     console.log(req.user.userId)
-    
+
     const userData = await User.findById(userId);
     console.log(userId)
     console.log(userData)
