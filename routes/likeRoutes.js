@@ -1,83 +1,46 @@
 const router = require('express').Router();
 const Like = require('../models/Likes');
-const Event = require('../models/Event');
-const Participant = require('../models/Participant');
-const checkParticipantToken = require('../middleware/checkParticipantToken');
+const Post = require('../models/Post');
+const checkToken = require('../middleware/checkToken');
 
-
-// Rota para criar um novo like
-router.post('/likes',checkParticipantToken, async (req, res) => {
+// Rota para dar um like e Dislike a um post
+router.post('/:postId/like', checkToken, async (req, res) => {
   try {
-    const { participantId, eventId } = req.body;
+    const postId = req.params.postId;
+    const userId = req.auth._id;
 
-    // Verificar se o participante e o evento existem
-    const participant = await Participant.findById(participantId);
-    const event = await Event.findById(eventId);
-
-    if (!participant || !event) {
-      res.status(404).json({ msg: 'Participant or event not found' });
-      return;
+    // Verifica se o post existe
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
     }
 
-    // Criar o novo like
-    const like = new Like({
-      participant: participantId,
-      event: eventId
-    });
+    // Verifica se o usuário deu like a este post
+    const existingLike = await Like.findOne({ user: userId, post: postId });
 
-    // Salvar o like
-    await like.save();
+    if (existingLike) {
+      // Remove o like do schema Like
+      await Like.findByIdAndDelete(existingLike._id);
 
-    res.status(201).json({ msg: 'Like created successfully' });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: 'Error creating like' });
-  }
-});
+      // Atualiza o array de likes e o contador no post correspondente
+      post.likes.pull(existingLike._id);
+      post.likes_count--;
+    } else {
+      // Adiciona um novo like
+      const newLike = new Like({ user: userId, post: postId });
+      await newLike.save();
 
-// Rota para obter todos os likes de um participante
-router.get('/participants/:participantId/likes', checkParticipantToken, async (req, res) => {
-  try {
-    const participantId = req.params.participantId;
-
-    // Verificar se o participante existe
-    const participant = await Participant.findById(participantId);
-
-    if (!participant) {
-      res.status(404).json({ msg: 'Participant not found' });
-      return;
+      // Atualiza o array de likes e o contador no post correspondente
+      post.likes.push(newLike._id);
+      post.likes_count++;
     }
 
-    // Obter os likes do participante
-    const likes = await Like.find({ participant: participantId }).populate('event');
+    await post.save();
 
-    res.json(likes);
+    return res.status(200).json({ message: 'Like action performed successfully' });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: 'Error retrieving likes' });
-  }
-});
-
-// Rota para excluir um like
-router.delete('/likes/:likeId', checkParticipantToken, async (req, res) => {
-  try {
-    const likeId = req.params.likeId;
-
-    // Verificar se o like existe
-    const like = await Like.findById(likeId);
-
-    if (!like) {
-      res.status(404).json({ msg: 'Like not found' });
-      return;
-    }
-
-    // Excluir o like
-    await like.remove();
-
-    res.json({ msg: 'Like deleted successfully' });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: 'Error deleting like' });
+    console.error('Error performing like action:', error);
+    return res.status(500).json({ message: 'An error occurred' });
   }
 });
 

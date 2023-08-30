@@ -35,7 +35,7 @@ router.get('/fetch', checkToken, async (req, res) => {
   }
 });
 
-router.get('/fecthBy/:id', checkToken, async (req, res) => {
+router.get('/fetchById/:id', checkToken, async (req, res) => {
   const id = req.params.id;
 
   try {

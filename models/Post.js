@@ -49,13 +49,7 @@ const postSchema = new mongoose.Schema({
     timestamps: true,
   },);
   
-  // Atualiza o valor de likes_count sempre que um like for adicionado ou removido
-  postSchema.post('save', async function (doc) {
-    const likes_count = await Like.countDocuments({ post: doc._id });
-    doc.likes_count = likes_count;
-    await doc.save();
-  });
-  
+
   const Post = mongoose.model('Post', postSchema);
   
   module.exports = Post;

@@ -3,9 +3,13 @@ const User = require("./Auth");
 const Post = require("./Post");
 
 const likeSchema = new mongoose.Schema({
-  post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-});
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },
+  createdAt: { type: Date, default: Date.now }
+}, {
+  timestamps: true,
+},
+);
 
 const Like = mongoose.model('Like', likeSchema);
 

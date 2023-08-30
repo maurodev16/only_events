@@ -40,6 +40,7 @@ admin.initializeApp({
 const logoRoutes = require('./routes/logoRouter');
 const logoImageRoutes = require('./routes/logoRouter');
 const postRoutes= require('./routes/postRoutes');
+const likeRoutes= require('./routes/likeRoutes');
 const userRoutes= require('./routes/userRouter');
 const artistRoutes= require('./routes/artistRoutes');
 const authRoutes = require('./routes/authRouters');
@@ -54,6 +55,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/logo', logoImageRoutes);
 app.use('/api/v1/post', postRoutes);
+app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/city', cityRoutes);
 
