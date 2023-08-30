@@ -43,9 +43,10 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
 
     } = req.body;
 
-    const userId = req.auth._id;
+    const userId = req.auth.userId;
     const userData = await User.findById(userId);
-    console.log(userId);
+    console.log(userId)
+    console.log(userData)
     if (!userData) {
       return res.status(404).send("user not found");
     }
