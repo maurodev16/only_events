@@ -43,7 +43,7 @@ router.get('/fetch', async (req, res) => {
         if (!cities || cities.length === 0) {
             return res.status(404).json({ msg: "Cities not found" });
         }
-        res.status(200).json(cities);
+       return res.status(201).json(cities);
     } catch (error) {
         res.status(500).json({ error: error });
     }
