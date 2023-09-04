@@ -23,11 +23,12 @@ router.post('/signup', async (req, res) => {
 
     // // Verifica se a cidade já existe no banco de dados
     // let cityName = await City.findOne({ cityName });
-  // Verifica se o email do User já está em uso
-  const nameExists = await User.findOne({ name: name });
-  if (nameExists) {
-    return res.status(422).send("NameAlreadyExistsException");
-  }
+
+    // Verifica se o nome do User já está em uso
+    const nameExists = await User.findOne({ name: name });
+    if (nameExists) {
+      return res.status(422).send("NameAlreadyExistsException");
+    }
 
     // Verifica se o email do User já está em uso
     const emailExists = await User.findOne({ email: email });
@@ -54,7 +55,17 @@ router.post('/signup', async (req, res) => {
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    return res.status(201).json({ newCreatedUser } );
+    return res.status(201).json({ 
+      id: newCreatedUser._id,
+      name: newCreatedUser.name,
+      email: newCreatedUser.email,
+      role: newCreatedUser.role,
+      is_company: newCreatedUser.is_company,
+      logo_url: newCreatedUser.logo_url,
+      createdAt: newCreatedUser.createdAt,
+      updatedAt: newCreatedUser.updatedAt,
+     }
+    );
 
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
