@@ -23,7 +23,11 @@ router.post('/signup', async (req, res) => {
 
     // // Verifica se a cidade já existe no banco de dados
     // let cityName = await City.findOne({ cityName });
-
+  // Verifica se o email do User já está em uso
+  const nameExists = await User.findOne({ name: name });
+  if (nameExists) {
+    return res.status(422).send("NameAlreadyExistsException");
+  }
 
     // Verifica se o email do User já está em uso
     const emailExists = await User.findOne({ email: email });
