@@ -38,7 +38,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       start_time: postData.start_time,
       end_time: postData.end_time,
       entrance_price: postData.entrance_price,
-      cityName:city.cityName,
+      cityName: city.cityName,
       city: city,
       week_days: postData.week_days,
       is_age_verified: postData.is_age_verified,
@@ -63,7 +63,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
 
     // Fazer o upload das fotos da galeria para o Firebase Storage
     const postImages = [];
- 
+
     for (const file of req.files) {
       const public_id = `${userId}-${file.originalname.split('.')[0]}`;
       const folderPath = `users/posts/${userId}-${uuidv4()}`;
@@ -89,16 +89,16 @@ router.get('/fetch', async (req, res) => {
         path: 'cityId',
         populate: {
           path: 'userId',
-          select: 'name logo_url', // Seleciona os campos desejados do promotor
+          select: 'name logo_url', // Seleciona os campos desejados do User
         },
       })
-      .populate('user', 'name email  logo_url '); // Popula os dados do promotor
+      .populate('user', 'name email logo_url '); // Popula os dados do User
 
     if (posts.length === 0) {
       return res.status(404).send("Post not found");
-    } else {
-      return res.status(201).json(posts);
     }
+    return res.status(201).json(posts);
+
 
   } catch (error) {
     res.status(500).send(error.message);
@@ -107,7 +107,7 @@ router.get('/fetch', async (req, res) => {
 
 
 
-router.get('fetchPostByPostId/:id', async (req, res) => {
+router.get('/fetchPostByPostId/:id', async (req, res) => {
   const id = req.params.id;
 
   try {

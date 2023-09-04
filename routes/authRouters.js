@@ -50,17 +50,7 @@ router.post('/signup', async (req, res) => {
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
-    return res.status(201).json({ 
-      id: newCreatedUser._id,
-      name: newCreatedUser.name,
-      email: newCreatedUser.email,
-      role: newCreatedUser.role,
-      is_company: newCreatedUser.is_company,
-      logo_url: newCreatedUser.logo_url,
-      createdAt: newCreatedUser.createdAt,
-      updatedAt: newCreatedUser.updatedAt,
-     }
-    );
+    return res.status(201).json({ newCreatedUser } );
 
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
