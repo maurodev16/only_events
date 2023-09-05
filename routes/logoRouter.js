@@ -6,7 +6,7 @@ const { deleteImageFromCloudinary } = require("../services/cloudinary")
 const router = require('express').Router()
 
 // Rota para fazer o upload da imagem do user
-router.put('/upload-logo/:userId', uploadSingle.single('logo'), checkToken, async (req, res) => {
+router.put('/upload-logo/:userId', uploadSingle.single('logo_url'), checkToken, async (req, res) => {
     const { userId } = req.params;
     var folderPath = `user/logos/${userId}`
     try {

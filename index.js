@@ -38,7 +38,6 @@ admin.initializeApp({
 
 // Import routers
 const logoRoutes = require('./routes/logoRouter');
-const logoImageRoutes = require('./routes/logoRouter');
 const postRoutes= require('./routes/postRoutes');
 const likeRoutes= require('./routes/likeRoutes');
 const userRoutes= require('./routes/userRouter');
@@ -53,7 +52,6 @@ const swaggerSpec = require("./services/Swagger/swagger");
 app.use('/api/v1/logo', logoRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
-app.use('/api/v1/logo', logoImageRoutes);
 app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/artist', artistRoutes);
