@@ -8,7 +8,9 @@ const sendEmail = async (email, subject, payload, template)=>{
     try {
         const transport = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
+            service: process.env.EMAIL_SERVICE,
             port:465,
+            secure:true,
             auth:{
                 user: process.env.EMAIL_USERNAME,
                 pass: process.env.EMAIL_PASSWORD,
@@ -31,16 +33,13 @@ transport.sendMail(options(), (error, info)=>{
     if (error) {
         return error;
     } else {
-        return res.status(200).json({
-            success: true,
-        });
+        console.log("email sent sucessfully");
+        return res.status(200).json({ success: true });
     }
 });
 
-
-
     } catch (error) {
-        console.log("ERROR TO SEND EMAIL:::: ", error);
+        console.log(error, "email not sent", error);
         return error;
     }
 };
