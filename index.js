@@ -39,6 +39,7 @@ admin.initializeApp({
 // Import routers
 const logoRoutes = require('./routes/logoRouter');
 const postRoutes= require('./routes/postRoutes');
+const postFiltersRoutes= require('./routes/postFiltersRouters');
 const likeRoutes= require('./routes/likeRoutes');
 const userRoutes= require('./routes/userRouter');
 const artistRoutes= require('./routes/artistRoutes');
@@ -54,6 +55,7 @@ app.use('/api/v1/logo', logoRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/post', postRoutes);
+app.use('/api/v1/post/filter', postFiltersRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/city', cityRoutes);

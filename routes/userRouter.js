@@ -43,7 +43,7 @@ router.get('/fetchById/:id', checkToken, async (req, res) => {
     if (!user) {
       return res.status(404).send("UserNotFoundException");
     }
-    res.status(200).json(user)
+    res.status(200).json({ user })
   } catch (error) {
     res.status(500).json({ error: error })
   }
@@ -74,7 +74,7 @@ router.put('/editUser/:id', checkToken, async (req, res) => {
     // Salvar as alterações no banco de dados
     const updateduser = await user.save();
 
-    res.status(200).json(updateduser);
+    res.status(200).json({updateduser});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -112,7 +112,7 @@ router.put('/edituser/:id', checkToken, async (req, res) => {
     // Save the updated user data to the database
     const updatedUser = await user.save();
 
-    res.status(200).json(updatedUser);
+    res.status(200).json({updatedUser});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

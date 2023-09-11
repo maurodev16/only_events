@@ -72,7 +72,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
     }
     post.post_images_urls = postImages;
     const createdPost = await post.save();
-    return res.status(201).json(createdPost);
+    return res.status(201).json({createdPost});
   } catch (error) {
     console.log(`Error creating Post: ${error}`);
     return res.status(500).send("Error creating post, please try again later!");
