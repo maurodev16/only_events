@@ -53,6 +53,7 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
       created: postData.created,
       updated: postData.updated,
       is_featured: postData.is_featured,
+      music_category: postData.music_category,
       user: userObj,
 
     });
