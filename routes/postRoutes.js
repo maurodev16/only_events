@@ -4,7 +4,7 @@ const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
 const User = require('../models/Auth');
 const checkToken = require('../middleware/checkToken');
-const uploadSingleBanner = require('../middleware/multerArrayMiddleware');
+const uploadSingleBanner = require('../middleware/multerSingleBannerMiddleware');
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');

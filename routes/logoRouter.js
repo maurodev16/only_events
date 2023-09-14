@@ -1,6 +1,6 @@
 const cloudinary = require('../services/cloudinaryConfig');
 const User = require('../models/Auth');
-const uploadSingle = require('../middleware/multerSingleMiddleware');
+const uploadSingle = require('../middleware/multerSingleLogoMiddleware');
 const checkToken = require('../middleware/checkToken');
 const { deleteImageFromCloudinary } = require("../services/cloudinary")
 const router = require('express').Router()
