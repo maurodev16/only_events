@@ -4,14 +4,14 @@ const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
 const User = require('../models/Auth');
 const checkToken = require('../middleware/checkToken');
-const uploadArray = require('../middleware/multerArrayMiddleware');
+const uploadSingleBanner = require('../middleware/multerArrayMiddleware');
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { populate } = require('../models/Artist');
 
 
-router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, async (req, res) => {
+router.post('/create', uploadSingleBanner.single('post_image_url'), checkToken, async (req, res) => {
   try {
     const postData = req.body;
 
@@ -63,15 +63,15 @@ router.post('/create', uploadArray.array('post_images_urls', 6), checkToken, asy
     }
 
     // Fazer o upload das fotos da galeria para o Firebase Storage
-    const postImages = [];
+    const postImage = '';
 
     for (const file of req.files) {
       const public_id = `${userId}-${file.originalname.split('.')[0]}`;
       const folderPath = `users/posts/${userId}-${uuidv4()}`;
       const result = await cloudinary.uploader.upload(file.path, { public_id: public_id, overwrite: false, folder: folderPath });
-      postImages.push(result.secure_url);
+      postImage = result.secure_url;
     }
-    post.post_images_urls = postImages;
+    post.post_image_url = postImage;
     const createdPost = await post.save();
     return res.status(201).json({createdPost});
   } catch (error) {

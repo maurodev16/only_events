@@ -19,7 +19,7 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
-const uploadArray = multer({
+const uploadSingleBanner = multer({
     storage: storage,
     limits: {
         fileSize: 1024 * 1024 * 5  // Limite de 5MB
@@ -27,4 +27,4 @@ const uploadArray = multer({
     fileFilter: fileFilter
 });
 
-module.exports = uploadArray;
+module.exports = uploadSingleBanner;

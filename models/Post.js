@@ -10,7 +10,7 @@ IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 IMAGE_BANNER_DEFAULT_TOKEN = process.env.IMAGE_BANNER_DEFAULT_TOKEN;
 
 const postSchema = new mongoose.Schema({
-  post_images_urls: [{ type: String }],
+  post_image_url: { type: String },
   title: { type: String, default: "" },
   street_name: { type: String, default: "" },
   place_name: { type: String, default: "" },
@@ -37,12 +37,8 @@ const postSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
   likes_count: { type: Number, default: 0 },
-  is_featured: { type: Boolean, default: false }, entrance_price: {
-    type: Number, default: 0,
-    get: (value) => accounting.formatMoney(value / 100, "€", 2),
-    set: (value) => accounting.unformat(value) * 100
-  },
-
+  is_featured: { type: Boolean, default: false }, 
+  entrance_price: {type: String},
 },
   {
     timestamps: true,
