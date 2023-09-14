@@ -16,12 +16,12 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
-const uploadSingle = multer({
-    storage:storage,
+const uploadSingleLogo = multer({
+    storage: storage,
     limits: {
         fileSize: 1024 * 1024 * 5  // Limite de 5MB
     },
     fileFilter: fileFilter
 });
 
-module.exports = uploadSingle;
+module.exports = uploadSingleLogo;

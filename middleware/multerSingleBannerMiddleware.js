@@ -1,13 +1,10 @@
 const multer = require('multer');
-
 const storage = multer.diskStorage({
 
     filename:function(req, file, cb){
         cb(null, Date.now() + '-' + file.originalname)
     }
 })
-
-
 
 const fileFilter = (req, file, cb) => {
     // Verificar se o tipo do arquivo é válido
