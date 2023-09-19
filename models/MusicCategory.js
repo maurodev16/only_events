@@ -5,6 +5,6 @@ const musicCategorySchema = new mongoose.Schema({
 
 });
 
-const MusicCategory = mongoose.model('musicCategory', musicCategorySchema);
+const MusicCategory = mongoose.model('MusicCategory', musicCategorySchema);
 
 module.exports = MusicCategory;

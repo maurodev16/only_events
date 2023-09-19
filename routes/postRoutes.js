@@ -3,6 +3,7 @@ const Post = require('../models/Post');
 const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
 const User = require('../models/Auth');
+const MusicCategory = require('../models/MusicCategory');  
 const checkToken = require('../middleware/checkToken');
 const uploadSingleBanner = require('../middleware/multerSingleBannerMiddleware');
 
@@ -16,7 +17,7 @@ router.post('/create', uploadSingleBanner.single('post_image_url'), checkToken, 
     const postData = req.body;
 
     const userId = req.auth._id;
-    const userObj = await User.findById(userId);
+    const userObj = await User.findById(userId).select('-password');
 
     if (!userObj) {
       return res.status(404).send("user not found");
@@ -58,21 +59,24 @@ router.post('/create', uploadSingleBanner.single('post_image_url'), checkToken, 
 
     });
     // Verificar se foram enviadas fotos para a galeria
-    if (!req.files || req.files.length === 0) {
+    if (!req.file || req.file.length === 0) {
       return res.status(400).send('No images provided');
     }
 
     // Fazer o upload das fotos da galeria para o Firebase Storage
-    const postImage = '';
+    let postImage = '';
 
-    for (const file of req.files) {
+      const file = req.file
       const public_id = `${userId}-${file.originalname.split('.')[0]}`;
       const folderPath = `users/posts/${userId}-${uuidv4()}`;
       const result = await cloudinary.uploader.upload(file.path, { public_id: public_id, overwrite: false, folder: folderPath });
       postImage = result.secure_url;
-    }
+  
     post.post_image_url = postImage;
-    const createdPost = await post.save();
+   
+    const createdPost = await post.save(); 
+   
+
     return res.status(201).json({createdPost});
   } catch (error) {
     console.log(`Error creating Post: ${error}`);
@@ -93,20 +97,47 @@ router.get('/fetch', async (req, res) => {
           select: 'name logo_url', // Seleciona os campos desejados do User
         },
       })
-      .populate('user', 'name email logo_url '); // Popula os dados do User
+      .populate('user', 'name email logo_url') // Popula os dados do User
+      .populate({
+        path: 'music_category',
+        select: 'music_category_name', // Seleciona apenas o nome da categoria de música
+      }); // Popula as categorias de música
 
     if (posts.length === 0) {
       return res.status(404).send("Post not found");
     }
+
     return res.status(201).json(posts);
-
-
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
+router.get('/fetchPostByUser/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const posts = await Post.find({ user: userId }).select('-isFeatured').populate({
+      path: 'cityId',
+      populate: {
+        path: 'userId',
+        select: 'name logo_url', // Seleciona os campos desejados do User
+      },
+    })
+    .populate('user', 'name email logo_url') 
+    .populate({
+      path: 'music_category',
+      select: 'music_category_name', // Ajuste para a propriedade correta da categoria de música
+    });
 
+    if (posts.length === 0) {
+      return res.status(404).json({ msg: "Post not found" });
+    } 
+
+    return res.status(201).json(posts); // Retorna os posts encontrados
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 router.get('/fetchPostByPostId/:id', async (req, res) => {
   const id = req.params.id;
@@ -124,25 +155,7 @@ router.get('/fetchPostByPostId/:id', async (req, res) => {
 });
 
 
-router.get('/fetchPostByUser/:userId', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const posts = await Post.find({ user: userId }).select('-isFeatured');
-
-    if (posts.length === 0) {
-      return res.status(404).json({ msg: "Post not found" });
-    } else {
-    }
-
-    return res.status(200).json(posts); // Retorna os eventos encontrados
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-
-
-router.get('/fetchEventByCity/:city', async (req, res) => {
+router.get('/fetchPostByCity/:city', async (req, res) => {
   try {
     const city = req.params.city;
 
