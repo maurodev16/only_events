@@ -30,9 +30,6 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
       return res.status(400).send('No images provided');
     }
 
-    // Fazer o upload das fotos da galeria para o Firebase Storage
-    let postImage = '';
-
     const file = req.file
     const public_id = `${userId}-${file.originalname.split('.')[0]}`;
     const result = await cloudinary.uploader.upload(file.path,
@@ -40,6 +37,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
         public_id: public_id,
         overwrite: false,
         upload_preset: 'wasGehtAb_preset',
+        
       });
   
     if (result) {
