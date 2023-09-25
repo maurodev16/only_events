@@ -34,10 +34,11 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
     const public_id = `${userId}-${file.originalname.split('.')[0]}`;
     const result = await cloudinary.uploader.upload(file.path,
       {
+        allowed_formats:['png', 'jpg', 'gif', 'jpeg'],
         public_id: public_id,
         overwrite: false,
         upload_preset: 'wasGehtAb_preset',
-        
+       
       });
   
     if (result) {
@@ -54,7 +55,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
         start_time: postData.start_time,
         end_time: postData.end_time,
         entrance_price: postData.entrance_price,
-        cityName: city.cityName,
+        cityName: cityName,
         city: city,
         week_days: postData.week_days,
         is_age_verified: postData.is_age_verified,
