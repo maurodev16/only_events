@@ -3,22 +3,21 @@ const Post = require('../models/Post');
 const cloudinary = require('../services/cloudinaryConfig');
 const City = require('../models/City');
 const User = require('../models/Auth');
-const MusicCategory = require('../models/MusicCategory');  
+const MusicCategory = require('../models/MusicCategory');
 const checkToken = require('../middleware/checkToken');
-const uploadSingleBanner = require('../middleware/multerSingleBannerMiddleware');
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { populate } = require('../models/Artist');
 
 
-router.post('/create', uploadSingleBanner.single('post_image_url'), checkToken, async (req, res) => {
+router.post('/create', checkToken, async (req, res) => {
+  const postData = req.body;
   try {
-    const postData = req.body;
 
     const userId = req.auth._id;
-    const userObj = await User.findById(userId).select('-password');
 
+    const userObj = await User.findById(userId).select('-password');
     if (!userObj) {
       return res.status(404).send("user not found");
     }
@@ -27,57 +26,61 @@ router.post('/create', uploadSingleBanner.single('post_image_url'), checkToken, 
     // Verifica se a cidade já existe no banco de dados
     let city = await City.findOne({ cityName });
 
-    const post = new Post({
-      title: postData.title,
-      place_name: postData.place_name,
-      street_name: postData.street_name,
-      number: postData.number,
-      phone: postData.phone,
-      post_code: postData.post_code,
-      start_date: postData.start_date,
-      end_date: postData.end_date,
-      start_time: postData.start_time,
-      end_time: postData.end_time,
-      entrance_price: postData.entrance_price,
-      cityName: city.cityName,
-      city: city,
-      week_days: postData.week_days,
-      is_age_verified: postData.is_age_verified,
-      selected_age: postData.selected_age,
-      is_free_entry: postData.is_free_entry,
-      can_pay_with_card_entry: postData.can_pay_with_card_entry,
-      can_pay_with_card_consumption: postData.can_pay_with_card_consumption,
-      is_fixed_date: postData.is_fixed_date,
-      extra_info: postData.extra_info,
-      selected_week_days: postData.selected_week_days,
-      likes_count: postData.likes_count,
-      created: postData.created,
-      updated: postData.updated,
-      is_featured: postData.is_featured,
-      music_category: postData.music_category,
-      user: userObj,
+   // Verificar se foram enviadas fotos para a galeria
+   if (postData.image_banner_obj === 0) {
+    return res.status(400).send('No images provided');
+  }
 
-    });
-    // Verificar se foram enviadas fotos para a galeria
-    if (!req.file || req.file.length === 0) {
-      return res.status(400).send('No images provided');
+    if (postData.image_banner_obj) {
+      const uploadResponse = await cloudinary.uploader.upload(postData.image_banner_obj, {
+        upload_preset: "wasGehtAb_preset",
+        //  public_id: public_id,
+        overwrite: false,
+        resource_type: "image",
+        unique_filename: true,
+        format: ("gif, png, jpg, jpeg"),
+
+      });
+      if (uploadResponse) {
+        const post = new Post({
+          image_banner_obj: uploadResponse,
+          image_banner_url: uploadResponse.secure_url,
+          title: postData.title,
+          place_name: postData.place_name,
+          street_name: postData.street_name,
+          number: postData.number,
+          phone: postData.phone,
+          post_code: postData.post_code,
+          start_date: postData.start_date,
+          end_date: postData.end_date,
+          start_time: postData.start_time,
+          end_time: postData.end_time,
+          entrance_price: postData.entrance_price,
+          cityName: city.cityName,
+          city: city,
+          week_days: postData.week_days,
+          is_age_verified: postData.is_age_verified,
+          selected_age: postData.selected_age,
+          is_free_entry: postData.is_free_entry,
+          can_pay_with_card_entry: postData.can_pay_with_card_entry,
+          can_pay_with_card_consumption: postData.can_pay_with_card_consumption,
+          is_fixed_date: postData.is_fixed_date,
+          extra_info: postData.extra_info,
+          selected_week_days: postData.selected_week_days,
+          likes_count: postData.likes_count,
+          created: postData.created,
+          updated: postData.updated,
+          is_featured: postData.is_featured,
+          music_category: postData.music_category,
+          user: userObj,
+
+        });
+
+
+        const createdPost = await post.save();
+        return res.status(201).json({ createdPost });
+      }
     }
-
-    // Fazer o upload das fotos da galeria para o Firebase Storage
-    let postImage = '';
-
-      const file = req.file
-      const public_id = `${userId}-${file.originalname.split('.')[0]}`;
-      const folderPath = `users/posts/${userId}-${uuidv4()}`;
-      const result = await cloudinary.uploader.upload(file.path, { public_id: public_id, overwrite: false, folder: folderPath });
-      postImage = result.secure_url;
-  
-    post.post_image_url = postImage;
-   
-    const createdPost = await post.save(); 
-   
-
-    return res.status(201).json({createdPost});
   } catch (error) {
     console.log(`Error creating Post: ${error}`);
     return res.status(500).send("Error creating post, please try again later!");
@@ -123,15 +126,15 @@ router.get('/fetchPostByUser/:userId', async (req, res) => {
         select: 'name logo_url', // Seleciona os campos desejados do User
       },
     })
-    .populate('user', 'name email logo_url') 
-    .populate({
-      path: 'music_category',
-      select: 'music_category_name', // Ajuste para a propriedade correta da categoria de música
-    });
+      .populate('user', 'name email logo_url')
+      .populate({
+        path: 'music_category',
+        select: 'music_category_name', // Ajuste para a propriedade correta da categoria de música
+      });
 
     if (posts.length === 0) {
       return res.status(404).json({ msg: "Post not found" });
-    } 
+    }
 
     return res.status(201).json(posts); // Retorna os posts encontrados
   } catch (error) {
