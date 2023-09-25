@@ -10,8 +10,7 @@ IMAGE_AVATAR_DEFAULT_TOKEN = process.env.IMAGE_AVATAR_DEFAULT_TOKEN;
 IMAGE_BANNER_DEFAULT_TOKEN = process.env.IMAGE_BANNER_DEFAULT_TOKEN;
 
 const postSchema = new mongoose.Schema({
-  image_banner_obj: { type: Object, required:true },
-  image_banner_url: { type: String },
+  post_image_url: { type: String},
   title: { type: String, default: "" },
   street_name: { type: String, default: "" },
   place_name: { type: String, default: "" },
