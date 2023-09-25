@@ -76,7 +76,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
       });
 
       const createdPost = await post.save();
-      return res.status(201).json({ createdPost });
+      return res.status(201).json({'post': createdPost });
 
     }
 
