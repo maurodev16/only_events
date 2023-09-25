@@ -15,6 +15,7 @@ const { populate } = require('../models/Artist');
 router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req, res) => {
   try {
     const postData = req.body;
+
     const userId = req.auth._id;
     const userObj = await User.findById(userId).select('-password');
 
@@ -30,6 +31,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
     }
 
     // Fazer o upload das fotos da galeria para o Firebase Storage
+    let postImage = '';
 
     const file = req.file
     const public_id = `${userId}-${file.originalname.split('.')[0]}`;
@@ -38,8 +40,8 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
         public_id: public_id,
         overwrite: false,
         upload_preset: 'wasGehtAb_preset',
-
       });
+  
     if (result) {
       const post = new Post({
         post_image_url: result.secure_url,
