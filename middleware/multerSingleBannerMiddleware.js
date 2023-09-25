@@ -22,7 +22,7 @@ const uploadSingleBanner = multer({
     limits: {
         fileSize: 1024 * 1024 * 5 // Limite de 5MB
     },
-    fileFilter: fileFilter
+    
 });
 
 module.exports = uploadSingleBanner;
