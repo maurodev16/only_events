@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const router = require('express').Router();
 const Post = require('../models/Post');
 const cloudinary = require('../services/cloudinaryConfig');
@@ -16,14 +17,35 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
   try {
     const postData = req.body;
 
+    /// Finding user
     const userId = req.auth._id;
     const userObj = await User.findById(userId).select('-password');
-
     if (!userObj) {
       return res.status(404).send("user not found");
     }
+
+    /// Obtenha os IDs das categorias de música
+
+    const musicCategoryIds = postData.music_category_id.split(',').map(id => id.trim());
+
+    // Validar se os IDs são válidos
+    const areValidIds = musicCategoryIds.every(id => mongoose.Types.ObjectId.isValid(id));
+
+    if (!areValidIds) {
+      return res.status(400).json({ error: 'IDs de categoria de música inválidos.' });
+    }
+
+    // Verificar a existência das categorias de música
+    const existingCategories = await MusicCategory.find({ _id: { $in: musicCategoryIds } });
+
+    if (existingCategories.length !== musicCategoryIds.length) {
+      return res.status(400).json({ error: 'Algumas categorias de música não existem.' });
+    }
+
+    ///Finding City
     const cityName = postData.cityName;
     let city = await City.findOne({ cityName });
+
 
     // Verificar se foram enviadas fotos para a galeria
     if (!req.file || req.file.length === 0) {
@@ -34,13 +56,13 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
     const public_id = `${userId}-${file.originalname.split('.')[0]}`;
     const result = await cloudinary.uploader.upload(file.path,
       {
-        allowed_formats:['png', 'jpg', 'gif', 'jpeg'],
+        allowed_formats: ['png', 'jpg', 'gif', 'jpeg'],
         public_id: public_id,
         overwrite: false,
         upload_preset: 'wasGehtAb_preset',
-       
+
       });
-  
+
     if (result) {
       const post = new Post({
         post_image_url: result.secure_url,
@@ -70,13 +92,14 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
         created: postData.created,
         updated: postData.updated,
         is_featured: postData.is_featured,
-        music_category: postData.music_category,
+        music_category_id: musicCategoryIds, // IDs das categorias
+        music_category_names: existingCategories.map(category => category.music_category_name), // Nomes das categorias
         user: userObj,
 
       });
 
       const createdPost = await post.save();
-      return res.status(201).json({'post': createdPost });
+      return res.status(201).json({ 'post': createdPost });
 
     }
 
@@ -101,8 +124,8 @@ router.get('/fetch', async (req, res) => {
       })
       .populate('user', 'name email logo_url') // Popula os dados do User
       .populate({
-        path: 'music_category',
-        select: 'music_category_name', // Seleciona apenas o nome da categoria de música
+        path: 'music_category_id',
+        select: 'music_category_names', // Seleciona apenas o nome da categoria de música
       }); // Popula as categorias de música
 
     if (posts.length === 0) {
@@ -127,7 +150,7 @@ router.get('/fetchPostByUser/:userId', async (req, res) => {
     })
       .populate('user', 'name email logo_url')
       .populate({
-        path: 'music_category',
+        path: 'music_category_id',
         select: 'music_category_name', // Ajuste para a propriedade correta da categoria de música
       });
 
