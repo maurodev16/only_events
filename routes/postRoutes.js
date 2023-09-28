@@ -26,7 +26,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
 
     /// Obtenha os IDs das categorias de música
 
-    const musicCategoryIds = postData.music_category_id.split(',').map(id => id.trim());
+    const musicCategoryIds = (postData.music_category_id || '').split(',').map(id => id.trim());
 
     // Validar se os IDs são válidos
     const areValidIds = musicCategoryIds.every(id => mongoose.Types.ObjectId.isValid(id));
