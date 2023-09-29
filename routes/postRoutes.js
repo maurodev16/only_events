@@ -24,25 +24,22 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
       return res.status(404).send("user not found");
     }
 
-    /// Obtenha os IDs das categorias de música
+   // Obtenha os IDs das categorias de música
+const musicCategoryIds = (postData.music_category_id || '').split(',').map(id => id.trim());
 
-    const musicCategoryIds = (postData.music_category_id || '').split(',').map(id => id.trim());
+// Validar se os IDs são válidos
+const areValidIds = musicCategoryIds.every(id => mongoose.Types.ObjectId.isValid(id));
 
+if (!areValidIds) {
+  return res.status(400).json({ error: 'IDs de categoria de música inválidos.' });
+}
 
+// Verificar a existência das categorias de música
+const existingCategories = await MusicCategory.find({ _id: { $in: musicCategoryIds } });
 
-    // Validar se os IDs são válidos
-    const areValidIds = musicCategoryIds.every(id => mongoose.Types.ObjectId.isValid(id));
-
-    if (!areValidIds) {
-      return res.status(400).json({ error: 'IDs de categoria de música inválidos.' });
-    }
-
-    // Verificar a existência das categorias de música
-    const existingCategories = await MusicCategory.find({ _id: { $in: musicCategoryIds } });
-
-    if (existingCategories.length !== musicCategoryIds.length) {
-      return res.status(400).json({ error: 'Algumas categorias de música não existem.' });
-    }
+if (existingCategories.length !== musicCategoryIds.length) {
+  return res.status(400).json({ error: 'Algumas categorias de música não existem.' });
+}
 
     ///Finding City
     const cityName = postData.cityName;
