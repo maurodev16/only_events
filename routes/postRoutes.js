@@ -24,22 +24,17 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
       return res.status(404).send("user not found");
     }
 
-   // Obtenha os nomes das categorias de música
-const musicCategoryNames = (postData.music_category_names || '').split(',').map(name => name.trim());
+       // Obter os nomes das categorias de música
+       const musicCategoryNames = (postData.music_category_names || '').split(',').map(name => name.trim());
 
-// Verificar se há categorias de música
-if (musicCategoryNames.length === 0) {
-  return res.status(400).json({ error: 'Nomes de categoria de música não fornecidos.' });
-}
-
-// Verificar a existência das categorias de música
-const existingCategories = await MusicCategory.find({ name: { $in: musicCategoryNames } });
-
-if (existingCategories.length !== musicCategoryNames.length) {
-  return res.status(400).json({ error: 'Algumas categorias de música não existem.' });
-}
-
-
+       // Verificar se foram fornecidos nomes de categoria de música
+       if (musicCategoryNames.length === 0) {
+         return res.status(400).json({ error: 'Nomes de categoria de música não fornecidos.' });
+       }
+   
+       // Verificar a existência das categorias de música
+       const existingCategories = await MusicCategory.find({ music_category_names: { $in: musicCategoryNames } });
+   
     ///Finding City
     const cityName = postData.cityName;
     let city = await City.findOne({ cityName });
@@ -49,6 +44,7 @@ if (existingCategories.length !== musicCategoryNames.length) {
     if (!req.file || req.file.length === 0) {
       return res.status(400).send('No images provided');
     }
+  
 
     const file = req.file
     const public_id = `${userId}-${file.originalname.split('.')[0]}`;
@@ -90,7 +86,8 @@ if (existingCategories.length !== musicCategoryNames.length) {
         created: postData.created,
         updated: postData.updated,
         is_featured: postData.is_featured,
-        music_category_names: musicCategoryNames,
+        music_category_names: existingCategories.map(category => category.music_category_names),
+
         user: userObj,
 
       });
