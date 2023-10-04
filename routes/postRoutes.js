@@ -30,9 +30,8 @@ router.post(
       const musicCategoryName = req.body.music_category_name;
      const uniqueCategories = [...new Set(musicCategoryName)];
      ///
-     const weekDay = req.body.music_category_name;
+     const weekDay = req.body.week_days;
 
-     const uniqueCategories = [...new Set(musicCategoryName)];
 
       ///Finding City
       const cityName = postData.cityName;
@@ -68,7 +67,7 @@ router.post(
           entrance_price: postData.entrance_price,
           cityName: cityName,
           city: city,
-          week_days: postData.week_days,
+          week_days: weekDay,
           is_age_verified: postData.is_age_verified,
           selected_age: postData.selected_age,
           is_free_entry: postData.is_free_entry,
