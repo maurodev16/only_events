@@ -25,7 +25,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
     }
 
        // Obter os nomes das categorias de música
-       const musicCategoryNames = (postData.music_category_names || '').split(',').map(name => name.trim());
+       const musicCategoryName = (postData.music_category_name || '').split(',').map(name => name.trim());
 
        // Verificar se foram fornecidos nomes de categoria de música
        if (musicCategoryNames.length === 0) {
@@ -33,7 +33,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
        }
    
        // Verificar a existência das categorias de música
-       const existingCategories = await MusicCategory.find({ music_category_names: { $in: musicCategoryNames } });
+       const existingCategories = await MusicCategory.find({ music_category_name: { $in: musicCategoryName } });
    
     ///Finding City
     const cityName = postData.cityName;
@@ -86,7 +86,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
         created: postData.created,
         updated: postData.updated,
         is_featured: postData.is_featured,
-        music_category_names: existingCategories.map(category => category.music_category_name),
+        music_category_name: existingCategories.map(category => category.music_category_name),
 
         user: userObj,
 
