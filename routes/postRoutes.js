@@ -78,7 +78,7 @@ router.post(
           created: postData.created,
           updated: postData.updated,
           is_featured: postData.is_featured,
-          music_category_name: uniqueCategories,
+          music_category_name: musicCategoryName,
 
           user: userObj,
         });
