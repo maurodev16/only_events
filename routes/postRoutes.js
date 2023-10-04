@@ -27,14 +27,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
        // Obter os nomes das categorias de música
        const musicCategoryName = (postData.music_category_name || '').split(',').map(name => name.trim());
 
-       // Verificar se foram fornecidos nomes de categoria de música
-       if (musicCategoryNames.length === 0) {
-         return res.status(400).json({ error: 'Nomes de categoria de música não fornecidos.' });
-       }
-   
-       // Verificar a existência das categorias de música
-       const existingCategories = await MusicCategory.find({ music_category_name: { $in: musicCategoryName } });
-   
+       const uniqueCategories = [...new Set(musicCategoryName)];
     ///Finding City
     const cityName = postData.cityName;
     let city = await City.findOne({ cityName });
@@ -86,7 +79,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
         created: postData.created,
         updated: postData.updated,
         is_featured: postData.is_featured,
-        music_category_name: existingCategories.map(category => category.music_category_name),
+        music_category_name: uniqueCategories,
 
         user: userObj,
 
