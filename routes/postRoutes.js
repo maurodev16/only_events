@@ -28,8 +28,9 @@ router.post(
       }
 
       const musicCategoryName = req.body.music_category_name;
-
-     // const uniqueCategories = [...new Set(musicCategoryName)];
+console.log(musicCategoryName)
+     const uniqueCategories = [...new Set(musicCategoryName)];
+     console.log(uniqueCategories)
 
       ///Finding City
       const cityName = postData.cityName;
@@ -78,7 +79,7 @@ router.post(
           created: postData.created,
           updated: postData.updated,
           is_featured: postData.is_featured,
-          music_category_name: musicCategoryName,
+          music_category_name: uniqueCategories,
 
           user: userObj,
         });
