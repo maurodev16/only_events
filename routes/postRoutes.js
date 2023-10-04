@@ -27,10 +27,8 @@ router.post(
         return res.status(404).send("user not found");
       }
 
-      const musicCategoryName = req.body.music_category_name;
-      if (!musicCategoryName) {
-        musicCategoryName = [];
-      }
+     // const musicCategoryName = req.body.music_category_name;
+    
      ///
      const weekDay = req.body.week_days;
 
@@ -81,8 +79,7 @@ router.post(
           created: postData.created,
           updated: postData.updated,
           is_featured: postData.is_featured,
-          music_category_name: musicCategoryName,
-
+          music_category_name: postData.music_category_name,
           user: userObj,
         });
 
