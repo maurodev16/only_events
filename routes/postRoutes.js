@@ -86,7 +86,7 @@ router.post('/create', uploadSingleBanner.single('file'), checkToken, async (req
         created: postData.created,
         updated: postData.updated,
         is_featured: postData.is_featured,
-        music_category_names: existingCategories.map(category => category.music_category_names),
+        music_category_names: existingCategories.map(category => category.music_category_name),
 
         user: userObj,
 
