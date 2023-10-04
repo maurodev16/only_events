@@ -33,6 +33,7 @@ const postSchema = new mongoose.Schema({
   extra_info: { type: String, default: "" },
   selected_week_days: [{ type: String }],
   city: { type: mongoose.Schema.Types.ObjectId, ref: 'City' },
+  music_category_id: [{type: mongoose.Schema.Types.ObjectId, ref: 'MusicCategory'}],
   music_category_name: [{type: String }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],

@@ -28,9 +28,11 @@ router.post(
       }
 
       const musicCategoryName = req.body.music_category_name;
-console.log(musicCategoryName)
      const uniqueCategories = [...new Set(musicCategoryName)];
-     console.log(uniqueCategories)
+     ///
+     const weekDay = req.body.music_category_name;
+
+     const uniqueCategories = [...new Set(musicCategoryName)];
 
       ///Finding City
       const cityName = postData.cityName;
@@ -111,7 +113,7 @@ router.get("/fetch", async (req, res) => {
       .populate("user", "name email logo_url") // Popula os dados do User
       .populate({
         path: "music_category_id",
-        select: "music_category_names", // Seleciona apenas o nome da categoria de música
+        select: "music_category_name", // Seleciona apenas o nome da categoria de música
       }); // Popula as categorias de música
 
     if (posts.length === 0) {
