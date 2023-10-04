@@ -27,11 +27,6 @@ router.post(
         return res.status(404).send("user not found");
       }
 
-     // const musicCategoryName = req.body.music_category_name;
-    
-     ///
-     const weekDay = req.body.week_days;
-
       ///Finding City
       const cityName = postData.cityName;
       let city = await City.findOne({ cityName });
@@ -66,7 +61,7 @@ router.post(
           entrance_price: postData.entrance_price,
           cityName: cityName,
           city: city,
-          week_days: weekDay,
+          week_days: postData.week_days,
           is_age_verified: postData.is_age_verified,
           selected_age: postData.selected_age,
           is_free_entry: postData.is_free_entry,
