@@ -29,7 +29,7 @@ router.post(
 
       const musicCategoryName = req.body.music_category_name;
 
-      const uniqueCategories = [...new Set(musicCategoryName)];
+     // const uniqueCategories = [...new Set(musicCategoryName)];
 
       ///Finding City
       const cityName = postData.cityName;
