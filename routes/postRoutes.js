@@ -79,6 +79,7 @@ router.post(
         });
 
         const createdPost = await post.save();
+        
         return res.status(201).json({ post: createdPost });
       }
     } catch (error) {
