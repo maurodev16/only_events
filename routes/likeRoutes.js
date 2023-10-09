@@ -6,8 +6,11 @@ const checkToken = require("../middleware/checkToken");
 // Rota para dar um like e Dislike a um post
 router.post("/:postId", checkToken, async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
+    console.log(postId)
     const userId = req.auth._id;
+    console.log(userId)
+
 
     // Verifica se o post existe
     const post = await Post.findById(postId);
