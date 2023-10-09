@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon ./index.js localhost 3000"
   },
-  "repository": "git+https://github.com/maurodev16/velhodalancha.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maurodev16/velhodalancha.git"
+  },
   "keywords": [
     "mongodb",
     "javascript",

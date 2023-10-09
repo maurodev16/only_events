@@ -148,7 +148,6 @@ router.get("/fetchPostByUser/:userId", async (req, res) => {
 
 router.get("/fetchPostByPostId/:id", async (req, res) => {
   const id = req.params.id;
-
   try {
     const post = await Post.findById(id, "-isFeatured").populate(
       "city",
@@ -168,7 +167,7 @@ router.get("/fetchPostByCity/:city", async (req, res) => {
   try {
     const city = req.params.city;
 
-    const events = await Post.find({ city: city }).select("-isFeatured");
+    const events = await Post.find({ 'city': city }).select("-isFeatured");
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "No events found for this city" });
@@ -179,6 +178,7 @@ router.get("/fetchPostByCity/:city", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 router.get("/fetchEventsForAdults/:for_adults_only?", async (req, res) => {
   try {
