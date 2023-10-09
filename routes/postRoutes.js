@@ -79,6 +79,7 @@ router.post(
         });
 
         const createdPost = await post.save();
+        
         return res.status(201).json({ post: createdPost });
       }
     } catch (error) {
@@ -102,7 +103,7 @@ router.get("/fetch", async (req, res) => {
           select: "name logo_url", // Seleciona os campos desejados do User
         },
       })
-      .populate("user", "name email logo_url") // Popula os dados do User
+      .populate("user", "name email logo_url role is_company") // Popula os dados do User
       .populate({
         path: "music_category_id",
         select: "music_category_name", // Seleciona apenas o nome da categoria de música
