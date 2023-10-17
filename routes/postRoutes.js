@@ -23,9 +23,11 @@ router.post(
       /// Finding user
       const userId = req.auth._id;
       const userObj = await User.findById(userId).select("-password");
+      
       if (!userObj) {
-        return res.status(404).send("user not found");
-      }
+        return res.status(404).send("User not found");
+      } 
+      
 
       ///Finding City
       const cityName = postData.cityName;

@@ -4,7 +4,7 @@ require('dotenv').config();
 const bcryptSalt = process.env.BCRYPT_SALT;
 
 const authSchema = new mongoose.Schema({
-  id: { type: String },
+  user_id: { type: String },
   logo_url:{ type:String, default: `https://res.cloudinary.com/dhkyslgft/image/upload/v1696606612/assets/splash_logo_farhpc.png` },
   name: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
