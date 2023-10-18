@@ -7,7 +7,7 @@ const City = require("country-state-city").City;
 router.get("/fetch-countries", async (req, res)=>{
     
     try {
-        const data =  City.getCitiesOfState("SP")
+        const data =  City.getCitiesOfState("UP")
         
     
         if (data.length === 0) {
