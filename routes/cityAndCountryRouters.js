@@ -1,29 +1,55 @@
 const mongoose = require("mongoose");
 const router = require("express").Router();
-const { getAllCountries } = require('country-state-city').Country;
-const {getAllCities} = require('country-state-city').City;
+const CityAndCountry = require('../models/CityAndCountry')
+const checkToken = require('../middleware/checkToken');
 
-// Rota para obter a lista de cidades com países
-router.get('/fetch-city-countries', (req, res) => {
-   // Obtém a lista de todos os países e cria um mapa de países com seus códigos
-   const countries = getAllCountries();
-   const countryMap = new Map(countries.map(country => [country.isoCode, country.name]));
- 
-   // Obtém a lista de todas as cidades
-   const allCities = getAllCities();
- 
-   // Mapeia cada cidade com o nome do país, estado e bandeira
-   const citiesWithCountries = allCities.map(city => {
-     const countryName = countryMap.get(city.countryCode);
- 
-     return {
-       city_name: city.name,
-       country_name: countryName || 'Unknown',
-     };
-   });
- 
-   res.json(citiesWithCountries);
- });
+
+router.post('/register',checkToken, async (req, res) => {
+
+  const { city_name, country_name } = req.body;
+  try {
+
+      //Valid City 
+      if (!city_name) {
+          res.status(422).json({ msg: "City name obrigatorio!" });
+          return;
+      }
+
+      //check if City with Country exists
+      const cityAndCountyExists = await CityAndCountry.findOne({ city_name: city_name, country_name: country_name });
+      if (cityAndCountyExists) {
+          res.status(422).json({ msg: "ja existe uma cidade com este nome!" });
+          return;
+      }
+
+      //Create City and Country
+      const city_country = new CityAndCountry({ 
+          city_name, 
+          country_name,
+      });
+      const createdCityCountry = await city_country.save();
+      if (createdCityCountry) {
+          res.status(200).json({ msg: `${createdCityCountry.city_name} and ${createdCityCountry.country_name} Created!` });
+      }
+
+  } catch (error) {
+      console.log(`Erro ao criar cidade: ${error}`)
+      res.status(500).json({ msg: "Erro ao cadastrar Cidade, tente novamente mais tarde!" })
+  }
+
+});
+
+router.get('/fetch-city-countries', async (req, res) => {
+  try {
+      const cities = await CityAndCountry.find().sort({ city_name: 1 }).select('-__v');
+      if (!cities || cities.length === 0) {
+          return res.status(404).json({ msg: "Cities not found" });
+      }
+     return res.status(201).json(cities);
+  } catch (error) {
+      res.status(500).json({ error: error });
+  }
+});
 
 
 module.exports = router;

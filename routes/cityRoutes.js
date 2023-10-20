@@ -1,41 +1,8 @@
 const router = require('express').Router();
-const checkToken = require('../middleware/checkToken');
-const City = require('../models/City');
 
-router.post('/register',checkToken, async (req, res) => {
-    //body
-    const { cityName, capital } = req.body;
-    try {
+const CityAndCountry = require('../models/CityAndCountry');
 
-        //Valid City 
-        if (!cityName) {
-            res.status(422).json({ msg: "City name obrigatorio!" });
-            return;
-        }
 
-        //check if City with Captal exists
-        const cityExists = await City.findOne({ cityName: cityName, capital: capital });
-        if (cityExists) {
-            res.status(422).json({ msg: "ja existe uma cidade com este nome!" });
-            return;
-        }
-
-        //Create City
-        const city = new City({ 
-            cityName, 
-            capital,
-        });
-        const createdCity = await city.save();
-        if (createdCity) {
-            res.status(200).json({ msg: `${createdCity.cityName}and ${createdCity.capital} Created!` });
-        }
-
-    } catch (error) {
-        console.log(`Erro ao criar cidade: ${error}`)
-        res.status(500).json({ msg: "Erro ao cadastrar Cidade, tente novamente mais tarde!" })
-    }
-
-});
 
 router.get('/fetch', async (req, res) => {
     try {

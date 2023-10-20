@@ -61,7 +61,7 @@ app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/post/filter', postFiltersRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/artist', artistRoutes);
-app.use('/api/v1/cityandcountry', countriesRoutes);
+app.use('/api/v1/city-and-country', countriesRoutes);
 app.use('/api/v1/city', cityRoutes);
 app.use("/api/v1/password-reset", passwordReset);
 

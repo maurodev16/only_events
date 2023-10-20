@@ -2,12 +2,11 @@ const mongoose = require("mongoose");
 const router = require("express").Router();
 const Post = require("../models/Post");
 const cloudinary = require("../services/cloudinaryConfig");
-const CityAndCountry = require("../models/CityAndCountry");
 const User = require("../models/Auth");
 const MusicCategory = require("../models/MusicCategory");
 const checkToken = require("../middleware/checkToken");
 const uploadSingleBanner = require("../middleware/multerSingleBannerMiddleware");
-
+const CityAndCountry = require("../models/CityAndCountry");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const { populate } = require("../models/Artist");
@@ -27,11 +26,15 @@ router.post(
       if (!userObj) {
         return res.status(404).send("User not found");
       } 
-      
+  // Verifique se a cidade já existe em seu banco de dados
+  const existingCity = await CityAndCountry.findOne({ city_name: postData.city_name });
+  
+  if (!existingCity) {
+    return res.status(404).send("City not found in the database");
+  }
+      // Recupere o nome do país associado a essa cidade
+      const countryName = existingCity.country_name;
 
-      ///Finding City
-      const city_name = postData.city_name;
-      let city = await CityAndCountry.findOne({ city_name });
 
       // Verificar se foram enviadas fotos para a galeria
       if (!req.file || req.file.length === 0) {
@@ -57,17 +60,18 @@ router.post(
           number: postData.number,
           phone: postData.phone,
           post_code: postData.post_code,
+          city_name: postData.city_name,
+          country_name: countryName,
           start_date: postData.start_date,
           end_date: postData.end_date,
           start_time: postData.start_time,
           end_time: postData.end_time,
           entrance_price: postData.entrance_price,
-          cityName: cityName,
-          city: city,
           week_days: postData.week_days,
           is_age_verified: postData.is_age_verified,
           selected_age: postData.selected_age,
           is_free_entry: postData.is_free_entry,
+          free_entry_till: postData.free_entry_till,
           can_pay_with_card_entry: postData.can_pay_with_card_entry,
           can_pay_with_card_consumption: postData.can_pay_with_card_consumption,
           is_fixed_date: postData.is_fixed_date,
