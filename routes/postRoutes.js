@@ -27,17 +27,14 @@ router.post(
         return res.status(404).send("User not found");
       }
 
-    // Obter o nome do país associado à cidade no banco de dados
-    const cityId = postData.city_and_country_obj; // Suponhamos que o _id da cidade seja armazenado em city_and_country
-    const existingCityObj = await CityAndCountry.findById(cityId).select(
-      "-__v"
-    );
+      // Obter o nome do país associado à cidade no banco de dados
+      const cityId = postData.city_and_country_obj; // Suponhamos que o _id da cidade seja armazenado em city_and_country
+      const existingCityObj = await CityAndCountry.findById(cityId);
+      if (!existingCityObj) {
+        return res.status(404).send("City not found in the database");
+      }
 
-    if (!existingCityObj) {
-      return res.status(404).send("City not found in the database");
-    }
-
-    //const countryName = existingCityObj.country_name;
+      //const countryName = existingCityObj.country_name;
       // const countryName = existingCity.country_name;
 
       // Verificar se foram enviadas fotos para a galeria
@@ -105,25 +102,27 @@ router.post(
 router.get("/fetch", async (req, res) => {
   try {
     const posts = await Post.find({})
-      .select("-isFeatured")
+      .sort({ createdAt: 1 })
+      .select("-isFeatured") // Removendo o campo "__v"
       .populate({
-        path: "cityId",
+        path: "city_and_country_obj",
+        select: "-__v",
         populate: {
-          path: "userId",
-          select: "name logo_url", // Seleciona os campos desejados do User
+          path: "country_name",
+          select: "country_name",
         },
       })
-      .populate("user", "name email logo_url role is_company") // Popula os dados do User
+      .populate("user", "name email logo_url role is_company")
       .populate({
         path: "music_category_id",
-        select: "music_category_name", // Seleciona apenas o nome da categoria de música
-      }); // Popula as categorias de música
+        select: "music_category_name",
+      });
 
     if (posts.length === 0) {
       return res.status(404).send("Post not found");
     }
 
-    return res.status(201).json(posts);
+    return res.status(200).json(posts);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -135,7 +134,7 @@ router.get("/fetchPostByUser/:userId", async (req, res) => {
     const posts = await Post.find({ user: userId })
       .select("-isFeatured")
       .populate({
-        path: "cityId",
+        path: "city_and_country_obj",
         populate: {
           path: "userId",
           select: "name logo_url", // Seleciona os campos desejados do User
@@ -143,7 +142,6 @@ router.get("/fetchPostByUser/:userId", async (req, res) => {
       })
       .populate("user", "name email logo_url")
       .populate({
-        path: "music_category_id",
         select: "music_category_name", // Ajuste para a propriedade correta da categoria de música
       });
 
@@ -162,7 +160,7 @@ router.get("/fetchPostByPostId/:id", async (req, res) => {
   try {
     const post = await Post.findById(id, "-isFeatured").populate(
       "city",
-      "cityName"
+      "city_name"
     );
     if (!post) {
       res.status(404).json({ msg: `Post not found for id ${id}` });
