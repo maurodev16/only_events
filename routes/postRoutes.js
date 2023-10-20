@@ -22,19 +22,23 @@ router.post(
       /// Finding user
       const userId = req.auth._id;
       const userObj = await User.findById(userId).select("-password");
-      
+
       if (!userObj) {
         return res.status(404).send("User not found");
-      } 
-  // Verifique se a cidade já existe em seu banco de dados
-  const existingCity = await CityAndCountry.findOne({ city_name: postData.city_name });
-  
-  if (!existingCity) {
-    return res.status(404).send("City not found in the database");
-  }
-      // Recupere o nome do país associado a essa cidade
-      const countryName = existingCity.country_name;
+      }
 
+    // Obter o nome do país associado à cidade no banco de dados
+    const cityId = postData.city_and_country_obj; // Suponhamos que o _id da cidade seja armazenado em city_and_country
+    const existingCityObj = await CityAndCountry.findById(cityId).select(
+      "-__v"
+    );
+
+    if (!existingCityObj) {
+      return res.status(404).send("City not found in the database");
+    }
+
+    //const countryName = existingCityObj.country_name;
+      // const countryName = existingCity.country_name;
 
       // Verificar se foram enviadas fotos para a galeria
       if (!req.file || req.file.length === 0) {
@@ -59,9 +63,8 @@ router.post(
           street_name: postData.street_name,
           number: postData.number,
           phone: postData.phone,
-          post_code: postData.post_code,
-          city_name: postData.city_name,
-          country_name: countryName,
+          postal_code: postData.postal_code,
+          city_and_country_obj: existingCityObj,
           start_date: postData.start_date,
           end_date: postData.end_date,
           start_time: postData.start_time,
@@ -86,7 +89,7 @@ router.post(
         });
 
         const createdPost = await post.save();
-        
+
         return res.status(201).json({ post: createdPost });
       }
     } catch (error) {
@@ -175,7 +178,7 @@ router.get("/fetchPostByCity/:city", async (req, res) => {
   try {
     const city = req.params.city;
 
-    const events = await Post.find({ 'city': city }).select("-isFeatured");
+    const events = await Post.find({ city: city }).select("-isFeatured");
 
     if (events.length === 0) {
       return res.status(404).json({ msg: "No events found for this city" });
@@ -186,7 +189,6 @@ router.get("/fetchPostByCity/:city", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 router.get("/fetchEventsForAdults/:for_adults_only?", async (req, res) => {
   try {
