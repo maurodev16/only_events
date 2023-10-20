@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const router = require("express").Router();
 const Post = require("../models/Post");
 const cloudinary = require("../services/cloudinaryConfig");
-const City = require("../models/City");
+const CityAndCountry = require("../models/CityAndCountry");
 const User = require("../models/Auth");
 const MusicCategory = require("../models/MusicCategory");
 const checkToken = require("../middleware/checkToken");
@@ -30,8 +30,8 @@ router.post(
       
 
       ///Finding City
-      const cityName = postData.cityName;
-      let city = await City.findOne({ cityName });
+      const city_name = postData.city_name;
+      let city = await CityAndCountry.findOne({ city_name });
 
       // Verificar se foram enviadas fotos para a galeria
       if (!req.file || req.file.length === 0) {
@@ -52,6 +52,7 @@ router.post(
           post_image_url: result.secure_url,
           title: postData.title,
           place_name: postData.place_name,
+          district: postData.district,
           street_name: postData.street_name,
           number: postData.number,
           phone: postData.phone,
