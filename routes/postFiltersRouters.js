@@ -1,15 +1,15 @@
 const router = require('express').Router();
 const Post = require('../models/Post');
-const City = require('../models/City');
+const CityAndCountry = require('../models/CityAndCountry');
 
 // Rota para filtrar os posts por cidade
-router.get('/filter-by-city/:cityName', async (req, res) => {
+router.get('/filter-by-city/:city_name', async (req, res) => {
   try {
-    const cityName = req.params.cityName;
+    const cityName = req.params.city_name;
 
     // Consulte seu banco de dados para buscar os posts que correspondem à cidade selecionada
     // Substitua esta linha pela sua própria lógica de consulta ao banco de dados
-    const city = await City.findOne({ cityName });
+    const city = await CityAndCountry.findOne({ cityName });
 
     if (!city) {
       return res.status(404).json({ message: 'Cidade não encontrada.' });

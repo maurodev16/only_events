@@ -46,7 +46,6 @@ const userRoutes= require('./routes/userRouter');
 const artistRoutes= require('./routes/artistRoutes');
 const authRoutes = require('./routes/authRouters');
 const countriesRoutes = require('./routes/cityAndCountryRouters');
-const cityRoutes = require('./routes/cityRoutes');
 const swaggerSpec = require("./services/Swagger/swagger");
 const passwordReset = require("./routes/passwordResetRouters")
 
@@ -62,7 +61,6 @@ app.use('/api/v1/post/filter', postFiltersRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/city-and-country', countriesRoutes);
-app.use('/api/v1/city', cityRoutes);
 app.use("/api/v1/password-reset", passwordReset);
 
 
