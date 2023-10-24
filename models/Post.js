@@ -29,6 +29,7 @@ const postSchema = new mongoose.Schema({
   is_fixed_date: { type: Boolean },
   extra_info: { type: String, default: "" },
   city_name: { type: String, default: "" },
+  country_name: { type: String, default: "" },
   music_category_id: [{type: mongoose.Schema.Types.ObjectId, ref: 'MusicCategory'}],
   music_category_name: [{type: String,  default: [] }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
