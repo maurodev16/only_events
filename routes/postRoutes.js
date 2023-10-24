@@ -27,16 +27,6 @@ router.post(
         return res.status(404).send("User not found");
       }
 
-      // Obter o nome do país associado à cidade no banco de dados
-      const cityId = postData.city_and_country_obj; // Suponhamos que o _id da cidade seja armazenado em city_and_country
-      const existingCityObj = await CityAndCountry.findById(cityId);
-      if (!existingCityObj) {
-        return res.status(404).send("City not found in the database");
-      }
-
-      //const countryName = existingCityObj.country_name;
-      // const countryName = existingCity.country_name;
-
       // Verificar se foram enviadas fotos para a galeria
       if (!req.file || req.file.length === 0) {
         return res.status(400).send("No images provided");
@@ -61,7 +51,7 @@ router.post(
           number: postData.number,
           phone: postData.phone,
           postal_code: postData.postal_code,
-          city_and_country_obj: existingCityObj,
+          city_name: postData.city_name,
           start_date: postData.start_date,
           end_date: postData.end_date,
           start_time: postData.start_time,

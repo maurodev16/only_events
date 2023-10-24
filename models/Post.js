@@ -28,7 +28,7 @@ const postSchema = new mongoose.Schema({
   can_pay_with_card_consumption: { type: Boolean },
   is_fixed_date: { type: Boolean },
   extra_info: { type: String, default: "" },
-  city_and_country_obj: { type: mongoose.Schema.Types.ObjectId, ref: 'CityAndCountry' },
+  city_name: { type: String, default: "" },
   music_category_id: [{type: mongoose.Schema.Types.ObjectId, ref: 'MusicCategory'}],
   music_category_name: [{type: String,  default: [] }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
