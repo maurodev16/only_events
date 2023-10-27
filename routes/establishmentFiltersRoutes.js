@@ -1,13 +1,13 @@
 const router = require('express').Router();
-const Post = require('../models/Post');
+const Establishment = require('../models/Establishment');
 const CityAndCountry = require('../models/CityAndCountry');
 
-// Rota para filtrar os posts por cidade
+// Rota para filtrar os establishments por cidade
 router.get('/filter-by-city/:city_name', async (req, res) => {
   try {
     const cityName = req.params.city_name;
 
-    // Consulte seu banco de dados para buscar os posts que correspondem à cidade selecionada
+    // Consulte seu banco de dados para buscar os establishments que correspondem à cidade selecionada
     // Substitua esta linha pela sua própria lógica de consulta ao banco de dados
     const city = await CityAndCountry.findOne({ cityName });
 
@@ -15,12 +15,12 @@ router.get('/filter-by-city/:city_name', async (req, res) => {
       return res.status(404).json({ message: 'Cidade não encontrada.' });
     }
 
-    const filteredPosts = await Post.find({ cityName });
+    const filteredEstablishments = await Establishment.find({ cityName });
 
-    res.status(200).json(filteredPosts);
+    res.status(200).json(filteredEstablishments);
   } catch (error) {
-    console.error('Erro ao filtrar os posts por cidade:', error);
-    res.status(500).json({ message: 'Erro ao filtrar os posts por cidade.' });
+    console.error('Erro ao filtrar os Establishments por cidade:', error);
+    res.status(500).json({ message: 'Erro ao filtrar os Establishments por cidade.' });
   }
 });
 

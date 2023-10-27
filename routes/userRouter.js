@@ -127,7 +127,7 @@ module.exports = router
  *   name: User
  *   description: User management
  * /api/v1/complete-profile:
- *   post:
+ *   establishment:
  *     summary: Complete Profile
  *     tags: [User]
  *     requestBody:
@@ -150,7 +150,7 @@ module.exports = router
  *   name: User
  *   description: User management
  * /api/v1/fetch:
- *   post:
+ *   establishment:
  *     summary: Fetch user data
  *     tags: [User]
  *     requestBody:
@@ -172,7 +172,7 @@ module.exports = router
  *   name: User
  *   description: User management
  * /api/v1/user/fecthBy/{id}:
- *   post:
+ *   establishment:
  *     summary: Fetch user data By ID
  *     tags: [User]
  *     requestBody:
