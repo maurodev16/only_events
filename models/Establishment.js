@@ -18,8 +18,8 @@ const establishmentSchema = new mongoose.Schema(
     city_name: { type: String, default: "" },
     country_name: { type: String, default: "" },
     phone: { type: String, default: "" },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
-    likes_count: { type: Number, default: 0 },
+    follower: [{ type: mongoose.Schema.Types.ObjectId, ref: "Follow" }],
+    followers_count: { type: Number, default: 0 },
     is_featured: { type: Boolean, default: false },
     entrance_price: { type: String },
     opening_hours: [

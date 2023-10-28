@@ -19,17 +19,16 @@ router.post(
     try {
       const establishmentData = req.body;
 
-      /// Finding user
+      // Verificar se foram enviadas fotos para a galeria
+      if (!req.file || req.file.length === 0) {
+        return res.status(400).send("No images provided");
+      }
+
       const userId = req.auth._id;
       const userObj = await User.findById(userId).select("-password");
 
       if (!userObj) {
         return res.status(404).send("User not found");
-      }
-
-      // Verificar se foram enviadas fotos para a galeria
-      if (!req.file || req.file.length === 0) {
-        return res.status(400).send("No images provided");
       }
 
       const file = req.file;
@@ -41,134 +40,142 @@ router.post(
         upload_preset: "wasGehtAb_preset",
       });
 
-      if (result) {
-        const establishment = new Establishment({
-          logo_url: result.secure_url,
-          title: establishmentData.title,
-          local_name: establishmentData.place_name,
-          district: establishmentData.district,
-          street_name: establishmentData.street_name,
-          number: establishmentData.number,
-          phone: establishmentData.phone,
-          postal_code: establishmentData.postal_code,
-          city_name: establishmentData.city_name,
-          country_name: establishmentData.country_name,
-          entrance_price: establishmentData.entrance_price,
-          free_entry_till: establishmentData.free_entry_till,
-          is_age_verified: establishmentData.is_age_verified,
-          selected_age: establishmentData.selected_age,
-          is_free_entry: establishmentData.is_free_entry,
-          can_pay_with_card_entry: establishmentData.can_pay_with_card_entry,
-          can_pay_with_card_consumption:
-            establishmentData.can_pay_with_card_consumption,
-          likes_count: establishmentData.likes_count,
-          created: establishmentData.created,
-          updated: establishmentData.updated,
-          is_featured: establishmentData.is_featured,
-          music_category_name: establishmentData.music_category_name,
-          opening_hours: establishmentData.opening_hours,
-          
-          //Detail
-          drinks:establishmentData.drinks,
-          dance:establishmentData.dance,
-          casual:establishmentData.casual,
-          good_to_go_with_group:establishmentData.good_to_go_with_group,
-
-          //Services options
-          dine_In:establishmentData.dine_In,
-          delivery:establishmentData.delivery,
-          take_way:establishmentData.take_way,
-
-          ///Acessibility
-          accessible_parking:establishmentData.accessible_parking,
-          step_free_entry:establishmentData.step_free_entry,
-          accessible_restrooms:establishmentData.accessible_restrooms,
-          elevator_or_ramps:establishmentData.elevator_or_ramps,
-          wide_corridors:establishmentData.wide_corridors,
-          braille_signage:establishmentData.braille_signage,
-          mobility_assistance:establishmentData.mobility_assistance,
-          service_dog_access:establishmentData.service_dog_access,
-          audio_description_or_visual_guide:establishmentData.audio_description_or_visual_guide,
-          accessible_communication:establishmentData.accessible_communication,
-
-          ///Convenience
-          convenience_parking:establishmentData.convenience_parking,
-          wi_fi_access:establishmentData.wi_fi_access,
-          outdoor_seating:establishmentData.outdoor_seating,
-          indoor_seating:establishmentData.indoor_seating,
-          takeout_or_to_go_orders:establishmentData.takeout_or_to_go_orders,
-          delivery_service:establishmentData.delivery_service,
-          reservation_service:establishmentData.reservation_service,
-          drive_through:establishmentData.drive_through,
-          online_ordering:establishmentData.online_ordering,
-          atm_access:establishmentData.atm_access,
-
-          ///Menu Options
-          dining:establishmentData.dining,
-          alcoholic_beverages:establishmentData.alcoholic_beverages,
-          shisha:establishmentData.alcoholic_beverages,
-          wine_selection:establishmentData.wine_selection,
-          beer_selection:establishmentData.beer_selection,
-          cocktails:establishmentData.cocktails,
-          non_alcoholic_beverages:establishmentData.non_alcoholic_beverages,
-          coffee_and_tea:establishmentData.coffee_and_tea,
-          desserts:establishmentData.desserts,
-          vegetarian:establishmentData.vegetarian,
-          vegan_options:establishmentData.vegan_options,
-
-          ///Atmosphere
-          dance_floor:establishmentData.dance_floor,
-          casual_setting:establishmentData.casual_setting,
-          formal_setting:establishmentData.formal_setting,
-          live_music:establishmentData.live_music,
-          karaoke:establishmentData.karaoke,
-          outdoor_seating_atmosphere:establishmentData.outdoor_seating_atmosphere,
-          bar_area:establishmentData.bar_area,
-          good_for_groups:establishmentData.good_for_groups,
-          intimate_setting:establishmentData.intimate_setting,
-          family_friendly:establishmentData.family_friendly,
-          lounge_area:establishmentData.lounge_area,
-
-          ///Public type
-          good_for_groups_public:establishmentData.good_for_groups_public,
-          family_friendly_public:establishmentData.family_friendly_public,
-          kid_friendly:establishmentData.kid_friendly,
-          adults_only:establishmentData.adults_only,
-          solo_friendly:establishmentData.solo_friendly,
-          pet_friendly:establishmentData.pet_friendly,
-          lgbtq_plus_friendly:establishmentData.lgbtq_plus_friendly,
-          accessible_to_all:establishmentData.accessible_to_all,
-          couples_retreat:establishmentData.couples_retreat,
-          student_friendly:establishmentData.student_friendly,
-
-          ///Planning
-          reservations_accepted:establishmentData.reservations_accepted,
-          walk_ins_welcome:establishmentData.walk_ins_welcome,
-          private_events:establishmentData.private_events,
-          event_planning_services:establishmentData.event_planning_services,
-          catering_services:establishmentData.catering_services,
-          table_reservations:establishmentData.table_reservations,
-          online_booking:establishmentData.online_booking,
-          event_space_rental:establishmentData.event_space_rental,
-          party_packages:establishmentData.party_packages,
-          custom_event_packages:establishmentData.custom_event_packages,
-
-          //Payment Options
-          credit_cards_accepted:establishmentData.credit_cards_accepted,
-          debit_cards_accepted:establishmentData.debit_cards_accepted,
-          cash_only:establishmentData.cash_only,
-          mobile_payments:establishmentData.mobile_payments,
-          contactless_payments:establishmentData.contactless_payments,
-          online_payments:establishmentData.online_payments,
-          checks:establishmentData.checks,
-          split_bills:establishmentData.split_bills,
-          gift_cards:establishmentData.gift_cards,
-          crypto_currency:establishmentData.crypto_currency,
-          user: userObj,
-        });
-        const createdEstablishment = await establishment.save();
-        return res.status(201).json({ establishment: createdEstablishment });
+      if (!result.secure_url) {
+        return res.status(500).send("Error uploading image to cloudinary");
       }
+
+      // Se a imagem foi enviada com sucesso, prosseguir com a criação do estabelecimento
+      const establishment = new Establishment({
+        logo_url: result.secure_url,
+        title: establishmentData.title,
+        local_name: establishmentData.place_name,
+        district: establishmentData.district,
+        street_name: establishmentData.street_name,
+        number: establishmentData.number,
+        phone: establishmentData.phone,
+        postal_code: establishmentData.postal_code,
+        city_name: establishmentData.city_name,
+        country_name: establishmentData.country_name,
+        entrance_price: establishmentData.entrance_price,
+        free_entry_till: establishmentData.free_entry_till,
+        is_age_verified: establishmentData.is_age_verified,
+        selected_age: establishmentData.selected_age,
+        is_free_entry: establishmentData.is_free_entry,
+        can_pay_with_card_entry: establishmentData.can_pay_with_card_entry,
+        can_pay_with_card_consumption:
+          establishmentData.can_pay_with_card_consumption,
+        likes_count: establishmentData.likes_count,
+        created: establishmentData.created,
+        updated: establishmentData.updated,
+        is_featured: establishmentData.is_featured,
+        music_category_name: establishmentData.music_category_name,
+        opening_hours: establishmentData.opening_hours,
+
+        //Detail
+        drinks: establishmentData.drinks,
+        dance: establishmentData.dance,
+        casual: establishmentData.casual,
+        good_to_go_with_group: establishmentData.good_to_go_with_group,
+
+        //Services options
+        dine_In: establishmentData.dine_In,
+        delivery: establishmentData.delivery,
+        take_way: establishmentData.take_way,
+
+        ///Acessibility
+        accessible_parking: establishmentData.accessible_parking,
+        step_free_entry: establishmentData.step_free_entry,
+        accessible_restrooms: establishmentData.accessible_restrooms,
+        elevator_or_ramps: establishmentData.elevator_or_ramps,
+        wide_corridors: establishmentData.wide_corridors,
+        braille_signage: establishmentData.braille_signage,
+        mobility_assistance: establishmentData.mobility_assistance,
+        service_dog_access: establishmentData.service_dog_access,
+        audio_description_or_visual_guide:
+          establishmentData.audio_description_or_visual_guide,
+        accessible_communication: establishmentData.accessible_communication,
+
+        ///Convenience
+        convenience_parking: establishmentData.convenience_parking,
+        wi_fi_access: establishmentData.wi_fi_access,
+        outdoor_seating: establishmentData.outdoor_seating,
+        indoor_seating: establishmentData.indoor_seating,
+        takeout_or_to_go_orders: establishmentData.takeout_or_to_go_orders,
+        delivery_service: establishmentData.delivery_service,
+        reservation_service: establishmentData.reservation_service,
+        drive_through: establishmentData.drive_through,
+        online_ordering: establishmentData.online_ordering,
+        atm_access: establishmentData.atm_access,
+
+        ///Menu Options
+        dining: establishmentData.dining,
+        alcoholic_beverages: establishmentData.alcoholic_beverages,
+        shisha: establishmentData.alcoholic_beverages,
+        wine_selection: establishmentData.wine_selection,
+        beer_selection: establishmentData.beer_selection,
+        cocktails: establishmentData.cocktails,
+        non_alcoholic_beverages: establishmentData.non_alcoholic_beverages,
+        coffee_and_tea: establishmentData.coffee_and_tea,
+        desserts: establishmentData.desserts,
+        vegetarian: establishmentData.vegetarian,
+        vegan_options: establishmentData.vegan_options,
+
+        ///Atmosphere
+        dance_floor: establishmentData.dance_floor,
+        casual_setting: establishmentData.casual_setting,
+        formal_setting: establishmentData.formal_setting,
+        live_music: establishmentData.live_music,
+        karaoke: establishmentData.karaoke,
+        outdoor_seating_atmosphere:
+          establishmentData.outdoor_seating_atmosphere,
+        bar_area: establishmentData.bar_area,
+        good_for_groups: establishmentData.good_for_groups,
+        intimate_setting: establishmentData.intimate_setting,
+        family_friendly: establishmentData.family_friendly,
+        lounge_area: establishmentData.lounge_area,
+
+        ///Public type
+        good_for_groups_public: establishmentData.good_for_groups_public,
+        family_friendly_public: establishmentData.family_friendly_public,
+        kid_friendly: establishmentData.kid_friendly,
+        adults_only: establishmentData.adults_only,
+        solo_friendly: establishmentData.solo_friendly,
+        pet_friendly: establishmentData.pet_friendly,
+        lgbtq_plus_friendly: establishmentData.lgbtq_plus_friendly,
+        accessible_to_all: establishmentData.accessible_to_all,
+        couples_retreat: establishmentData.couples_retreat,
+        student_friendly: establishmentData.student_friendly,
+
+        ///Planning
+        reservations_accepted: establishmentData.reservations_accepted,
+        walk_ins_welcome: establishmentData.walk_ins_welcome,
+        private_events: establishmentData.private_events,
+        event_planning_services: establishmentData.event_planning_services,
+        catering_services: establishmentData.catering_services,
+        table_reservations: establishmentData.table_reservations,
+        online_booking: establishmentData.online_booking,
+        event_space_rental: establishmentData.event_space_rental,
+        party_packages: establishmentData.party_packages,
+        custom_event_packages: establishmentData.custom_event_packages,
+
+        //Payment Options
+        credit_cards_accepted: establishmentData.credit_cards_accepted,
+        debit_cards_accepted: establishmentData.debit_cards_accepted,
+        cash_only: establishmentData.cash_only,
+        mobile_payments: establishmentData.mobile_payments,
+        contactless_payments: establishmentData.contactless_payments,
+        online_payments: establishmentData.online_payments,
+        checks: establishmentData.checks,
+        split_bills: establishmentData.split_bills,
+        gift_cards: establishmentData.gift_cards,
+        crypto_currency: establishmentData.crypto_currency,
+        user: userObj,
+      });
+
+      // Salvar o estabelecimento no banco de dados
+      const createdEstablishment = await establishment.save();
+
+      return res.status(201).json({ establishment: createdEstablishment });
     } catch (error) {
       console.log(`Error creating Establishment: ${error}`);
       return res
@@ -329,11 +336,9 @@ router.get(
         .populate("cityId");
 
       if (establishments.length === 0) {
-        return res
-          .status(404)
-          .json({
-            msg: `${organized_by} has not organized any establishments so far`,
-          });
+        return res.status(404).json({
+          msg: `${organized_by} has not organized any establishments so far`,
+        });
       }
 
       res.status(200).json(establishments);

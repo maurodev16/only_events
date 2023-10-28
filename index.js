@@ -39,7 +39,7 @@ admin.initializeApp({
 // Import routers
 const logoRoutes = require('./routes/logoRouter');
 const establishmentRoutes= require('./routes/establishmentRoutes');
-const establishmentFiltersRoutes= require('./routes/establishmentFiltersRouters');
+const establishmentFiltersRoutes= require('./routes/establishmentFiltersRoutes');
 const musicCategoryRouters= require('./routes/musicCategoryRouters');
 const likeRoutes= require('./routes/likeRoutes');
 const userRoutes= require('./routes/userRouter');
