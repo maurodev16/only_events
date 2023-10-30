@@ -11,11 +11,7 @@ const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const { populate } = require("../models/Artist");
 
-router.post(
-  "/create",
-  uploadSingleBanner.single("file"),
-  checkToken,
-  async (req, res) => {
+router.post("/create", uploadSingleBanner.single("file"),checkToken, async (req, res) => {
     try {
       const establishmentData = req.body;
 
@@ -25,8 +21,10 @@ router.post(
       }
 
       const userId = req.auth._id;
-      const userObj = await User.findById(userId).select("-password");
+console.log(userId)
 
+      const userObj = await User.findById(userId).select("-password");
+console.log(userObj)
       if (!userObj) {
         return res.status(404).send("User not found");
       }
