@@ -27,7 +27,7 @@ const establishmentSchema = new mongoose.Schema(
         day: { type: String, required: true },
         open: { type: String, required: true },
         close: { type: String, required: true },
-      }
+      },
     ],
     is_age_verified: { type: Boolean },
     selected_age: { type: String },
@@ -137,6 +137,7 @@ const establishmentSchema = new mongoose.Schema(
     split_bills: { type: Boolean },
     gift_cards: { type: Boolean },
     crypto_currency: { type: Boolean },
+    establishment_is_online: { type: Boolean, default: false },
     //start_date: { type: Date },
     //end_date: { type: Date },
     //start_time: { type: String, default: "" },
