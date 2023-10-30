@@ -46,7 +46,7 @@ console.log(userObj)
       const establishment = new Establishment({
         logo_url: result.secure_url,
         title: establishmentData.title,
-        local_name: establishmentData.place_name,
+        local_name: establishmentData.local_name,
         district: establishmentData.district,
         street_name: establishmentData.street_name,
         number: establishmentData.number,
