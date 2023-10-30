@@ -24,9 +24,9 @@ const establishmentSchema = new mongoose.Schema(
     entrance_price: { type: String },
     opening_hours: [
       {
-        day: { type: String, required: true },
-        open: { type: String, required: true },
-        close: { type: String, required: true },
+        day: { type: String, },
+        open: { type: String,  },
+        close: { type: String,  },
       },
     ],
     is_age_verified: { type: Boolean },
