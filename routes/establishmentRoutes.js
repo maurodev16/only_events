@@ -177,9 +177,9 @@ console.log(userObj)
       return res.status(201).json({ establishment: createdEstablishment });
     } catch (error) {
       console.log(`Error creating Establishment: ${error}`);
-      return res
-        .status(500)
-        .send("Error creating establishment, please try again later!");
+//  '     return res
+//         .status(500)
+//         .send("Error creating establishment, please try again later!");'
     }
   }
 );
