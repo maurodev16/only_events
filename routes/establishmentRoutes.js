@@ -44,6 +44,7 @@ console.log(userObj)
 
       // Se a imagem foi enviada com sucesso, prosseguir com a criação do estabelecimento
       const establishment = new Establishment({
+        opening_hours: establishmentData.opening_hours,
         logo_url: result.secure_url,
         title: establishmentData.title,
         local_name: establishmentData.local_name,
@@ -67,7 +68,7 @@ console.log(userObj)
         updated: establishmentData.updated,
         is_featured: establishmentData.is_featured,
         music_category_name: establishmentData.music_category_name,
-        opening_hours: establishmentData.opening_hours,
+        
 
         //Detail
         drinks: establishmentData.drinks,

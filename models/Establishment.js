@@ -8,6 +8,13 @@ require("dotenv").config();
 
 const establishmentSchema = new mongoose.Schema(
   {
+    opening_hours: [
+      {
+        day: { type: String },
+        open: { type: String },
+        close: { type: String },
+      },
+    ],
     logo_url: { type: String },
     title: { type: String, default: "" },
     local_name: { type: String, required: true },
@@ -22,13 +29,7 @@ const establishmentSchema = new mongoose.Schema(
     followers_count: { type: Number, default: 0 },
     is_featured: { type: Boolean, default: false },
     entrance_price: { type: String },
-    opening_hours: [
-      {
-        day: { type: String, },
-        open: { type: String,  },
-        close: { type: String,  },
-      },
-    ],
+
     is_age_verified: { type: Boolean },
     selected_age: { type: String },
     is_free_entry: { type: Boolean },
