@@ -44,7 +44,7 @@ console.log(userObj)
 
       // Se a imagem foi enviada com sucesso, prosseguir com a criação do estabelecimento
       const establishment = new Establishment({
-        opening_hours: establishmentData.opening_hours,
+        opening_hours: JSON.parse( establishmentData.opening_hours),
         logo_url: result.secure_url,
         title: establishmentData.title,
         local_name: establishmentData.local_name,
