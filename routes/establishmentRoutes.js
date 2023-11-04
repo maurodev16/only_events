@@ -46,9 +46,7 @@ console.log(userObj)
    const openingHoursString = establishmentData.opening_hours;
    const openingHours = parseOpeningHours(openingHoursString);
 
-   
-
-
+  
       // Se a imagem foi enviada com sucesso, prosseguir com a criação do estabelecimento
       const establishment = new Establishment({
         opening_hours: openingHours,
