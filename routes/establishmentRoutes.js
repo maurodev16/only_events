@@ -194,12 +194,12 @@ function parseOpeningHours(openingHoursString) {
 
   const trimmedString = openingHoursString.slice(1, -1); // Remova os colchetes iniciais e finais
 
-  const parts = trimmedString.split("day: ");
+  const parts = trimmedString.toString().split("day: ");
   const objects = [];
 
   for (let i = 1; i < parts.length; i++) {
     const part = parts[i];
-    const openCloseParts = part.split("open: ");
+    const openCloseParts = part.toString().split("open: ");
     if (openCloseParts.length === 2) {
       const day = openCloseParts[0].trim();
       const openClose = openCloseParts[1].split("close: ");
