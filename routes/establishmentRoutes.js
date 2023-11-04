@@ -192,7 +192,7 @@ router.post(
 // Função para converter a string em objetos JSON// Função para converter a string em objetos JSON
 function parseOpeningHours(openingHoursString) {
 
-  const trimmedString = openingHoursString.slice(1, -1); // Remova os colchetes iniciais e finais
+  const trimmedString = openingHoursString.toString().slice(1, -1); // Remova os colchetes iniciais e finais
 
   const parts = trimmedString.toString().split("day: ");
   const objects = [];
@@ -202,7 +202,7 @@ function parseOpeningHours(openingHoursString) {
     const openCloseParts = part.toString().split("open: ");
     if (openCloseParts.length === 2) {
       const day = openCloseParts[0].trim();
-      const openClose = openCloseParts[1].split("close: ");
+      const openClose = openCloseParts[1].toString().split("close: ");
       const open = openClose[0].trim();
       const close = openClose[1].trim();
 
