@@ -190,7 +190,7 @@ router.post(
   }
 );
 
-// Função para converter a string em objetos JSON// Função para converter a string em objetos JSONfunction parseOpeningHours(openingHoursString) {
+function parseOpeningHours(openingHoursString) {
   const regex = /(\w+):\s(.*?)(?=(,\s\w+:|$))/g;
   const objects = [];
   let match;
@@ -209,7 +209,6 @@ router.post(
 
   return objects; // Retorna os objetos JSON
 }
-
 ///
 router.get("/fetch", async (req, res) => {
   try {
