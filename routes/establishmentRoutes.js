@@ -11,6 +11,7 @@ const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const { populate } = require("../models/Artist");
 
+
 router.post("/create", uploadSingleBanner.single("file"),checkToken, async (req, res) => {
     try {
       const establishmentData = req.body;
@@ -41,10 +42,18 @@ console.log(userObj)
       if (!result.secure_url) {
         return res.status(500).send("Error uploading image to cloudinary");
       }
+   // Converte a string de entrada em objetos JSON
+   const openingHoursString = establishmentData.opening_hours;
+   const openingHours = parseOpeningHours(openingHoursString);
+
+   
+   if (!openingHours) {
+    return res.status(400).send("Invalid opening hours format");
+}
 
       // Se a imagem foi enviada com sucesso, prosseguir com a criação do estabelecimento
       const establishment = new Establishment({
-        opening_hours: JSON.parse( establishmentData.opening_hours),
+        opening_hours: openingHours,
         logo_url: result.secure_url,
         title: establishmentData.title,
         local_name: establishmentData.local_name,
@@ -183,6 +192,40 @@ console.log(userObj)
     }
   }
 );
+// Função para converter a string em objetos JSON// Função para converter a string em objetos JSON
+function parseOpeningHours(openingHoursString) {
+  const trimmedString = openingHoursString.slice(1, -1); // Remova os colchetes iniciais e finais
+
+  const parts = trimmedString.split("Day: ");
+  const objects = [];
+
+  for (let i = 1; i < parts.length; i++) {
+      const part = parts[i];
+      const openCloseParts = part.split("Open: ");
+      if (openCloseParts.length === 2) {
+          const day = openCloseParts[0].trim();
+          const openClose = openCloseParts[1].split("Close: ");
+          const open = openClose[0].trim();
+          const close = openClose[1].trim();
+
+          // Crie um objeto JSON com os dados
+          const data = {
+              day,
+              open,
+              close,
+          };
+
+          // Adicione o objeto à matriz
+          objects.push(data);
+      }
+  }
+
+  if (objects.length === 0) {
+      return null; // Retorna null em caso de formato inválido
+  }
+
+  return objects; // Retorna os objetos JSON
+}
 
 ///
 router.get("/fetch", async (req, res) => {
