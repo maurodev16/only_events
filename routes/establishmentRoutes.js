@@ -11,8 +11,11 @@ const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const { populate } = require("../models/Artist");
 
-
-router.post("/create", uploadSingleBanner.single("file"),checkToken, async (req, res) => {
+router.post(
+  "/create",
+  uploadSingleBanner.single("file"),
+  checkToken,
+  async (req, res) => {
     try {
       const establishmentData = req.body;
 
@@ -22,10 +25,10 @@ router.post("/create", uploadSingleBanner.single("file"),checkToken, async (req,
       }
 
       const userId = req.auth._id;
-console.log(userId)
+      console.log(userId);
 
       const userObj = await User.findById(userId).select("-password");
-console.log(userObj)
+      console.log(userObj);
       if (!userObj) {
         return res.status(404).send("User not found");
       }
@@ -42,11 +45,10 @@ console.log(userObj)
       if (!result.secure_url) {
         return res.status(500).send("Error uploading image to cloudinary");
       }
-   // Converte a string de entrada em objetos JSON
-   const openingHoursString = establishmentData.opening_hours;
-   const openingHours = parseOpeningHours(openingHoursString);
+      // Converte a string de entrada em objetos JSON
+      const openingHoursString = establishmentData.opening_hours;
+      const openingHours = parseOpeningHours(openingHoursString);
 
-  
       // Se a imagem foi enviada com sucesso, prosseguir com a criação do estabelecimento
       const establishment = new Establishment({
         opening_hours: openingHours,
@@ -73,7 +75,6 @@ console.log(userObj)
         updated: establishmentData.updated,
         is_featured: establishmentData.is_featured,
         music_category_name: establishmentData.music_category_name,
-        
 
         //Detail
         drinks: establishmentData.drinks,
@@ -182,46 +183,39 @@ console.log(userObj)
       return res.status(201).json({ establishment: createdEstablishment });
     } catch (error) {
       console.log(`Error creating Establishment: ${error}`);
-//  '     return res
-//         .status(500)
-//         .send("Error creating establishment, please try again later!");'
+      //  '     return res
+      //         .status(500)
+      //         .send("Error creating establishment, please try again later!");'
     }
   }
 );
 // Função para converter a string em objetos JSON// Função para converter a string em objetos JSON
 function parseOpeningHours(openingHoursString) {
-  if (typeof openingHoursString !== 'string') {
-    console.log(openingHoursString);
-    return null; // Retorna null se a entrada não for uma string
-}
+
   const trimmedString = openingHoursString.slice(1, -1); // Remova os colchetes iniciais e finais
 
-  const parts = trimmedString.split("Day: ");
+  const parts = trimmedString.split("day: ");
   const objects = [];
 
   for (let i = 1; i < parts.length; i++) {
-      const part = parts[i];
-      const openCloseParts = part.split("Open: ");
-      if (openCloseParts.length === 2) {
-          const day = openCloseParts[0].trim();
-          const openClose = openCloseParts[1].split("Close: ");
-          const open = openClose[0].trim();
-          const close = openClose[1].trim();
+    const part = parts[i];
+    const openCloseParts = part.split("open: ");
+    if (openCloseParts.length === 2) {
+      const day = openCloseParts[0].trim();
+      const openClose = openCloseParts[1].split("close: ");
+      const open = openClose[0].trim();
+      const close = openClose[1].trim();
 
-          // Crie um objeto JSON com os dados
-          const data = {
-              day,
-              open,
-              close,
-          };
+      // Crie um objeto JSON com os dados
+      const data = { day, open, close };
 
-          // Adicione o objeto à matriz
-          objects.push(data);
-      }
+      // Adicione o objeto à matriz
+      objects.push(data);
+    }
   }
 
   if (objects.length === 0) {
-      return null; // Retorna null em caso de formato inválido
+    return null; // Retorna null em caso de formato inválido
   }
 
   return objects; // Retorna os objetos JSON
