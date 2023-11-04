@@ -5,16 +5,14 @@ const accounting = require("accounting");
 const MusicCategory = require("./MusicCategory");
 const Like = require("./Likes");
 require("dotenv").config();
-
+const openingHoursSchema = new mongoose.Schema({
+  day: { type: String },
+  open: { type: String },
+  close: { type: String },
+});
 const establishmentSchema = new mongoose.Schema(
   {
-    opening_hours: [
-      {
-        day: { type: String },
-        open: { type: String },
-        close: { type: String },
-      },
-    ],
+    opening_hours: [openingHoursSchema],
     logo_url: { type: String },
     title: { type: String, default: "" },
     local_name: { type: String, required: true },
