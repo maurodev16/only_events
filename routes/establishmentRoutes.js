@@ -189,40 +189,41 @@ router.post(
     }
   }
 );
+// Função para converter a string em objetos JSON
 function parseOpeningHours(openingHoursString) {
   const trimmedString = openingHoursString.toString().slice(1, -1); // Remova os colchetes iniciais e finais
 
-  const parts = trimmedString.toString().split("day: ");
-
+  const parts = trimmedString.split("day: ");
   const objects = [];
 
+  for (let i = 1; i < parts.length; i++) {
+      const part = parts[i];
+      const openCloseParts = part.split("open: ");
+      if (openCloseParts.length === 2) {
+          const day = openCloseParts[0].trim();
+          const openClose = openCloseParts[1].split("close: ");
+          const open = openClose[0].trim();
+          const close = openClose[1].trim();
 
+          // Crie um objeto JSON com os dados
+          const data = {
+              day,
+              open,
+              close,
+          };
 
-
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    const openCloseParts = part.toString().split("open: ");
-    if (openCloseParts.length === 2) {
-      const day = openCloseParts[0].trim();
-      const openClose = openCloseParts[1].toString().split("close: ");
-      const open = openClose[0].trim();
-      const close = openClose[1].trim();
-
-      // Crie um objeto JSON com os dados
-      const data = { day, open, close };
-
-      // Adicione o objeto à matriz
-      objects.push(data);
-    }
+          // Adicione o objeto à matriz
+          objects.push(data);
+      }
   }
 
   if (objects.length === 0) {
-    return null; // Retorna null em caso de formato inválido
+      return null; // Retorna null em caso de formato inválido
   }
 
-  console.log(objects);
   return objects; // Retorna os objetos JSON
 }
+
 
 router.get("/fetch", async (req, res) => {
   try {
