@@ -189,25 +189,18 @@ router.post(
     }
   }
 );
-function parseOpeningHours(openingHoursString) {
 
-  const trimmedString = openingHoursString.toString().slice(1, -1); // Remova os colchetes iniciais e finais
-
-  const parts = trimmedString.split('},'); // Divide a string usando '},' para separar cada conjunto de horários
+// Função para converter a string em objetos JSON// Função para converter a string em objetos JSONfunction parseOpeningHours(openingHoursString) {
+  const regex = /(\w+):\s(.*?)(?=(,\s\w+:|$))/g;
   const objects = [];
+  let match;
 
-  for (const part of parts) {
-    const keyValuePairs = part.split(','); // Divide cada conjunto em pares chave-valor
-    const data = {};
-
-    for (const pair of keyValuePairs) {
-      const [key, value] = pair.split(':'); // Divide cada par chave-valor
-      if (key && value) {
-        data[key.trim()] = value.trim();
-      }
+  while ((match = regex.exec(openingHoursString)) !== null) {
+    const key = match[1];
+    const value = match[2];
+    if (key && value) {
+      objects.push({ [key]: value });
     }
-
-    objects.push(data); // Adicione o objeto à matriz
   }
 
   if (objects.length === 0) {
@@ -216,7 +209,6 @@ function parseOpeningHours(openingHoursString) {
 
   return objects; // Retorna os objetos JSON
 }
-
 
 ///
 router.get("/fetch", async (req, res) => {
