@@ -192,7 +192,7 @@ router.post(
 function parseOpeningHours(openingHoursString) {
   const trimmedString = openingHoursString.toString().slice(1, -1); // Remova os colchetes iniciais e finais
 
-  const parts = trimmedString.toString().split("day: ,");
+  const parts = trimmedString.toString().split("day: ");
 
   const objects = [];
 
