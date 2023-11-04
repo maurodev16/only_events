@@ -47,9 +47,7 @@ console.log(userObj)
    const openingHours = parseOpeningHours(openingHoursString);
 
    
-   if (!openingHours) {
-    return res.status(400).send("Invalid opening hours format");
-}
+
 
       // Se a imagem foi enviada com sucesso, prosseguir com a criação do estabelecimento
       const establishment = new Establishment({
