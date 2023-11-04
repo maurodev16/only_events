@@ -189,29 +189,25 @@ router.post(
     }
   }
 );
-// Função para converter a string em objetos JSON// Função para converter a string em objetos JSON
 function parseOpeningHours(openingHoursString) {
 
   const trimmedString = openingHoursString.toString().slice(1, -1); // Remova os colchetes iniciais e finais
 
-  const parts = trimmedString.toString().split("day: ");
+  const parts = trimmedString.split('},'); // Divide a string usando '},' para separar cada conjunto de horários
   const objects = [];
 
-  for (let i = 1; i < parts.length; i++) {
-    const part = parts[i];
-    const openCloseParts = part.toString().split("open: ");
-    if (openCloseParts.length === 2) {
-      const day = openCloseParts[0].trim();
-      const openClose = openCloseParts[1].toString().split("close: ");
-      const open = openClose[0].trim();
-      const close = openClose[1].trim();
+  for (const part of parts) {
+    const keyValuePairs = part.split(','); // Divide cada conjunto em pares chave-valor
+    const data = {};
 
-      // Crie um objeto JSON com os dados
-      const data = { day, open, close };
-
-      // Adicione o objeto à matriz
-      objects.push(data);
+    for (const pair of keyValuePairs) {
+      const [key, value] = pair.split(':'); // Divide cada par chave-valor
+      if (key && value) {
+        data[key.trim()] = value.trim();
+      }
     }
+
+    objects.push(data); // Adicione o objeto à matriz
   }
 
   if (objects.length === 0) {
@@ -220,6 +216,7 @@ function parseOpeningHours(openingHoursString) {
 
   return objects; // Retorna os objetos JSON
 }
+
 
 ///
 router.get("/fetch", async (req, res) => {
