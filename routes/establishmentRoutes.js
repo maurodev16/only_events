@@ -195,6 +195,7 @@ console.log(userObj)
 // Função para converter a string em objetos JSON// Função para converter a string em objetos JSON
 function parseOpeningHours(openingHoursString) {
   if (typeof openingHoursString !== 'string') {
+    console.log(openingHoursString);
     return null; // Retorna null se a entrada não for uma string
 }
   const trimmedString = openingHoursString.slice(1, -1); // Remova os colchetes iniciais e finais
