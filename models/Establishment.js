@@ -13,6 +13,7 @@ const establishmentSchema = new mongoose.Schema(
         day: { type: String },
         open: { type: String },
         close: { type: String },
+        status: { type: String },
       },
     ],
     logo_url: { type: String },

@@ -189,18 +189,35 @@ router.post(
     }
   }
 );
-
+// Função para converter a string em objetos JSON// Função para converter a string em objetos JSON
 function parseOpeningHours(openingHoursString) {
-  const regex = /(\w+):\s(.*?)(?=(,\s\w+:|$))/g;
-  const objects = [];
-  let match;
 
-  while ((match = regex.exec(openingHoursString)) !== null) {
-    const key = match[1];
-    const value = match[2];
-    if (key && value) {
-      objects.push({ [key]: value });
+  // Remove os colchetes iniciais e finais
+  const trimmedString = openingHoursString.slice(1, -1);
+
+  // Divide a string em partes usando vírgulas como delimitador
+  const parts = trimmedString.toString().split(',');
+
+  const objects = [];
+  let currentObject = {};
+
+  for (const part of parts) {
+    // Divide cada parte em chave e valor usando ':' como delimitador
+    const [key, value] = part.toString().split(':').map((item) => item.trim());
+
+    if (key === 'day') {
+      if (Object.keys(currentObject).length > 0) {
+        objects.push(currentObject);
+      }
+      currentObject = { [key]: value };
+    } else {
+      currentObject[key] = value;
     }
+  }
+
+  // Adicione o último objeto à matriz
+  if (Object.keys(currentObject).length > 0) {
+    objects.push(currentObject);
   }
 
   if (objects.length === 0) {
@@ -209,6 +226,7 @@ function parseOpeningHours(openingHoursString) {
 
   return objects; // Retorna os objetos JSON
 }
+
 ///
 router.get("/fetch", async (req, res) => {
   try {
