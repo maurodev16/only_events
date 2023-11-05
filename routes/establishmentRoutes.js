@@ -229,13 +229,13 @@ router.get("/fetch", async (req, res) => {
   try {
     const establishments = await Establishment.find({})
       .sort({ createdAt: 1 })
-      .select("-isFeatured") // Removendo o campo "__v"
+      .select("-isFeatured")
       .populate({
-        path: "city_and_country_obj",
+        path: "opening_hours",
         select: "-__v",
         populate: {
-          path: "country_name",
-          select: "country_name",
+          path: "day",
+          select: "day",
         },
       })
       .populate("user", "name email logo_url role is_company")
