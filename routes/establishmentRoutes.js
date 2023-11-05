@@ -198,12 +198,12 @@ function parseOpeningHours(openingHoursString) {
 
   for (let i = 1; i < parts.length; i++) {
       const part = parts[i];
-      const openCloseParts = part.toString().split("open: ");
+      const openCloseParts = part.split("open: ");
       if (openCloseParts.length === 2) {
           const day = openCloseParts[0].trim();
-          const openClose = openCloseParts[1].toString().split("close: ,");
+          const openClose = openCloseParts[1].split("close: ");
           const open = openClose[0].trim();
-          const close = openClose[0].trim();
+          const close = openClose[1].trim();
 
           // Crie um objeto JSON com os dados
           const data = {
