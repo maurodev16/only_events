@@ -224,20 +224,11 @@ function parseOpeningHours(openingHoursString) {
   return objects; // Retorna os objetos JSON
 }
 
-
 router.get("/fetch", async (req, res) => {
   try {
     const establishments = await Establishment.find({})
       .sort({ createdAt: 1 })
       .select("-isFeatured")
-      .populate({
-        path: "opening_hours",
-        select: "-__v",
-        populate: {
-          path: "day",
-          select: "day",
-        },
-      })
       .populate("user", "name email logo_url role is_company")
       .populate({
         path: "music_category_id",
@@ -253,6 +244,7 @@ router.get("/fetch", async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
 
 router.get("/fetchEstablishmentByUser/:userId", async (req, res) => {
   try {
