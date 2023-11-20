@@ -1,19 +1,18 @@
-require('dotenv').config();
-const router = require('express').Router();
-const User = require('../models/Auth');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+require("dotenv").config();
+const router = require("express").Router();
+const User = require("../models/Auth");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const checkToken = require('../middleware/checkToken');
-const mongoose = require('mongoose');
-const sendEmail = require('../services/Emails/sendEmail');
-const Token = require('../models/Token');
+const checkToken = require("../middleware/checkToken");
+const mongoose = require("mongoose");
+const sendEmail = require("../services/Emails/sendEmail");
+const Token = require("../models/Token");
 const BCRYPT_SALT = process.env.BCRYPT_SALT;
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
-
 /// Signup
-router.post('/signup', async (req, res) => {
+router.post("/signup", async (req, res) => {
   const { name, email, password, role, is_company, logo_url } = req.body;
 
   const session = await mongoose.startSession();
@@ -40,33 +39,32 @@ router.post('/signup', async (req, res) => {
       name: name,
       email: email,
       password: password,
-      role: is_company ? 'company' : 'private',
+      role: is_company ? "company" : "private",
       is_company: is_company,
-      logo_url: logo_url
+      logo_url: logo_url,
     });
 
     const newCreatedUser = await user.save({ session });
     console.log(newCreatedUser);
 
     if (!newCreatedUser) {
-      return Error('ErroSignupOnDatabaseException');
+      return Error("ErroSignupOnDatabaseException");
     }
 
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
 
     return res.status(201).json({ newCreatedUser });
-
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
     console.log(`Erro to Sign-up: ${error}`);
-    return res.status(500).send('ErroSignupException');
+    return res.status(500).send("ErroSignupException");
   }
 });
 
 /// Login route
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -75,7 +73,6 @@ router.post('/login', async (req, res) => {
       console.log(email);
 
       return res.status(422).send("Please provide a valid email!");
-
     }
 
     let user;
@@ -86,10 +83,11 @@ router.post('/login', async (req, res) => {
     if (isEmail) {
       user = await User.findOne({ email: email });
       console.log(email);
-
     } else {
       // Find user using email
-      user = await User.findOne({ email: { $regex: `^${email}`, $options: 'i' } });
+      user = await User.findOne({
+        email: { $regex: `^${email}`, $options: "i" },
+      });
       console.log(user);
     }
 
@@ -99,29 +97,39 @@ router.post('/login', async (req, res) => {
 
     if (!password) {
       return res.status(422).json("Password is required!");
-
     }
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(422).json('Incorrect password');
-
+      return res.status(422).json("Incorrect password");
     }
 
     // Generate token
-    const token = jwt.sign({ userId: user._id, is_company: user.is_company, role: user.role, }, AUTH_SECRET_KEY);
+    const token = jwt.sign(
+      { userId: user._id, is_company: user.is_company, role: user.role },
+      AUTH_SECRET_KEY
+    );
 
     // Return the authentication token, ID, and email
-    return res.status(200).json({ name: user.name, userId: user._id, email: user.email, is_company: user.is_company, role: user.role, token, logo_url: user.logo_url});
+    return res
+      .status(200)
+      .json({
+        name: user.name,
+        userId: user._id,
+        email: user.email,
+        is_company: user.is_company,
+        role: user.role,
+        token,
+        logo_url: user.logo_url,
+      });
   } catch (error) {
     console.log(error);
     return res.status(500).send("An error occurred during login.");
   }
 });
 
-
-router.post('/requestPasswordReset', async (req, res,) => {
+router.post("/requestPasswordReset", async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) {
     throw new Error("Email does not exist");
@@ -150,7 +158,7 @@ router.post('/requestPasswordReset', async (req, res,) => {
       "./template/requestResetPassword.handlebars"
     );
     return { link };
-  };
+  }
 });
 
 // router.post('/resetPassword', async (req, res) => {
@@ -197,7 +205,5 @@ router.post('/requestPasswordReset', async (req, res,) => {
 //     res.status(500).json({ msg: "Erro ao redefinir a senha" });
 //   }
 // });
-
-
 
 module.exports = router;
