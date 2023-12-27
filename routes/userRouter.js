@@ -24,7 +24,7 @@ router.get('/fetch', checkToken, async (req, res) => {
         email: user.email,
         logo_url: user.logo_url,
         role: user.role,
-        is_company: user.is_company,
+        company_type: user.company_type,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       }

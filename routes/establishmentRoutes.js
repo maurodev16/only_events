@@ -229,7 +229,7 @@ router.get("/fetch", async (req, res) => {
     const establishments = await Establishment.find({})
       .sort({ createdAt: 1 })
       .select("-isFeatured")
-      .populate("user", "name email logo_url role is_company")
+      .populate("user", "name email logo_url role company_type")
       .populate({
         path: "music_category_id",
         select: "music_category_name",

@@ -13,7 +13,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
 router.post("/signup", async (req, res) => {
-  const { name, email, password, role, is_company, logo_url } = req.body;
+  const { name, email, password, role, company_type, logo_url } = req.body;
 
   const session = await mongoose.startSession();
 
@@ -39,8 +39,8 @@ router.post("/signup", async (req, res) => {
       name: name,
       email: email,
       password: password,
-      role: is_company ? "company" : "private",
-      is_company: is_company,
+      role: company_type ? "company" : "private",
+      company_type: company_type,
       logo_url: logo_url,
     });
 
@@ -107,7 +107,7 @@ router.post("/login", async (req, res) => {
 
     // Generate token
     const token = jwt.sign(
-      { userId: user._id, is_company: user.is_company, role: user.role },
+      { userId: user._id, company_type: user.company_type, role: user.role },
       AUTH_SECRET_KEY
     );
 
@@ -118,7 +118,7 @@ router.post("/login", async (req, res) => {
         name: user.name,
         userId: user._id,
         email: user.email,
-        is_company: user.is_company,
+        company_type: user.company_type,
         role: user.role,
         token,
         logo_url: user.logo_url,
