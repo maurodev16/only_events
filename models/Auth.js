@@ -5,12 +5,13 @@ const bcryptSalt = process.env.BCRYPT_SALT;
 
 const authSchema = new mongoose.Schema({
   logo_url: { type: String, default: `https://res.cloudinary.com/dhkyslgft/image/upload/v1696606612/assets/splash_logo_farhpc.png` },
-  name: { type: String, required: true, unique: true },
+  first_name: { type: String, required: true, },
+  last_name: { type: String, required: true, },
+  company_name: { type: String, default:"",},
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  rules: { type: String, enum: ['visitor', 'normal', 'company'], default: 'visitor' },
-  company_type: { type: String, enum: ['unknow', 'bar', 'promoter', 'club'], default: 'unknow' },
-
+  role: { type: String, enum: ['visitor', 'normal', 'company'], default: 'visitor' },
+  company_type: { type: String, enum: ['unknown', 'promoter', 'bar', 'club'], default: 'unknown' },
 },
   {
     timestamps: true,
@@ -18,15 +19,19 @@ const authSchema = new mongoose.Schema({
 );
 
 /// PRE SAVE
-authSchema.pre("save", async function (next) {
+authSchema.pre("save", function (next) {
+  try {
+    if (this.isModified("password")) {
+      const hash = bcrypt.hashSync(this.password, Number(bcryptSalt));
+      this.password = hash;
+    }
 
-  if (this.isModified("password")) {
-    const hash = await bcrypt.hash(this.password, Number(bcryptSalt));
-    this.password = hash;
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  next();
 });
+
 
 const User = mongoose.model('User', authSchema);
 

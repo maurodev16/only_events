@@ -17,7 +17,7 @@ function checkToken(req, res, next) {
     }
 
     // If the token is valid, save the Auth ID in the request
-    req.auth = { _id: decoded.userId };
+    req.auth = { _id: decoded._id };
     next();
   });
 }

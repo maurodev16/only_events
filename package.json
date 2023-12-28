@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maurodev16/only_events.git"
+    "url": "git+https://github.com/maurodev16/only_party.git"
   },
   "keywords": [
     "mongodb",
@@ -19,12 +19,12 @@
   "author": "Mauro Rodrigues",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/maurodev16/only_events/issues"
+    "url": "https://github.com/maurodev16/only_party/issues"
   },
   "engines": {
     "node": ">=18.13.0"
   },
-  "homepage": "https://github.com/maurodev16/only_events#readme",
+  "homepage": "https://github.com/maurodev16/only_party#readme",
   "dependencies": {
     "accounting": "^0.4.1",
     "bcrypt": "^5.1.1",
@@ -37,6 +37,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
+    "express-validator": "^7.0.1",
     "firebase": "^9.23.0",
     "firebase-admin": "^11.10.1",
     "handlebars": "^4.7.8",

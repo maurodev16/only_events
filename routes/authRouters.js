@@ -13,42 +13,35 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
 router.post("/signup", async (req, res) => {
-  const { name, email, password, role, company_type, logo_url } = req.body;
+  const { first_name, last_name, email, password } = req.body;
+
+  if (!first_name || !last_name || !email || !password) {
+    return res.status(400).json({ error: 'All fields are mandatory.' });
+  }
 
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction(); // Iniciar transação
 
-    // // Verifica se a cidade já existe no banco de dados
-    // let cityName = await City.findOne({ cityName });
-
-    // Verifica se o nome do User já está em uso
-    const nameExists = await User.findOne({ name: name });
-    if (nameExists) {
-      return res.status(422).send("NameAlreadyExistsException");
-    }
-
     // Verifica se o email do User já está em uso
     const emailExists = await User.findOne({ email: email });
     if (emailExists) {
-      return res.status(422).send("EmailAlreadyExistsException");
+      return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
 
     const user = new User({
-      name: name,
+      first_name: first_name,
+      last_name: last_name,
       email: email,
       password: password,
-      role: company_type ? "company" : "private",
-      company_type: company_type,
-      logo_url: logo_url,
     });
 
     const newCreatedUser = await user.save({ session });
     console.log(newCreatedUser);
 
     if (!newCreatedUser) {
-      return Error("ErroSignupOnDatabaseException");
+      return res.status(500).json({ error: 'ErroSignupOnDatabaseException' });
     }
 
     await session.commitTransaction(); // Confirm Transaction
@@ -58,8 +51,8 @@ router.post("/signup", async (req, res) => {
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
-    console.log(`Erro to Sign-up: ${error}`);
-    return res.status(500).send("ErroSignupException");
+    console.error(`Erro ao registrar: ${error}`);
+    return res.status(500).json({ error: 'Error registering user.' });
   }
 });
 
@@ -72,7 +65,7 @@ router.post("/login", async (req, res) => {
     if (!email) {
       console.log(email);
 
-      return res.status(422).send("Please provide a valid email!");
+      return res.status(401).json({ error: "Please provide a valid email!" });
     }
 
     let user;
@@ -92,40 +85,28 @@ router.post("/login", async (req, res) => {
     }
 
     if (!user) {
-      return res.status(404).send("No User found with this email!");
+      return res.status(404).json({ error: "No User found with this email!" });
     }
 
     if (!password) {
-      return res.status(422).json("Password is required!");
+      return res.status(422).json({ error: "Password is required!" });
     }
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(422).json("Incorrect password");
+      return res.status(422).json({ error: "Incorrect password" });
     }
 
     // Generate token
-    const token = jwt.sign(
-      { userId: user._id, company_type: user.company_type, role: user.role },
-      AUTH_SECRET_KEY
-    );
+    const token = jwt.sign({ _id: user._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
 
     // Return the authentication token, ID, and email
     return res
-      .status(200)
-      .json({
-        name: user.name,
-        userId: user._id,
-        email: user.email,
-        company_type: user.company_type,
-        role: user.role,
-        token,
-        logo_url: user.logo_url,
-      });
+      .status(200).json({ token });
   } catch (error) {
-    console.log(error);
-    return res.status(500).send("An error occurred during login.");
+    console.error(`Erro no login: ${error}`);
+    res.status(500).json({ error: 'Erro no login' });
   }
 });
 
