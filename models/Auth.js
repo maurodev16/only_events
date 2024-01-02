@@ -10,8 +10,12 @@ const authSchema = new mongoose.Schema({
   company_name: { type: String, default:"",},
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  confirm_password: { type: String, required: true },
   role: { type: String, enum: ['visitor', 'normal', 'company'], default: 'visitor' },
   company_type: { type: String, enum: ['unknown', 'promoter', 'bar', 'club'], default: 'unknown' },
+  passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetTokenExpires: Date,
 },
   {
     timestamps: true,

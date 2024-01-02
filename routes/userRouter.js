@@ -20,9 +20,10 @@ router.get('/fetch', checkToken, async (req, res) => {
     const userdata = users.map(user => {
       return {
         id: user._id,
-        name: user.name,
-        email: user.email,
         logo_url: user.logo_url,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
         role: user.role,
         company_type: user.company_type,
         createdAt: user.createdAt,
@@ -60,16 +61,16 @@ router.put('/editUser/:id', checkToken, async (req, res) => {
     }
 
     // Atualizar os dados do user
-    user.full_name = userData.full_name;
+    user.first_name = userData.first_name;
+    user.last_name = userData.last_name;
     user.password = userData.password;
-    user.dateOfBirth = userData.dateOfBirth;
     user.gender = userData.gender;
     user.interest = userData.interest;
     user.street_name = userData.street_name;
     user.hause_number = userData.hause_name;
     user.phone = userData.phone;
     user.logo_url = userData.logo_url;
-    user.updated = Date.now();
+    user.updatedAt = Date.now();
 
     // Salvar as alterações no banco de dados
     const updateduser = await user.save();
@@ -98,7 +99,8 @@ router.put('/edituser/:id', checkToken, async (req, res) => {
 
     // Update the user data
     // Atualizar os dados do user
-    user.full_name = userData.full_name;
+    user.first_name = userData.first_name;
+    user.last_name = userData.last_name;
     user.password = userData.password;
     user.dateOfBirth = userData.dateOfBirth;
     user.gender = userData.gender;

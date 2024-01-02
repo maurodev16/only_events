@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/maurodev16/only_party#readme",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.0",
     "accounting": "^0.4.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",

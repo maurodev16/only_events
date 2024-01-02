@@ -8,6 +8,9 @@ const checkToken = require("../middleware/checkToken");
 const mongoose = require("mongoose");
 const sendEmail = require("../services/Emails/sendEmail");
 const Token = require("../models/Token");
+const handlebars = require('handlebars');
+const fs = require('fs');
+const path = require('path');
 const BCRYPT_SALT = process.env.BCRYPT_SALT;
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
@@ -15,10 +18,16 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 router.post("/signup", async (req, res) => {
   const { first_name, last_name, email, password } = req.body;
 
-  if (!first_name || !last_name || !email || !password) {
-    return res.status(400).json({ error: 'All fields are mandatory.' });
+  if (!first_name) {
+    return res.status(400).json({ error: 'First name fild are mandatory.' });
+  } if (!last_name) {
+    return res.status(400).json({ error: 'Last name field are mandatory.' });
+  } if (!email) {
+    return res.status(400).json({ error: 'Email field are mandatory.' });
+  }   // Verificar se a senha e a senha de confirmação são iguais
+  if (password) {
+    return res.status(400).json({ error: 'Password field are mandatory.' });
   }
-
   const session = await mongoose.startSession();
 
   try {
@@ -35,6 +44,7 @@ router.post("/signup", async (req, res) => {
       last_name: last_name,
       email: email,
       password: password,
+      // confirm_password: confirm_password
     });
 
     const newCreatedUser = await user.save({ session });
@@ -110,81 +120,146 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/requestPasswordReset", async (req, res) => {
-  const user = await User.findOne({ email });
+router.post("/send-link-reset-password", async (req, res) => {
+  //1. GET USER BASED ON POSTED EMAIL
+  const { email } = req.body;
+  const user = await User.findOne({ email: email });
+
   if (!user) {
-    throw new Error("Email does not exist");
-
-    let token = await Token.findOne({ userId: user._id });
-    if (token) await token.deleteOne();
-
-    let resetToken = crypto.randomBytes(32).toString("hex");
-    const hashToken = await bcrypt.hash(resetToken, Number(BCRYPT_SALT));
-
-    await new Token({
-      userId: user,
-      token: hashToken,
-      createdAt: Date.now(),
-    }).save();
-
-    const link = `${CLIENT_URL}/passwordReset?token=${resetToken}&email=${email}`;
-
-    sendEmail(
-      user.email,
-      "Password Reset Request",
-      {
-        name: user.name,
-        link: link,
-      },
-      "./template/requestResetPassword.handlebars"
-    );
-    return { link };
+    return res.status(404).json({ error: "We could not find the user with the given email." });
   }
+
+  // Gerar e salvar um token de redefinição de senha
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+  // Definir o tempo de expiração do token (por exemplo, 10 minutos a partir de agora)
+  const expirationDate = new Date(Date.now() + 10 * 60 * 1000);
+  user.passwordResetTokenExpires = expirationDate.toISOString();
+  console.log(resetToken, user.passwordResetToken);
+
+  // Salvar as alterações no usuário
+  user.save({ validateBeforeSave: false })
+  // Enviar e-mail com o link de redefinição de senha
+  const resetLink = `${req.protocol}://${req.get('host')}/api/v1/auth/request-reset-password/${resetToken}`;
+  // // Lê o conteúdo do arquivo HTML como uma string
+  // const templatePath = path.join(__dirname, 'services', 'Emails', 'Template', 'requestResetPassword.handlebars');
+  // const templateSource = fs.readFileSync(templatePath, 'utf8');
+
+  // // Compila o template Handlebars
+  // const template = handlebars.compile(templateSource);
+
+  // // Preenche o template com os dados necessários
+  // const html = template({ resetLink: resetLink });
+
+  try {
+    await sendEmail(
+      email,
+      process.env.NO_REPLAY_EMAIL,
+      "Password change request received",
+      `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset</title>
+        <style>
+          body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+          }
+          h2 {
+            color: #007bff;
+          }
+          p {
+            line-height: 1.6;
+          }
+         
+          a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+          }
+          a:hover {
+            background-color: #0056b3;
+          }
+          .footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #777;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h2>Password Reset</h2>
+          <p>Dein neues Passwort.</p>
+          <p>Du bekommst diese E-Mail, weil du ein neues Passwort angefordet hast.</p></br>
+          <p>Bitte folge diesem Button, um ein neues Passwort zu vergeben.</p></br>
+          <a href="${resetLink}" target="_blank">Neus Passwort vergeben</a></br>
+          <div class="footer">
+            <p>Dieser Link is 10 Minuten gültig.</p>
+          </div>
+        </div>
+      </body>
+      </html>`
+    );
+
+    res.status(200).json({ msg: "Password reset link has been successfully sent to your email" });
+  } catch (error) {
+    user.passwordResetTokenExpires = undefined;
+
+    console.error('Error sending email:', error.response?.body?.errors);
+    res.status(500).json({ error: "There was an error sending password reset email. Please try again later.", emailError: error.message });
+  }
+
 });
 
-// router.post('/resetPassword', async (req, res) => {
-//   const {userId, token, newPassword } = req.body;
 
-//   try {
-//     const user = await User.findOne({ email });
+router.patch("/request-reset-password/:token", async (req, res) => {
 
-//     if (!user) {
-//       return res.status(404).json({ msg: "Usuário não encontrado" });
-//     }
+  const { newPassword, confirm_password } = req.body;
 
-//     const savedToken = await Token.findOne({ userId: user._id });
+  if (newPassword !== confirm_password) {
+    return res.status(400).json({ error: 'Passwords do not match.' });
+  }
+  const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
+  // Buscar o token no banco de dados
+  const user = await User.findOne({ passwordResetToken: token, passwordResetTokenExpires: { $gt: Date.now() } });
 
-//     if (!savedToken) {
-//       return res.status(401).json({ msg: "Token inválido ou expirado" });
-//     }
+  if (!user) {
+    return res.status(401).json({ msg: "Token is invalid or has expired!" });
+  }
+  //2 RESTTING THE USER PASSWORD
+  user.password = newPassword;
+  user.confirm_password = "";
+  user.passwordResetToken = undefined;
+  user.passwordResetTokenExpires = undefined;
+  user.passwordChangedAt = Date.now();
+  user.save();
 
-//     const isTokenValid = await bcrypt.compare(token, savedToken.token);
-
-//     if (!isTokenValid) {
-//       return res.status(401).json({ msg: "Token inválido" });
-//     }
-
-//     // Hash da nova senha antes de salvar
-//     const hashedNewPassword = await bcrypt.hash(newPassword, Number(BCRYPT_SALT));
-
-//     // Atualizar a senha e remover o token
-//  await User.updateOne(
-//   {_id: user._id},
-//   {$set: { password: hashedNewPassword }},
-//   { new: true },
-//    );
-
-//    const user = await User.findById({ _id: userId})
-
-//    sendEmail
-//     await user.save();
-//     await savedToken.delete();
-
-//     res.status(200).json({ msg: "Senha redefinida com sucesso" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ msg: "Erro ao redefinir a senha" });
-//   }
-// });
+  //3 LOGIN THE USER
+  const loginToken = jwt.sign({ _id: user._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
+  res.status(200).json({ status: "success", token: loginToken });
+});
 
 module.exports = router;

@@ -229,7 +229,7 @@ router.get("/fetch", async (req, res) => {
     const establishments = await Establishment.find({})
       .sort({ createdAt: 1 })
       .select("-isFeatured")
-      .populate("user", "name email logo_url role company_type")
+      .populate("user", "first_name last_name email logo_url role company_type")
       .populate({
         path: "music_category_id",
         select: "music_category_name",
@@ -255,10 +255,10 @@ router.get("/fetchEstablishmentByUser/:userId", async (req, res) => {
         path: "city_and_country_obj",
         populate: {
           path: "userId",
-          select: "name logo_url", // Seleciona os campos desejados do User
+          select: "first_name last_name logo_url", // Seleciona os campos desejados do User
         },
       })
-      .populate("user", "name email logo_url")
+      .populate("user", "first_name last_name email logo_url")
       .populate({
         select: "music_category_name", // Ajuste para a propriedade correta da categoria de música
       });
