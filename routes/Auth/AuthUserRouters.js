@@ -1,13 +1,13 @@
 require("dotenv").config();
 const router = require("express").Router();
-const User = require("../models/Auth");
+const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const checkToken = require("../middleware/checkToken");
+const checkToken = require("../../middleware/checkToken");
 const mongoose = require("mongoose");
-const sendEmail = require("../services/Emails/sendEmail");
-const Token = require("../models/Token");
+const sendEmail = require("../../services/Emails/sendEmail");
+const Token = require("../../models/Token");
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -237,11 +237,9 @@ router.post("/send-link-reset-password", async (req, res) => {
 
 router.patch("/request-reset-password/:token", async (req, res) => {
 
-  const { newPassword, confirm_password } = req.body;
+  const newPassword  = req.body;
 
-  if (newPassword !== confirm_password) {
-    return res.status(400).json({ error: 'Passwords do not match.' });
-  }
+
   const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
   // Buscar o token no banco de dados
   const user = await User.findOne({ passwordResetToken: token, passwordResetTokenExpires: { $gt: Date.now() } });
@@ -251,7 +249,6 @@ router.patch("/request-reset-password/:token", async (req, res) => {
   }
   //2 RESTTING THE USER PASSWORD
   user.password = newPassword;
-  user.confirm_password = "";
   user.passwordResetToken = undefined;
   user.passwordResetTokenExpires = undefined;
   user.passwordChangedAt = Date.now();

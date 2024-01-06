@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Artist = require('../models/Artist');
-const User = require('../models/Auth');
+const User = require('../models/User');
 const checkToken = require('../middleware/checkToken');
 
 router.post('/create', checkToken, async (req, res) => {

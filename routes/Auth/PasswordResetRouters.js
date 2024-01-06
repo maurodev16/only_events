@@ -1,7 +1,7 @@
-const User = require("../models/Auth");
+const User = require("../../models/User");
 const router = require('express').Router();
-const checkToken = require('../middleware/checkToken');
-const Token = require('../models/Token')
+const checkToken = require('../../middleware/checkToken');
+const Token = require('../../models/Token')
 
 
 

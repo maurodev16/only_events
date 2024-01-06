@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const router = require('express').Router()
 const Logo = require('../models/Logo');
-const User = require('../models/Auth');
+const User = require('../models/User');
 const CityAndCountry = require('../models/CityAndCountry');
 const bcrypt = require('bcrypt');
 const checkToken = require('../middleware/checkToken');

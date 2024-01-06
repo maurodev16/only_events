@@ -1,8 +1,8 @@
-const cloudinary = require('../services/cloudinaryConfig');
-const User = require('../models/Auth');
+const cloudinary = require('../services/Cloudinary/cloudinary_config');
+const User = require('../models/User');
 const uploadSingleLogo = require('../middleware/multerSingleLogoMiddleware');
 const checkToken = require('../middleware/checkToken');
-const { deleteImageFromCloudinary } = require("../services/cloudinary")
+const { deleteImageFromCloudinary } = require("../services/Cloudinary/")
 const router = require('express').Router()
 
 // Rota para fazer o upload da imagem do user

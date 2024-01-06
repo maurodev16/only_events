@@ -3,16 +3,12 @@ const bcrypt = require("bcrypt");
 require('dotenv').config();
 const bcryptSalt = process.env.BCRYPT_SALT;
 
-const authSchema = new mongoose.Schema({
-  logo_url: { type: String, default: `https://res.cloudinary.com/dhkyslgft/image/upload/v1696606612/assets/splash_logo_farhpc.png` },
+const userSchema = new mongoose.Schema({
   first_name: { type: String, required: true, },
   last_name: { type: String, required: true, },
-  company_name: { type: String, default:"",},
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  confirm_password: { type: String, required: true },
-  role: { type: String, enum: ['visitor', 'normal', 'company'], default: 'visitor' },
-  company_type: { type: String, enum: ['unknown', 'promoter', 'bar', 'club'], default: 'unknown' },
+  role: { type: String, enum: ['visitor', 'user',], default: 'visitor' },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetTokenExpires: Date,
@@ -23,7 +19,7 @@ const authSchema = new mongoose.Schema({
 );
 
 /// PRE SAVE
-authSchema.pre("save", function (next) {
+userSchema.pre("save", function (next) {
   try {
     if (this.isModified("password")) {
       const hash = bcrypt.hashSync(this.password, Number(bcryptSalt));
@@ -37,6 +33,6 @@ authSchema.pre("save", function (next) {
 });
 
 
-const User = mongoose.model('User', authSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

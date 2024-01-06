@@ -37,23 +37,23 @@ app.use(express.json());
 // });
 
 // Import routers
-const logoRoutes = require('./routes/logoRouter');
-const establishmentRoutes= require('./routes/establishmentRoutes');
-const establishmentFiltersRoutes= require('./routes/establishmentFiltersRoutes');
-const musicCategoryRouters= require('./routes/musicCategoryRouters');
-const likeRoutes= require('./routes/likeRoutes');
-const userRoutes= require('./routes/userRouter');
-const artistRoutes= require('./routes/artistRoutes');
-const authRoutes = require('./routes/authRouters');
-const countriesRoutes = require('./routes/cityAndCountryRouters');
+const logoRoutes = require('./routes/LogoRouter');
+const establishmentRoutes= require('./routes/Auth/AuthEstablishmentRoutes');
+const establishmentFiltersRoutes= require('./routes/EstablishmentFiltersRoutes');
+const musicCategoryRouters= require('./routes/MusicCategoryRouters');
+const likeRoutes= require('./routes/LikeRoutes');
+const userRoutes= require('./routes/UserRouter');
+const artistRoutes= require('./routes/ArtistRoutes');
+const authUserRoutes = require('./routes/Auth/AuthUserRouters');
+const authAnonimousRoutes = require('./routes/Auth/AuthAnonymousRouters');
+const countriesRoutes = require('./routes/CityAndCountryRouters');
 const swaggerSpec = require("./services/Swagger/swagger");
-const passwordReset = require("./routes/passwordResetRouters")
-
-
+const passwordReset = require("./routes/Auth/passwordResetRouters")
 
 /// Register routers
 app.use('/api/v1/logo', logoRoutes);
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/auth', authUserRoutes);
+app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/establishment', establishmentRoutes);

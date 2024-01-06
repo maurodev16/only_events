@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const User = require("./Auth");
+const User = require("./User");
 
 const tokenSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

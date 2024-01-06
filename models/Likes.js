@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const User = require("./Auth");
+const User = require("./User");
 const Establishment = require("./Establishment");
 
 const likeSchema = new mongoose.Schema({
