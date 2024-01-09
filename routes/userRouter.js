@@ -1,12 +1,10 @@
-require('dotenv').config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const router = require('express').Router()
-const Logo = require('../models/Logo');
-const User = require('../models/User');
-const CityAndCountry = require('../models/CityAndCountry');
-const bcrypt = require('bcrypt');
-const checkToken = require('../middleware/checkToken');
-const mongoose = require('mongoose');
+import express from "express";
+const router = express.Router();
+import User from '../models/User.js';
+import checkToken from '../middleware/checkToken.js';
 
 
 router.get('/fetch', checkToken, async (req, res) => {
@@ -120,7 +118,7 @@ router.put('/edituser/:id', checkToken, async (req, res) => {
   }
 });
 
-module.exports = router
+export default router
 
 
 /**

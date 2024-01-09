@@ -1,7 +1,10 @@
-const router = require("express").Router();
-const Like = require("../models/Likes");
-const Establishment = require("../models/Establishment");
-const checkToken = require("../middleware/checkToken");
+import { Router } from 'express';
+import Like from '../models/Likes.js';
+import Establishment from '../models/Establishment.js';
+import checkToken from '../middleware/checkToken.js';
+
+const router = Router();
+
 
 // Rota para dar um like e Dislike a um establishment
 router.post("/:establishmentId", checkToken, async (req, res) => {
@@ -57,4 +60,4 @@ router.post("/:establishmentId", checkToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

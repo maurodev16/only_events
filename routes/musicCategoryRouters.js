@@ -1,6 +1,11 @@
-require('dotenv').config();
-const router = require('express').Router();
-const MusicCategory = require('../models/MusicCategory');
+import dotenv from 'dotenv';
+import { Router } from 'express';
+import MusicCategory from '../models/MusicCategory.js';
+
+dotenv.config();
+
+const router = Router();
+
 
 router.post('/create', async (req, res) => {
     // Body
@@ -49,4 +54,4 @@ router.get('/fetch', async (req, res) => {
     }
   });
 
-module.exports = router;
+export default router;

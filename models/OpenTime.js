@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const openingHoursSchema = new mongoose.Schema({
     day_of_week: {
@@ -18,4 +18,4 @@ const openingHoursSchema = new mongoose.Schema({
 
   const OpeningHours = mongoose.model("OpeningHours", openingHoursSchema);
 
-module.exports = OpeningHours;
+export default OpeningHours;

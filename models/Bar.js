@@ -1,10 +1,6 @@
-const mongoose = require("mongoose");
-const User = require("./User");
-const CityAndCountry = require("./CityAndCountry");
-const accounting = require("accounting");
-const MusicCategory = require("./MusicCategory");
-const Like = require("./Likes");
-require("dotenv").config();
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 const barSchema = new mongoose.Schema(
@@ -137,4 +133,4 @@ const barSchema = new mongoose.Schema(
 
 const Bar = mongoose.model("Bar", barSchema);
 
-module.exports = Bar;
+export default Bar;

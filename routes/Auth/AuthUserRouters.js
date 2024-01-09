@@ -1,16 +1,21 @@
-require("dotenv").config();
-const router = require("express").Router();
-const User = require("../../models/User");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-const checkToken = require("../../middleware/checkToken");
-const mongoose = require("mongoose");
-const sendEmail = require("../../services/Emails/sendEmail");
-const Token = require("../../models/Token");
-const handlebars = require('handlebars');
-const fs = require('fs');
-const path = require('path');
+import dotenv from "dotenv";
+dotenv.config();
+
+import { Router } from "express";
+const router = Router();
+
+import User from "../../models/User.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import checkToken from "../../middleware/checkToken.js";
+import mongoose from "mongoose";
+import sendEmail from "../../services/Emails/sendEmail.js";
+import Token from "../../models/Token.js";
+import handlebars from 'handlebars';
+import fs from 'fs';
+import path from 'path';
+
 const BCRYPT_SALT = process.env.BCRYPT_SALT;
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
@@ -259,4 +264,4 @@ router.patch("/request-reset-password/:token", async (req, res) => {
   res.status(200).json({ status: "success", token: loginToken });
 });
 
-module.exports = router;
+export default router;

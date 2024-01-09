@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Artist = require('../models/Artist');
-const User = require('../models/User');
-const checkToken = require('../middleware/checkToken');
+import Artist from '../models/Artist.js';
+import User from '../models/User.js';
+import checkToken from '../middleware/checkToken.js';
+
 
 router.post('/create', checkToken, async (req, res) => {
     try {
@@ -40,4 +41,4 @@ router.post('/create', checkToken, async (req, res) => {
   });
   
 
-module.exports = router;
+export default router;

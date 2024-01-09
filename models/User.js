@@ -1,8 +1,9 @@
-const mongoose = require('mongoose');
-const bcrypt = require("bcrypt");
-require('dotenv').config();
-const bcryptSalt = process.env.BCRYPT_SALT;
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+dotenv.config();
 
+const bcryptSalt = process.env.BCRYPT_SALT;
 const userSchema = new mongoose.Schema({
   first_name: { type: String, required: true, },
   last_name: { type: String, required: true, },
@@ -35,4 +36,4 @@ userSchema.pre("save", function (next) {
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default User;

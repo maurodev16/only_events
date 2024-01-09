@@ -1,6 +1,7 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-require('dotenv').config();
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
 
 const establishmentSchema = new mongoose.Schema(
@@ -42,4 +43,4 @@ establishmentSchema.pre("save", function (next) {
 
 const Establishment = mongoose.model("Establishment", establishmentSchema);
 
-module.exports = Establishment;
+export default Establishment;

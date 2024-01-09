@@ -1,9 +1,11 @@
-const cloudinary = require('../services/Cloudinary/cloudinary_config');
-const User = require('../models/User');
-const uploadSingleLogo = require('../middleware/multerSingleLogoMiddleware');
-const checkToken = require('../middleware/checkToken');
-const { deleteImageFromCloudinary } = require("../services/Cloudinary/")
-const router = require('express').Router()
+import express from 'express';
+import cloudinary from '../services/Cloudinary/cloudinary_config.js';
+import User from '../models/User.js';
+import uploadSingleLogo from '../middleware/multerSingleLogoMiddleware.js';
+import checkToken from '../middleware/checkToken.js';
+
+const router = express.Router();
+
 
 // Rota para fazer o upload da imagem do user
 router.put('/upload-logo/:userId', uploadSingleLogo.single('logo'), checkToken, async (req, res) => {
@@ -44,4 +46,4 @@ router.put('/upload-logo/:userId', uploadSingleLogo.single('logo'), checkToken, 
         res.status(500).send('Failed to upload image');
     }
 });
-module.exports = router;
+export default router;

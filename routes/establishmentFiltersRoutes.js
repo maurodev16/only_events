@@ -1,6 +1,9 @@
-const router = require('express').Router();
-const Establishment = require('../models/Establishment');
-const CityAndCountry = require('../models/CityAndCountry');
+import { Router } from 'express';
+import Establishment from '../models/Establishment.js';
+import CityAndCountry from '../models/CityAndCountry.js';
+
+const router = Router();
+
 
 // Rota para filtrar os establishments por cidade
 router.get('/filter-by-city/:city_name', async (req, res) => {
@@ -24,4 +27,4 @@ router.get('/filter-by-city/:city_name', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

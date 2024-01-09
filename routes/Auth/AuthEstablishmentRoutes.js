@@ -1,15 +1,18 @@
-const mongoose = require("mongoose");
-const router = require("express").Router();
-const Establishment = require("../../models/Establishment");
-const cloudinary = require("../../services/Cloudinary/cloudinary_config");
-const User = require("../../models/User");
-const MusicCategory = require("../../models/MusicCategory");
-const checkToken = require("../../middleware/checkToken");
-const uploadSingleBanner = require("../../middleware/multerSingleBannerMiddleware");
-const CityAndCountry = require("../../models/CityAndCountry");
-const multer = require("multer");
-const { v4: uuidv4 } = require("uuid");
-const { populate } = require("../../models/Artist");
+import mongoose from "mongoose";
+import { Router } from "express";
+import Establishment from "../../models/Establishment.js";
+import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
+import User from "../../models/User.js";
+import MusicCategory from "../../models/MusicCategory.js";
+import checkToken from "../../middleware/checkToken.js";
+import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
+import CityAndCountry from "../../models/CityAndCountry.js";
+import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
+import  Artist  from "../../models/Artist.js";
+
+const router = Router();
+
 
 router.post("/create", uploadSingleBanner.single("file"), async (req, res) => {
   //try {
@@ -378,4 +381,4 @@ router.delete(
   }
 );
 
-module.exports = router;
+export default router;

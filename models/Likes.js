@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
-const User = require("./User");
-const Establishment = require("./Establishment");
+import mongoose from "mongoose";
+import User from "./User.js";
+import Establishment from "./Establishment.js";
 
 const likeSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  establishment: { type: mongoose.Schema.Types.ObjectId, ref: 'Establishment', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: User, required: true },
+  establishment: { type: mongoose.Schema.Types.ObjectId, ref: Establishment, required: true },
   createdAt: { type: Date, default: Date.now }
 }, {
   timestamps: true,
@@ -13,4 +13,4 @@ const likeSchema = new mongoose.Schema({
 
 const Like = mongoose.model('Like', likeSchema);
 
-module.exports = Like;
+export default Like;

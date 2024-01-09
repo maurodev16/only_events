@@ -1,4 +1,4 @@
-const multer = require('multer');
+import multer from 'multer';
 const storage = multer.diskStorage({
 
     filename:function(req, file, cb){
@@ -24,4 +24,4 @@ const uploadSingleLogo = multer({
     fileFilter: fileFilter
 });
 
-module.exports = uploadSingleLogo;
+export default uploadSingleLogo;

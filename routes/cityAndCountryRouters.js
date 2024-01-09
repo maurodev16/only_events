@@ -1,7 +1,10 @@
-const mongoose = require("mongoose");
-const router = require("express").Router();
-const CityAndCountry = require("../models/CityAndCountry");
-const checkToken = require("../middleware/checkToken");
+import mongoose from "mongoose";
+import { Router } from "express";
+import CityAndCountry from "../models/CityAndCountry.js";
+import checkToken from "../middleware/checkToken.js";
+
+const router = Router();
+
 
 router.post("/register", checkToken, async (req, res) => {
   const { city_name, country_name } = req.body;
@@ -70,4 +73,4 @@ router.get("/fetch-city-countries/:city_name", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

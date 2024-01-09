@@ -1,9 +1,10 @@
-require("dotenv").config();
-const router = require("express").Router();
-const AnonymousUser = require("../../models/Anonymous");
-const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
+const router = express.Router();
 
+import AnonymousUser from "../../models/Anonymous.js";
+import jwt from "jsonwebtoken";
 
 router.post('/login-anonymous', async (req, res) => {
     try {
@@ -29,5 +30,5 @@ router.post('/login-anonymous', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
 

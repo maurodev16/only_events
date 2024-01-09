@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const musicCategorySchema = new mongoose.Schema({
   music_category_name: { type: String, required: true },
@@ -6,5 +6,5 @@ const musicCategorySchema = new mongoose.Schema({
 
 const MusicCategory = mongoose.model('MusicCategory', musicCategorySchema);
 
-module.exports = MusicCategory;
+export default MusicCategory;
 

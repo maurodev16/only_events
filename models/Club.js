@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
-const User = require("./User");
-const CityAndCountry = require("./CityAndCountry");
-const accounting = require("accounting");
-const MusicCategory = require("./MusicCategory");
-const Like = require("./Likes");
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 
 const clubSchema = new mongoose.Schema(
@@ -125,4 +121,4 @@ const clubSchema = new mongoose.Schema(
 
 const Club = mongoose.model("Club", clubSchema);
 
-module.exports = Club;
+export default Club;

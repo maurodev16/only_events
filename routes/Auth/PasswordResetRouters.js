@@ -1,7 +1,10 @@
-const User = require("../../models/User");
-const router = require('express').Router();
-const checkToken = require('../../middleware/checkToken');
-const Token = require('../../models/Token')
+import User from '../../models/User.js';
+import { Router } from 'express';
+import checkToken from '../../middleware/checkToken.js';
+import Token from '../../models/Token.js';
+
+const router = Router();
+
 
 
 
@@ -32,4 +35,4 @@ router.post("/:userId/:token", async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

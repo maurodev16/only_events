@@ -1,54 +1,37 @@
 //inital cnfig
-require('dotenv').config();
+import dotenv from 'dotenv';
 
-const express = require("express");
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const admin = require('firebase-admin');
-const claudinary = require("cloudinary").v2;
+import express, { urlencoded, json } from "express";
+import { connect } from "mongoose";
+import jwt from "jsonwebtoken";
+import admin from 'firebase-admin';
+import { v2 as claudinary } from "cloudinary";
 // To extract data from incoming request
-const bodyParser = require('body-parser');
-const swaggerUi = require("swagger-ui-express");
-
+import bodyParser from 'body-parser';
+import { serve, setup } from "swagger-ui-express";
+dotenv.config();
 // To get file paths, remove files
-const fs = require('fs')
+import fs from 'fs';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 //read json
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-// admin.initializeApp({
-//     credential:admin.credential.cert({
-//     apiKey: process.env.FIREBASE_API_KEY,
-//     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-//     messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-//     appId: process.env.FIREBASE_APP_ID,
-//     measurementId: process.env.FIREBASE_MEASUREMENT_ID,
-//     projectId:process.env.FIREBASE_PROJECT_ID,
-//     privateKey: process.env.FIREBASE_PRIVATE_KEY
-//     ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/gm, "\n")
-//     : undefined,
-//     clientEmail:process.env.FIREBASE_CLIENT_EMAIL,
-    
-// }),
-//   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-
-// });
+app.use(urlencoded({ extended: true }));
+app.use(json());
 
 // Import routers
-const logoRoutes = require('./routes/LogoRouter');
-const establishmentRoutes= require('./routes/Auth/AuthEstablishmentRoutes');
-const establishmentFiltersRoutes= require('./routes/EstablishmentFiltersRoutes');
-const musicCategoryRouters= require('./routes/MusicCategoryRouters');
-const likeRoutes= require('./routes/LikeRoutes');
-const userRoutes= require('./routes/UserRouter');
-const artistRoutes= require('./routes/ArtistRoutes');
-const authUserRoutes = require('./routes/Auth/AuthUserRouters');
-const authAnonimousRoutes = require('./routes/Auth/AuthAnonymousRouters');
-const countriesRoutes = require('./routes/CityAndCountryRouters');
-const swaggerSpec = require("./services/Swagger/swagger");
-const passwordReset = require("./routes/Auth/passwordResetRouters")
+import logoRoutes from './routes/logoRouter.js';
+import establishmentRoutes from './routes/Auth/AuthEstablishmentRoutes.js';
+import establishmentFiltersRoutes from './routes/EstablishmentFiltersRoutes.js';
+import musicCategoryRouters from './routes/musicCategoryRouters.js';
+import likeRoutes from './routes/likeRoutes.js';
+import userRoutes from './routes/UserRouter.js';
+import artistRoutes from './routes/artistRoutes.js';
+import authUserRoutes from './routes/Auth/AuthUserRouters.js';
+import authAnonimousRoutes from './routes/Auth/AuthAnonymousRouters.js';
+import countriesRoutes from './routes/cityAndCountryRouters.js';
+import swaggerSpec from "./services/Swagger/swagger.js";
+import passwordReset from "./routes/Auth/PasswordResetRouters.js";
 
 /// Register routers
 app.use('/api/v1/logo', logoRoutes);
@@ -65,7 +48,7 @@ app.use("/api/v1/password-reset", passwordReset);
 
 
 // Configuração do Swagger
-app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/v1/docs', serve, setup(swaggerSpec));
 
 //initial endpoint
 app.get('/', (_req, _res) => {
@@ -80,7 +63,7 @@ const DB_PASWORD = process.env.DB_PASWORD
 const DB_NAME = process.env.DB_NAME
 const CLUSTER = process.env.CLUSTER
 
-mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`)
+connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`)
     .then(() => {
        
         app.listen(PORT, ()=>{

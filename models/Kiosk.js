@@ -1,10 +1,8 @@
-const mongoose = require("mongoose");
-const User = require("./User");
-const CityAndCountry = require("./CityAndCountry");
-const accounting = require("accounting");
-const MusicCategory = require("./MusicCategory");
-const Like = require("./Likes");
-require("dotenv").config();
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 
 const kioskSchema = new mongoose.Schema(
   {
@@ -136,4 +134,4 @@ const kioskSchema = new mongoose.Schema(
 
 const Kiosk = mongoose.model("Kiosk", kioskSchema);
 
-module.exports = Kiosk;
+export default Kiosk;

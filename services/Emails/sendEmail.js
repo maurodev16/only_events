@@ -1,5 +1,8 @@
-require("dotenv").config();
-const sgMail = require('@sendgrid/mail');
+import dotenv from 'dotenv';
+import sgMail from '@sendgrid/mail';
+
+dotenv.config();
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendEmail = async (to, from, subject, html) => {
@@ -13,4 +16,4 @@ const sendEmail = async (to, from, subject, html) => {
 
 };
 
-module.exports = sendEmail;
+export default sendEmail;

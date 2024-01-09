@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const anonymousUserSchema = new mongoose.Schema({
     uid: {
@@ -26,4 +26,4 @@ anonymousUserSchema.pre('save', function (next) {
 
 const AnonymousUser = mongoose.model('AnonymousUser', anonymousUserSchema);
 
-module.exports = AnonymousUser;
+export default AnonymousUser;
