@@ -6,8 +6,6 @@ import Token from '../../models/Token.js';
 const router = Router();
 
 
-
-
 router.post("/:userId/:token", async (req, res) => {
     const { userId, password } = req.body;
 
@@ -16,7 +14,7 @@ router.post("/:userId/:token", async (req, res) => {
         if (!passwordExist) return res.status(400).send("No user found with this email");
 
         const user = await User.findById(req.params.userId);
-        if (!user) return res.status(400).send("invalid link or expired");
+        if (!user) return res.status(400).send("No user found whit this Id");
 
         const token = await Token.findOne({
             userId: userId._id,

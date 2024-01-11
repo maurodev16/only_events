@@ -20,7 +20,7 @@ const BCRYPT_SALT = process.env.BCRYPT_SALT;
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
-router.post("/signup", async (req, res) => {
+router.post("/signup-user", async (req, res) => {
   const { first_name, last_name, email, password } = req.body;
 
   if (!first_name) {

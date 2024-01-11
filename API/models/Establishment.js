@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import mongoosePaginate from 'mongoose-paginate-v2';
 import dotenv from 'dotenv';
 dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
@@ -11,13 +12,12 @@ const establishmentSchema = new mongoose.Schema(
     establishment_name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    country_name: { type: String, required: true },
     state_name: { type: String, required: true },
     city_name: { type: String, required: true },
     postal_code: { type: String, required: true },
     street_name: { type: String, required: true },
     number: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: { type: String, required: true, unique: true },
     company_type: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
     password_changed_at: { type: Date },
     password_reset_token: { type: String },
@@ -27,6 +27,9 @@ const establishmentSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+// Adicione o plugin de paginação ao seu esquema
+establishmentSchema.plugin(mongoosePaginate);
+
 /// PRE SAVE
 establishmentSchema.pre("save", function (next) {
   try {

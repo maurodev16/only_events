@@ -9,12 +9,12 @@ import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js
 import CityAndCountry from "../../models/CityAndCountry.js";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
-import  Artist  from "../../models/Artist.js";
+import Artist from "../../models/Artist.js";
 
 const router = Router();
 
 
-router.post("/create", uploadSingleBanner.single("file"), async (req, res) => {
+router.post("/signup-establishment", uploadSingleBanner.single("file"), async (req, res) => {
   //try {
   const establishmentData = await req.body;
 
@@ -26,9 +26,7 @@ router.post("/create", uploadSingleBanner.single("file"), async (req, res) => {
   } if (!establishmentData.password) {
     return res.status(400).json({ error: 'Email field are mandatory.' });
   }
-  if (!establishmentData.country_name) {
-    return res.status(400).json({ error: 'country_name field are mandatory.' });
-  } if (!establishmentData.state_name) {
+  if (!establishmentData.state_name) {
     return res.status(400).json({ error: 'Password field are mandatory.' });
   } if (!establishmentData.city_name) {
     return res.status(400).json({ error: 'Password field are mandatory.' });
@@ -57,7 +55,6 @@ router.post("/create", uploadSingleBanner.single("file"), async (req, res) => {
     establishment_name: establishmentData.establishment_name,
     email: establishmentData.email,
     password: establishmentData.password,
-    country_name: establishmentData.country_name,
     state_name: establishmentData.state_name,
     city_name: establishmentData.city_name,
     postal_code: establishmentData.postal_code,
@@ -89,51 +86,12 @@ router.post("/create", uploadSingleBanner.single("file"), async (req, res) => {
   // }
 }
 );
-// Função para converter a string em objetos JSON
-// function parseOpeningHours(openingHoursString) {
-//   const trimmedString = openingHoursString.toString().slice(1, -1); // Remova os colchetes iniciais e finais
 
-//   const parts = trimmedString.split("day: ");
-//   const objects = [];
-
-//   for (let i = 1; i < parts.length; i++) {
-//     const part = parts[i];
-//     const openCloseParts = part.split("open: ");
-//     if (openCloseParts.length === 2) {
-//       const day = openCloseParts[0].trim();
-//       const openClose = openCloseParts[1].split("close: ");
-//       const open = openClose[0].trim();
-//       const close = openClose[1].trim();
-
-//       // Crie um objeto JSON com os dados
-//       const data = {
-//         day,
-//         open,
-//         close,
-//       };
-
-//       // Adicione o objeto à matriz
-//       objects.push(data);
-//     }
-//   }
-
-//   if (objects.length === 0) {
-//     return null; // Retorna null em caso de formato inválido
-//   }
-
-//   return objects; // Retorna os objetos JSON
-// }
-
-router.get("/fetch", async (req, res) => {
+router.get("/fetch-all-establishment", async (req, res) => {
   try {
     const establishments = await Establishment.find({})
       .sort({ createdAt: 1 })
-      .select("-isFeatured")
-      .populate("user", "first_name last_name email logo_url role company_type")
-      .populate({
-        path: "music_category_id",
-        select: "music_category_name",
-      });
+   
 
     if (establishments.length === 0) {
       return res.status(404).send("Establishment not found");
@@ -144,6 +102,43 @@ router.get("/fetch", async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+
+router.get("/fetch-establishment-type", async (req, res) => {
+  try {
+    const { company_type, page = 1, limit = 10 } = req.query;
+
+    if (!company_type) {
+      return res.status(400).send("Company type parameter is missing");
+    }
+
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
+
+    const query = {  company_type };
+
+    const establishments = await Establishment.paginate(query, options, {
+      sort: { createdAt: 1 }
+
+    });
+
+    if (establishments.docs.length === 0) {
+      return res.status(404).send("Establishments not found for the specified company type");
+    }
+
+    return res.status(200).json({
+      establishments: establishments.docs,
+      total: establishments.totalDocs,
+      totalPages: establishments.totalPages,
+    });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+
 
 
 router.get("/fetchEstablishmentByUser/:userId", async (req, res) => {

@@ -20,18 +20,18 @@ app.use(urlencoded({ extended: true }));
 app.use(json());
 
 // Import routers
-import logoRoutes from './routes/logoRouter.js';
-import establishmentRoutes from './routes/Auth/AuthEstablishmentRoutes.js';
-import establishmentFiltersRoutes from './routes/EstablishmentFiltersRoutes.js';
-import musicCategoryRouters from './routes/musicCategoryRouters.js';
-import likeRoutes from './routes/likeRoutes.js';
-import userRoutes from './routes/UserRouter.js';
-import artistRoutes from './routes/artistRoutes.js';
-import authUserRoutes from './routes/Auth/AuthUserRouters.js';
-import authAnonimousRoutes from './routes/Auth/AuthAnonymousRouters.js';
-import countriesRoutes from './routes/cityAndCountryRouters.js';
-import swaggerSpec from "./services/Swagger/swagger.js";
-import passwordReset from "./routes/Auth/PasswordResetRouters.js";
+import logoRoutes from './API/routes/logoRouter.js';
+import establishmentRoutes from './API/routes/Auth/AuthEstablishmentRoutes.js';
+import establishmentFiltersRoutes from './API/routes/EstablishmentFiltersRoutes.js';
+import musicCategoryRouters from './API/routes/musicCategoryRouters.js';
+import likeRoutes from './API/routes/likeRoutes.js';
+import userRoutes from './API/routes/UserRouter.js';
+import artistRoutes from './API/routes/artistRoutes.js';
+import authUserRoutes from './API/routes/Auth/AuthUserRouters.js';
+import authAnonimousRoutes from './API/routes/Auth/AuthAnonymousRouters.js';
+import countriesRoutes from './API/routes/cityAndCountryRouters.js';
+import swaggerSpec from "./API/services/Swagger/swagger.js";
+import passwordReset from "./API/routes/Auth/PasswordResetRouters.js";
 
 /// Register routers
 app.use('/api/v1/logo', logoRoutes);
