@@ -1,21 +1,13 @@
-//inital cnfig
+import { connect } from "mongoose";
 import dotenv from 'dotenv';
+dotenv.config();
 
 import express, { urlencoded, json } from "express";
-import { connect } from "mongoose";
-import jwt from "jsonwebtoken";
-import admin from 'firebase-admin';
-import { v2 as claudinary } from "cloudinary";
-// To extract data from incoming request
-import bodyParser from 'body-parser';
 import { serve, setup } from "swagger-ui-express";
-dotenv.config();
-// To get file paths, remove files
-import fs from 'fs';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-//read json
 app.use(urlencoded({ extended: true }));
 app.use(json());
 

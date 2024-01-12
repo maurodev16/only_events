@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import MusicCategory from "./MusicCategory";
 dotenv.config();
-
 
 const barSchema = new mongoose.Schema(
   {
-    opening_hours: [openingHoursSchema],
-    follower: [{ type: mongoose.Schema.Types.ObjectId, ref: "Follow" }],
-    followers_count: { type: Number, default: 0 },
-    is_featured: { type: Boolean },
+   // opening_hours: [openingHoursSchema],
     is_age_verified: { type: Boolean },
     selected_age: { type: String },
     is_free_entry: { type: Boolean },
@@ -117,13 +114,7 @@ const barSchema = new mongoose.Schema(
     gift_cards: { type: Boolean },
     crypto_currency: { type: Boolean },
     establishment_is_online: { type: Boolean, default: false },
-    //start_date: { type: Date },
-    //end_date: { type: Date },
-    //start_time: { type: String, default: "" },
-    //end_time: { type: String, default: "" },
-    //week_days: [{ type: String, default: []}],
-    //is_fixed_date: { type: Boolean },
-    //extra_info: { type: String, default: "" },
+    extra_info: { type: String, default: "" },
 
   },
   {

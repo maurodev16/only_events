@@ -1,15 +1,18 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import Followers from './Followers.js';
 import dotenv from "dotenv";
 dotenv.config();
-
 const bcryptSalt = process.env.BCRYPT_SALT;
+
+
 const userSchema = new mongoose.Schema({
   first_name: { type: String, required: true, },
   last_name: { type: String, required: true, },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['visitor', 'user',], default: 'visitor' },
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Followers' }],
+  followings_count: { type: Number, default: 0 },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetTokenExpires: Date,
@@ -32,7 +35,6 @@ userSchema.pre("save", function (next) {
     next(error);
   }
 });
-
 
 const User = mongoose.model('User', userSchema);
 

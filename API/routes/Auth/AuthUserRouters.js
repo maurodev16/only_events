@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import checkToken from "../../middleware/checkToken.js";
+import checkRequiredFields from "../../middleware/errorHandler.js"
 import mongoose from "mongoose";
 import sendEmail from "../../services/Emails/sendEmail.js";
 import Token from "../../models/Token.js";
@@ -20,19 +21,9 @@ const BCRYPT_SALT = process.env.BCRYPT_SALT;
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
-router.post("/signup-user", async (req, res) => {
+router.post("/signup-user", checkRequiredFields(['first_name', 'last_name', 'email', 'password']), async (req, res) => {
   const { first_name, last_name, email, password } = req.body;
 
-  if (!first_name) {
-    return res.status(400).json({ error: 'First name fild are mandatory.' });
-  } if (!last_name) {
-    return res.status(400).json({ error: 'Last name field are mandatory.' });
-  } if (!email) {
-    return res.status(400).json({ error: 'Email field are mandatory.' });
-  }   // Verificar se a senha e a senha de confirmação são iguais
-  if (password) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  }
   const session = await mongoose.startSession();
 
   try {
@@ -49,7 +40,6 @@ router.post("/signup-user", async (req, res) => {
       last_name: last_name,
       email: email,
       password: password,
-      // confirm_password: confirm_password
     });
 
     const newCreatedUser = await user.save({ session });
@@ -242,7 +232,7 @@ router.post("/send-link-reset-password", async (req, res) => {
 
 router.patch("/request-reset-password/:token", async (req, res) => {
 
-  const newPassword  = req.body;
+  const newPassword = req.body;
 
 
   const token = crypto.createHash('sha256').update(req.params.token).digest('hex');

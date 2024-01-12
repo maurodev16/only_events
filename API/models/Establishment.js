@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate-v2';
+import Followers from './Followers.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
@@ -19,6 +20,8 @@ const establishmentSchema = new mongoose.Schema(
     number: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
     company_type: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Followers' }],
+    followers_count: { type: Number, default: 0 },
     password_changed_at: { type: Date },
     password_reset_token: { type: String },
     password_reset_token_expires: { type: Date },

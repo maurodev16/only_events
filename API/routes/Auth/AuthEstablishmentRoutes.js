@@ -6,84 +6,69 @@ import User from "../../models/User.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
+import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
-import multer from "multer";
-import { v4 as uuidv4 } from "uuid";
-import Artist from "../../models/Artist.js";
-
 const router = Router();
 
 
-router.post("/signup-establishment", uploadSingleBanner.single("file"), async (req, res) => {
-  //try {
-  const establishmentData = await req.body;
+router.post("/signup-establishment", checkRequiredFields(
+  [
+    'establishment_name',
+    'email',
+    'password',
+    'state_name',
+    'city_name',
+    'postal_code',
+    'street_name',
+    'number',
+    'phone',
+    'company_type',
+  ]
+), uploadSingleBanner.single("file"), async (req, res) => {
+  try {
+    const establishmentData = await req.body;
 
+    const session = await mongoose.startSession();
 
-  if (!establishmentData.establishment_name) {
-    return res.status(400).json({ error: 'establishment_name fild are mandatory.' });
-  } if (!establishmentData.email) {
-    return res.status(400).json({ error: 'Last name field are mandatory.' });
-  } if (!establishmentData.password) {
-    return res.status(400).json({ error: 'Email field are mandatory.' });
+    session.startTransaction(); // Iniciar transação
+
+    // Verifica se o email do Establishment já está em uso
+    const emailExists = await Establishment.findOne({ email: establishmentData.email });
+    if (emailExists) {
+      return res.status(422).json({ error: 'EmailAlreadyExistsException' });
+    }
+
+    const establishment = new Establishment({
+      establishment_name: establishmentData.establishment_name,
+      email: establishmentData.email,
+      password: establishmentData.password,
+      state_name: establishmentData.state_name,
+      city_name: establishmentData.city_name,
+      postal_code: establishmentData.postal_code,
+      street_name: establishmentData.street_name,
+      number: establishmentData.number,
+      phone: establishmentData.phone,
+      company_type: establishmentData.company_type,
+    });
+
+    // Salvar o estabelecimento no banco de dados
+    const createdEstablishment = await establishment.save();
+    console.log(createdEstablishment);
+
+    if (!createdEstablishment) {
+      return res.status(500).json({ error: 'ErroSignupOnDatabaseException' });
+    }
+
+    await session.commitTransaction(); // Confirm Transaction
+    session.endSession(); // End seccion
+    return res.status(201).json({ establishment: createdEstablishment });
+  } catch (error) {
+    console.log(`Error creating Establishment: ${error}`);
+    await session.abortTransaction(); // Rollback da Transaction
+    session.endSession(); // End Section
+    console.error(`Erro ao registrar: ${error}`);
+    return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
   }
-  if (!establishmentData.state_name) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  } if (!establishmentData.city_name) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  } if (!establishmentData.postal_code) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  } if (!establishmentData.street_name) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  } if (!establishmentData.number) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  } if (!establishmentData.phone) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  } if (!establishmentData.company_type) {
-    return res.status(400).json({ error: 'Password field are mandatory.' });
-  }
-  const session = await mongoose.startSession();
-
-  session.startTransaction(); // Iniciar transação
-
-  // Verifica se o email do Establishment já está em uso
-  const emailExists = await Establishment.findOne({ email: establishmentData.email });
-  if (emailExists) {
-    return res.status(422).json({ error: 'EmailAlreadyExistsException' });
-  }
-
-  const establishment = new Establishment({
-    establishment_name: establishmentData.establishment_name,
-    email: establishmentData.email,
-    password: establishmentData.password,
-    state_name: establishmentData.state_name,
-    city_name: establishmentData.city_name,
-    postal_code: establishmentData.postal_code,
-    street_name: establishmentData.street_name,
-    number: establishmentData.number,
-    phone: establishmentData.phone,
-    company_type: establishmentData.company_type,
-  });
-
-  // Salvar o estabelecimento no banco de dados
-  const createdEstablishment = await establishment.save();
-  console.log(createdEstablishment);
-
-  if (!createdEstablishment) {
-    return res.status(500).json({ error: 'ErroSignupOnDatabaseException' });
-  }
-
-  await session.commitTransaction(); // Confirm Transaction
-  session.endSession(); // End seccion
-
-
-  return res.status(201).json({ establishment: createdEstablishment });
-  // } catch (error) {
-  console.log(`Error creating Establishment: ${error}`);
-  await session.abortTransaction(); // Rollback da Transaction
-  session.endSession(); // End Section
-  console.error(`Erro ao registrar: ${error}`);
-  return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
-  // }
 }
 );
 
@@ -91,15 +76,15 @@ router.get("/fetch-all-establishment", async (req, res) => {
   try {
     const establishments = await Establishment.find({})
       .sort({ createdAt: 1 })
-   
+
 
     if (establishments.length === 0) {
-      return res.status(404).send("Establishment not found");
+      return res.status(404).json({ error: "Establishment not found" });
     }
 
     return res.status(200).json(establishments);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json(error.message);
   }
 });
 
@@ -109,7 +94,7 @@ router.get("/fetch-establishment-type", async (req, res) => {
     const { company_type, page = 1, limit = 10 } = req.query;
 
     if (!company_type) {
-      return res.status(400).send("Company type parameter is missing");
+      return res.status(400).json({ error: "Company type parameter is missing" });
     }
 
     const options = {
@@ -117,7 +102,7 @@ router.get("/fetch-establishment-type", async (req, res) => {
       limit: parseInt(limit, 10),
     };
 
-    const query = {  company_type };
+    const query = { company_type };
 
     const establishments = await Establishment.paginate(query, options, {
       sort: { createdAt: 1 }
