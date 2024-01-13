@@ -10,7 +10,7 @@ const router = Router();
 router.post("/:establishmentId", checkToken, async (req, res) => {
   try {
     const establishmentId = req.params.id;
-    const userId = req.auth._id;
+    const postId = req;
 
     // Verifica se o establishment existe
     const establishment = await Establishment.findById(establishmentId);
@@ -19,7 +19,7 @@ router.post("/:establishmentId", checkToken, async (req, res) => {
     }
 
     // Verifica se o usuário deu like a este establishment
-    const existingLike = await Like.findOne({ user: userId, establishment: establishmentId });
+    const existingLike = await Like.findOne({ post: postId, establishment: establishmentId });
 
     if (existingLike) {
       // Remove o like do schema Like

@@ -60,12 +60,12 @@ router.post("/signup-establishment", checkRequiredFields(
     }
 
     await session.commitTransaction(); // Confirm Transaction
-    session.endSession(); // End seccion
+    session.endSession(); // End Session
     return res.status(201).json({ establishment: createdEstablishment });
   } catch (error) {
     console.log(`Error creating Establishment: ${error}`);
     await session.abortTransaction(); // Rollback da Transaction
-    session.endSession(); // End Section
+    session.endSession(); // End Session
     console.error(`Erro ao registrar: ${error}`);
     return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
   }
@@ -91,7 +91,7 @@ router.get("/fetch-all-establishment", async (req, res) => {
 
 router.get("/fetch-establishment-type", async (req, res) => {
   try {
-    const { company_type, page = 1, limit = 10 } = req.query;
+    const { company_type, page = 1, limit = 10 } =  req.query;
 
     if (!company_type) {
       return res.status(400).json({ error: "Company type parameter is missing" });
@@ -263,8 +263,8 @@ router.get(
   "/fetchEstablishmentsByDateRange/:startDate/:endDate",
   async (req, res) => {
     try {
-      const startDate = req.params.startDate;
-      const endDate = req.params.endDate;
+      const startDate =  req.params.startDate;
+      const endDate =  req.params.endDate;
 
       const establishments = await Establishment.find({
         start_date: { $gte: startDate },
@@ -290,8 +290,8 @@ router.put(
   checkToken,
   async (req, res) => {
     try {
-      const establishmentData = req.body;
-      const establishmentId = req.params.establishmentId;
+      const establishmentData = await req.body;
+      const establishmentId =  req.params.establishmentId;
       // Verificar se o evento existe
       const establishment = await Establishment.findById(establishmentId)
         .select("-isFeatured")

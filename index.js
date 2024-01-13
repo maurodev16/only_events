@@ -24,6 +24,10 @@ import authAnonimousRoutes from './API/routes/Auth/AuthAnonymousRouters.js';
 import countriesRoutes from './API/routes/cityAndCountryRouters.js';
 import swaggerSpec from "./API/services/Swagger/swagger.js";
 import passwordReset from "./API/routes/Auth/PasswordResetRouters.js";
+import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
+import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
+import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
+import postRoutes from "./API/routes/PostRoutes.js";
 
 /// Register routers
 app.use('/api/v1/logo', logoRoutes);
@@ -37,6 +41,10 @@ app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/city-and-country', countriesRoutes);
 app.use("/api/v1/password-reset", passwordReset);
+app.use("/api/v1/bar", barDetailRoutes);
+app.use("/api/v1/club", clubDetailRoutes);
+app.use("/api/v1/kiosk", kioskDetailRoutes);
+app.use("/api/v1/post", postRoutes);
 
 
 // Configuração do Swagger
