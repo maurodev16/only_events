@@ -15,7 +15,7 @@ app.use(json());
 import logoRoutes from './API/routes/LogoRouter.js';
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import establishmentFiltersRoutes from './API/routes/EstablishmentFiltersRoutes.js';
-import musicCategoryRouters from './API/routes/musicCategoryRouters.js';
+import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
 import likeRoutes from './API/routes/LikeRoutes.js';
 import followRouters from "./API/routes/FollowRouters.js";
 import userRoutes from './API/routes/UserRouter.js';
