@@ -27,7 +27,7 @@ import swaggerSpec from "./API/services/Swagger/swagger.js";
 import passwordReset from "./API/routes/Auth/PasswordResetRouters.js";
 import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
-import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.jss";
+import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
 
 /// Register routers
