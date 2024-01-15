@@ -12,9 +12,9 @@ app.use(urlencoded({ extended: true }));
 app.use(json());
 
 // Import routers
-import logoRoutes from './API/models/Logo.js';
+import logoRoutes from './API/routes/LogoRouter.js';
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
-import establishmentFiltersRoutes from './API/routes/EstablishmentFiltersRoutes.js';
+import establishmentFiltersRoutes from './API/routes/EstablishmentFiltersRoutes';
 import musicCategoryRouters from './API/routes/musicCategoryRouters.js';
 import likeRoutes from './API/routes/LikeRoutes.js';
 import followRouters from "./API/routes/FollowRouters.js";
