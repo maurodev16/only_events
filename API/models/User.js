@@ -5,14 +5,11 @@ import dotenv from "dotenv";
 dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
 
-
 const userSchema = new mongoose.Schema({
   first_name: { type: String, required: true, },
   last_name: { type: String, required: true, },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Followers' }],
-  followings_count: { type: Number, default: 0 },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetTokenExpires: Date,

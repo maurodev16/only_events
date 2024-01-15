@@ -91,7 +91,7 @@ router.get("/fetch-all-establishment", async (req, res) => {
 
 router.get("/fetch-establishment-type", async (req, res) => {
   try {
-    const { company_type, page = 1, limit = 10 } =  req.query;
+    const { company_type, page = 1, limit = 10 } = req.query;
 
     if (!company_type) {
       return res.status(400).json({ error: "Company type parameter is missing" });
@@ -263,8 +263,8 @@ router.get(
   "/fetchEstablishmentsByDateRange/:startDate/:endDate",
   async (req, res) => {
     try {
-      const startDate =  req.params.startDate;
-      const endDate =  req.params.endDate;
+      const startDate = req.params.startDate;
+      const endDate = req.params.endDate;
 
       const establishments = await Establishment.find({
         start_date: { $gte: startDate },
@@ -291,7 +291,7 @@ router.put(
   async (req, res) => {
     try {
       const establishmentData = await req.body;
-      const establishmentId =  req.params.establishmentId;
+      const establishmentId = req.params.establishmentId;
       // Verificar se o evento existe
       const establishment = await Establishment.findById(establishmentId)
         .select("-isFeatured")
@@ -306,20 +306,17 @@ router.put(
         return res.status(403).json({ msg: "Unauthorized access" });
       }
       // Atualizar os dados do evento
-      establishment.title = establishmentData.title;
-      establishment.city = establishmentData.city;
-      establishment.street = establishmentData.street;
-      establishment.number = establishmentData.number;
-      establishment.place_name = establishmentData.place_name;
-      establishment.description = establishmentData.description;
-      establishment.entrance_price = establishmentData.entrance_price;
-      establishment.organized_by = establishmentData.organized_by;
-      establishment.is_age_verified = establishmentData.is_age_verified;
-      establishment.start_date = establishmentData.start_date;
-      establishment.end_date = establishmentData.end_date;
-      establishment.start_time = establishmentData.start_time;
-      establishment.end_time = establishmentData.end_time;
-      establishment.updated = Date.now();
+      establishment.establishment_name = establishmentData.establishment_name,
+        establishment.email = establishmentData.email,
+        establishment.password = establishmentData.password,
+        establishment.state_name = establishmentData.state_name,
+        establishment.city_name = establishmentData.city_name,
+        establishment.postal_code = establishmentData.postal_code,
+        establishment.street_name = establishmentData.street_name,
+        establishment.number = establishmentData.number,
+        establishment.phone = establishmentData.phone,
+        establishment.company_type = establishmentData.company_type,
+        establishment.updatedAt = Date.now();
 
       // Salvar as alterações no banco de dados
       const updatedEstablishment = await establishmentData.save();

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Establishment from "./Establishment.js";
 import User from "./User.js";
 
-const followersSchema = new mongoose.Schema({
+const followerSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   establishment: { type: mongoose.Schema.Types.ObjectId, ref: 'Establishment' },
 
@@ -11,6 +11,6 @@ const followersSchema = new mongoose.Schema({
 }
 );
 
-const Followers = mongoose.model("Followers", followersSchema);
+const Follower = mongoose.model("Follower", followerSchema);
 
-export default Followers;
+export default Follower;

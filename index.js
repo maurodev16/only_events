@@ -13,14 +13,15 @@ app.use(json());
 
 // Import routers
 import logoRoutes from './API/routes/logoRouter.js';
-import establishmentRoutes from './API/routes/Auth/AuthEstablishmentRoutes.js';
+import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import establishmentFiltersRoutes from './API/routes/EstablishmentFiltersRoutes.js';
 import musicCategoryRouters from './API/routes/musicCategoryRouters.js';
-import likeRoutes from './API/routes/likeRoutes.js';
+import likeRoutes from './API/routes/LikeRoutes.js';
+import followRouters from "./API/routes/FollowRouters.js";
 import userRoutes from './API/routes/UserRouter.js';
 import artistRoutes from './API/routes/artistRoutes.js';
-import authUserRoutes from './API/routes/Auth/AuthUserRouters.js';
-import authAnonimousRoutes from './API/routes/Auth/AuthAnonymousRouters.js';
+import authUserRoutes from './API/routes/Auth/UserRouters.js';
+import authAnonimousRoutes from './API/routes/Auth/AnonymousRouters.js';
 import countriesRoutes from './API/routes/cityAndCountryRouters.js';
 import swaggerSpec from "./API/services/Swagger/swagger.js";
 import passwordReset from "./API/routes/Auth/PasswordResetRouters.js";
@@ -38,6 +39,7 @@ app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/establishment', establishmentRoutes);
 app.use('/api/v1/establishment/filter', establishmentFiltersRoutes);
 app.use('/api/v1/like', likeRoutes);
+app.use('/api/v1/follow', followRouters);
 app.use('/api/v1/artist', artistRoutes);
 app.use('/api/v1/city-and-country', countriesRoutes);
 app.use("/api/v1/password-reset", passwordReset);

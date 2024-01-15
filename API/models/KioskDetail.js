@@ -15,7 +15,6 @@ const kioskDetailSchema = new mongoose.Schema(
     ///Convenience
     indoor_seating: { type: Boolean, default: false },
     atm_access: { type: Boolean, default: false },
-
     ///Menu Options
     electronic_cigarette: { type: Boolean, default: false },
     shisha: { type: Boolean, default: false },
@@ -28,10 +27,8 @@ const kioskDetailSchema = new mongoose.Schema(
     vegetarian: { type: Boolean, default: false },
     vegan_options: { type: Boolean, default: false },
     ///Atmosphere
-   
     outdoor_seating_atmosphere: { type: Boolean, default: false },
     bar_area: { type: Boolean, default: false },
-
     //Payment Options
     credit_cards_accepted: { type: Boolean, default: false },
     debit_cards_accepted: { type: Boolean, default: false },

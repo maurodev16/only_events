@@ -1,0 +1,69 @@
+import { Router } from 'express';
+import Follower from '../models/Followers.js';
+import Establishment from '../models/Establishment.js';
+import User from '../models/User.js';
+import checkToken from '../middleware/checkToken.js';
+
+const router = Router();
+
+// Rota para dar like e dislike em um post
+router.post("/:establishmentId/:userId", checkToken, async (req, res) => {
+    try {
+        const establishmentId = req.params.establishmentId;
+        const userId = req.params.userId;
+
+        // Verifica se o Establishment existe
+        const establishment = await Establishment.findById(establishmentId);
+        if (!establishment) {
+            return res.status(404).json({ success: false, message: "Establishment not found" });
+        }
+        // Verifica se o User existe
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Verifica se o usuário já deu Followers neste Establishment
+        const existingFollower = await Follower.findOne({ establishment: establishmentId, user: userId });
+
+        if (existingFollower) {
+            // Remove o Followers do schema Like
+            await Follower.findByIdAndDelete(existingFollower._id);
+
+            // Atualiza o array de Follower e o contador no Post correspondente
+            establishment.followers.pull(existingFollower._id);
+            establishment.followers_count--;
+            await establishment.save();
+
+            return res.status(200).json({
+                following: false,
+                message: `You stopped following ${establishment.establishment_name}`,
+                userId: userId,
+            });
+        } else {
+            // Adiciona um novo follower
+            const newFollower = new Follower({ user: userId, establishment: establishmentId });
+            await newFollower.save();
+            // Atualiza o array de Follower e o contador no Post correspondente
+            establishment.followers.push(newFollower._id);
+            establishment.followers_count++;
+            await establishment.save();
+
+            return res.status(200).json({
+                following: true,
+                message: `Now you're following ${establishment.establishment_name}`,
+                userId: userId,
+            });
+        }
+    } catch (error) {
+        console.error("Error performing Follow/Unfollowed action:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while processing the request",
+        });
+    }
+});
+
+
+
+export default router;
