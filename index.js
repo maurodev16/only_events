@@ -22,7 +22,7 @@ import userRoutes from './API/routes/UserRouter.js';
 import artistRoutes from './API/routes/artistRoutes.js';
 import authUserRoutes from './API/routes/Auth/UserRouters.js';
 import authAnonimousRoutes from './API/routes/Auth/AnonymousRouters.js';
-import countriesRoutes from './API/routes/cityAndCountryRouters.js';
+import countriesRoutes from './API/routes/CityAndCountryRouters.js';
 import swaggerSpec from "./API/services/Swagger/swagger.js";
 import passwordReset from "./API/routes/Auth/PasswordResetRouters.js";
 import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
