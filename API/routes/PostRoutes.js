@@ -40,7 +40,7 @@ router.post("/create-post/:establishmentId", async (req, res) => {
 });
 
 // Rota para buscar todos os posts
-router.get("/get-posts", checkToken, async (req, res) => {
+router.get("/get-posts",  async (req, res) => {//checkToken,
   try {
     // Busca todos os posts e popula a opção 'like' com os dados dos usuários que deram like
     const posts = await Post.find().populate('like', 'user');
