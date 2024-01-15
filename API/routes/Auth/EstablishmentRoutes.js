@@ -3,6 +3,9 @@ import { Router } from "express";
 import Establishment from "../../models/Establishment.js";
 import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import User from "../../models/User.js";
+import BarDetails from "../../models/BarDetail.js"
+import ClubDetails from "../../models/ClubDetail.js"
+import KioskDetails from "../../models/KioskDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
@@ -71,6 +74,124 @@ router.post("/signup-establishment", checkRequiredFields(
   }
 }
 );
+
+// Exemplo de endpoint GET
+router.get("/get-details/:establishmentsId", async (req, res) => {
+  try {
+    const establishmentsId = req.params.establishmentsId;
+
+    // Encontrar o tipo de estabelecimento
+    const establishment = await Establishment.findById(establishmentsId);
+    if (!establishment) {
+      return res.status(404).json({ message: "Establishment not found." });
+    }
+
+    const typeEstablishment = establishment.company_type;
+
+    // Recuperar dados com base no tipo de estabelecimento
+    let establishmentDetails;
+    switch (typeEstablishment) {
+      case 'bar':
+        establishmentDetails = await BarDetails.findOne({ establishment_id: establishmentsId });
+        break;
+      case 'club':
+        establishmentDetails = await ClubDetails.findOne({ establishment_id: establishmentsId });
+        break;
+      case 'kiosk':
+        establishmentDetails = await KioskDetails.findOne({ establishment_id: establishmentsId });
+        break;
+      default:
+        return res.status(400).json({ message: "Invalid establishment type." });
+    }
+
+    // Retorna os dados combinados
+    const combinedData = {
+      _id: establishment._id,
+      establishment_name: establishment.establishment_name,
+      logo_url: establishment.logo_url,
+      email: establishment.email,
+      state_name: establishment.state_name,
+      city_name: establishment.city_name,
+      postal_code: establishment.postal_code,
+      street_name: establishment.street_name,
+      number: establishment.number,
+      phone: establishment.phone,
+      company_type: establishment.company_type,
+      followers: establishment.followers,
+      followers_count: establishment.followers_count,
+      ///
+      establishmentDetails,
+    };
+
+    // Retorna os dados combinados
+    return res.status(200).json(combinedData);
+  } catch (error) {
+    console.error("Error when fetching establishment data:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+router.get("/get-all-establishments-wiht-details", async (req, res) => {
+  try {
+    // Encontrar todos os estabelecimentos
+    const allEstablishments = await Establishment.find();
+
+    // Array para armazenar os dados combinados de todos os estabelecimentos
+    const combinedDataArray = [];
+
+    // Iterar sobre cada estabelecimento
+    for (const establishment of allEstablishments) {
+      const establishmentsId = establishment._id;
+      const typeEstablishment = establishment.company_type;
+
+      // Recuperar dados com base no tipo de estabelecimento
+      let establishmentDetails;
+      switch (typeEstablishment) {
+        case 'bar':
+          establishmentDetails = await BarDetails.findOne({ establishment_id: establishmentsId });
+          break;
+        case 'club':
+          establishmentDetails = await ClubDetails.findOne({ establishment_id: establishmentsId });
+          break;
+        case 'kiosk':
+          establishmentDetails = await KioskDetails.findOne({ establishment_id: establishmentsId });
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid establishment type." });
+      }
+
+      // Verificar se os detalhes do estabelecimento estão preenchidos
+      if (establishmentDetails && Object.keys(establishmentDetails).length > 0) {
+        // Dados combinados para o estabelecimento atual
+        const combinedData = {
+          _id: establishment._id,
+          establishment_name: establishment.establishment_name,
+          logo_url: establishment.logo_url,
+          email: establishment.email,
+          state_name: establishment.state_name,
+          city_name: establishment.city_name,
+          postal_code: establishment.postal_code,
+          street_name: establishment.street_name,
+          number: establishment.number,
+          phone: establishment.phone,
+          company_type: establishment.company_type,
+          followers: establishment.followers,
+          followers_count: establishment.followers_count,
+          ///
+          establishmentDetails,
+        };
+        // Adicionar os dados combinados ao array
+        combinedDataArray.push(combinedData);
+      }
+    }
+
+    // Retorna o array com os dados combinados de todos os estabelecimentos
+    return res.status(200).json(combinedDataArray);
+  } catch (error) {
+    console.error("Error when fetching establishments data:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 
 router.get("/fetch-all-establishment", async (req, res) => {
   try {
