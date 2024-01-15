@@ -12,7 +12,7 @@ app.use(urlencoded({ extended: true }));
 app.use(json());
 
 // Import routers
-import logoRoutes from './API/routes/logoRouter.js';
+import logoRoutes from './API/models/Logo.js';
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import establishmentFiltersRoutes from './API/routes/EstablishmentFiltersRoutes.js';
 import musicCategoryRouters from './API/routes/musicCategoryRouters.js';
