@@ -6,7 +6,6 @@ import checkToken from '../middleware/checkToken.js';
 
 const router = express.Router();
 
-
 // Rota para fazer o upload da imagem do user
 router.put('/upload-logo/:userId', uploadSingleLogo.single('logo'), checkToken, async (req, res) => {
     const { userId } = req.params;

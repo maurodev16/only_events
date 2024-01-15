@@ -65,5 +65,40 @@ router.post("/:establishmentId/:userId", checkToken, async (req, res) => {
 });
 
 
+// Rota para obter os estabelecimentos seguidos por um usuário
+router.get("/:userId/followed-establishments", checkToken, async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Verifique se o User existe
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Encontre os registros de seguidores para o usuário
+        const followers = await Follower.find({ user: userId });
+
+        // Extraia os IDs dos estabelecimentos seguidos
+        const followedEstablishmentIds = followers.map(follower => follower.establishment);
+
+        // Encontre os estabelecimentos correspondentes aos IDs
+        const followedEstablishments = await Establishment.find({ _id: { $in: followedEstablishmentIds } });
+
+        return res.status(200).json({
+            success: true,
+            followedEstablishments: followedEstablishments,
+        });
+    } catch (error) {
+        console.error("Error fetching followed establishments:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while processing the request",
+        });
+    }
+});
+
+// Exporte o router
+
 
 export default router;
