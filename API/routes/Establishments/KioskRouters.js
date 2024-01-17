@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { Router } from "express";
 import Establishment from "../../models/Establishment.js";
-import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
@@ -21,47 +20,47 @@ router.post("/kiosk-detail/:establishmentId", uploadSingleBanner.single("file"),
             return res.status(422).json({ error: 'establishmentDoesNotExist' });
         }
         // Verificar se o tipo do estabelecimento é um Kiosk
-        if (establishmentObj.company_type !== 'kiosk') {
+        if (establishmentObj.companyType !== 'kiosk') {
             return res.status(422).json({ error: 'EstablishmentNotKioskType' });
         }
         // Verificar se já existe um registro KioskDetail para o establishmentId
-        const existingKioskDetail = await KioskDetail.findOne({ establishment_id: establishmentId });
+        const existingKioskDetail = await KioskDetail.findOne({ establishmentId: establishmentId });
         if (existingKioskDetail) {
             return res.status(422).json({ error: 'EstablishmentIdDetailAlreadyRegistered' });
         }
 
         // Criar um novo objeto BarDetail
         const kioskDetail = new KioskDetail({
-            establishment_id: establishmentId,
-            // opening_hours: [openingHoursSchema],
+            establishmentId: establishmentId,
+            // openingHours: [openingHoursSchema],
             //Services options
             delivery: kioskDetailsData.delivery,
             ///Convenience
-            indoor_seating: kioskDetailsData.indoor_seating,
-            atm_access: kioskDetailsData.atm_access,
+            indoorSeating: kioskDetailsData.indoorSeating,
+            atmAccess: kioskDetailsData.atmAccess,
             ///Menu Options
-            electronic_cigarette: kioskDetailsData.electronic_cigarette,
+            electronicCigarette: kioskDetailsData.electronicCigarette,
             shisha: kioskDetailsData.shisha,
-            wine_selection: kioskDetailsData.wine_selection,
-            beer_selection: kioskDetailsData.beer_selection,
+            wineSelection: kioskDetailsData.wineSelection,
+            beerSelection: kioskDetailsData.beerSelection,
             cocktails: kioskDetailsData.cocktails,
-            non_alcoholic_beverages: kioskDetailsData.non_alcoholic_beverages,
-            coffee_and_tea: kioskDetailsData.coffee_and_tea,
+            nonAlcoholicBeverages: kioskDetailsData.nonAlcoholicBeverages,
+            coffeeAndTea: kioskDetailsData.coffeeAndTea,
             desserts: kioskDetailsData.desserts,
             vegetarian: kioskDetailsData.vegetarian,
-            vegan_options: kioskDetailsData.vegan_options,
+            veganOptions: kioskDetailsData.veganOptions,
             ///Atmosphere
-            outdoor_seating_atmosphere: kioskDetailsData.outdoor_seating_atmosphere,
-            bar_area: kioskDetailsData.bar_area,
+            outdoorSeatingAtmosphere: kioskDetailsData.outdoorSeatingAtmosphere,
+            barArea: kioskDetailsData.barArea,
             //Payment Options
-            credit_cards_accepted: kioskDetailsData.credit_cards_accepted,
-            debit_cards_accepted: kioskDetailsData.debit_cards_accepted,
-            cash_only: kioskDetailsData.cash_only,
-            mobile_payments: kioskDetailsData.mobile_payments,
-            contactless_payments: kioskDetailsData.contactless_payments,
-            online_payments: kioskDetailsData.online_payments,
-            establishment_is_online: kioskDetailsData.establishment_is_online,
-            extra_info: kioskDetailsData.extra_info,
+            creditCardsAccepted: kioskDetailsData.creditCardsAccepted,
+            debitCardsAccepted: kioskDetailsData.debitCardsAccepted,
+            cashOnly: kioskDetailsData.cashOnly,
+            mobilePayments: kioskDetailsData.mobilePayments,
+            contactlessPayments: kioskDetailsData.contactlessPayments,
+            onlinePayments: kioskDetailsData.onlinePayments,
+            establishmentIsOnline: kioskDetailsData.establishmentIsOnline,
+            extraInfo: kioskDetailsData.extraInfo,
         });
 
         // Salvar o objeto KioskDetail no banco de dados

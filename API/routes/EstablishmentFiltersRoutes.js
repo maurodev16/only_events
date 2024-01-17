@@ -6,19 +6,19 @@ const router = Router();
 
 
 // Rota para filtrar os establishments por cidade
-router.get('/get-establishments-by-city_name/:city_name', async (req, res) => {
+router.get('/get-establishments-by-city_name/:cityName', async (req, res) => {
   try {
-    const city_name = req.params.city_name;
+    const cityName = req.params.cityName;
 
     // Consulte seu banco de dados para buscar os establishments que correspondem à cidade selecionada
     // Substitua esta linha pela sua própria lógica de consulta ao banco de dados
-    const city = await CityAndCountry.findOne({ city_name });
+    const city = await CityAndCountry.findOne({ cityName });
 
     if (!city) {
       return res.status(404).json({ message: 'Cidade não encontrada.' });
     }
 
-    const filteredEstablishments = await Establishment.find({ city_name });
+    const filteredEstablishments = await Establishment.find({ cityName });
 
     res.status(200).json(filteredEstablishments);
   } catch (error) {

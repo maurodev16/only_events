@@ -32,7 +32,7 @@ router.post("/:establishmentId/:userId", checkToken, async (req, res) => {
 
             // Atualiza o array de Follower e o contador no Post correspondente
             establishment.followers.pull(existingFollower._id);
-            establishment.followers_count--;
+            establishment.followersCount--;
             await establishment.save();
 
             return res.status(200).json({
@@ -46,12 +46,12 @@ router.post("/:establishmentId/:userId", checkToken, async (req, res) => {
             await newFollower.save();
             // Atualiza o array de Follower e o contador no Post correspondente
             establishment.followers.push(newFollower._id);
-            establishment.followers_count++;
+            establishment.followersCount++;
             await establishment.save();
 
             return res.status(200).json({
                 following: true,
-                message: `Now you're following ${establishment.establishment_name}`,
+                message: `Now you're following ${establishment.establishmentName}`,
                 userId: userId,
             });
         }

@@ -16,8 +16,8 @@ router.post('/login-anonymous', async (req, res) => {
             return res.status(422).json({ error: 'anonymousUserAlreadyExist' });
         } 
         const newUser = new AnonymousUser({ uid });
-        const anonimous_name = `${newUser.name}_${newUser.uid}`;
-        newUser.name = anonimous_name;
+        const anonimousName = `${newUser.name}_${newUser.uid}`;
+        newUser.name = anonimousName;
         await newUser.save();
 
         // Crie um token aleatório para o usuário anônimo

@@ -6,13 +6,14 @@ dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
 
 const userSchema = new mongoose.Schema({
-  first_name: { type: String, required: true, },
-  last_name: { type: String, required: true, },
+  firstName: { type: String, required: true, },
+  lastName: { type: String, required: true, },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  passwordChangedAt: Date,
-  passwordResetToken: String,
-  passwordResetTokenExpires: Date,
+  token: { type: String },
+  passwordChangedAt: { type: Date },
+  passwordResetToken: { type: String },
+  passwordResetTokenExpires: { type: Date },
 },
   {
     timestamps: true,

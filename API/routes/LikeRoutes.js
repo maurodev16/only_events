@@ -32,7 +32,7 @@ router.post("/post/:postId/:userId", checkToken, async (req, res) => {
 
       // Atualiza o array de likes e o contador no Post correspondente
       post.like.pull(existingLike._id);
-      post.likes_count--;
+      post.likesCount--;
       await post.save();
 
       return res.status(200).json({
@@ -46,7 +46,7 @@ router.post("/post/:postId/:userId", checkToken, async (req, res) => {
       await newLike.save();
       // Atualiza o array de likes e o contador no Post correspondente
       post.like.push(newLike._id);
-      post.likes_count++;
+      post.likesCount++;
 
       await post.save();
 

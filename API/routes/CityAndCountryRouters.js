@@ -7,18 +7,18 @@ const router = Router();
 
 
 router.post("/register", checkToken, async (req, res) => {
-  const { city_name, country_name } = req.body;
+  const { cityName, countryName } = req.body;
   try {
     //Valid City
-    if (!city_name) {
+    if (!cityName) {
       res.status(422).json({ msg: "City name obrigatorio!" });
       return;
     }
 
     //check if City with Country exists
     const cityAndCountyExists = await CityAndCountry.findOne({
-      city_name: city_name,
-      country_name: country_name,
+      cityName: cityName,
+      countryName: countryName,
     });
     if (cityAndCountyExists) {
       res.status(422).json({ msg: "ja existe uma cidade com este nome!" });
@@ -26,14 +26,14 @@ router.post("/register", checkToken, async (req, res) => {
     }
 
     //Create City and Country
-    const city_country = new CityAndCountry({
-      city_name,
-      country_name,
+    const cityCountry = new CityAndCountry({
+      cityName,
+      countryName,
     });
-    const createdCityCountry = await city_country.save();
+    const createdCityCountry = await cityCountry.save();
     if (createdCityCountry) {
       res.status(200).json({
-        msg: `${createdCityCountry.city_name} and ${createdCityCountry.country_name} Created!`,
+        msg: `${createdCityCountry.cityName} and ${createdCityCountry.countryName} Created!`,
       });
     }
   } catch (error) {
@@ -47,7 +47,7 @@ router.post("/register", checkToken, async (req, res) => {
 router.get("/fetch-city-countries", async (req, res) => {
   try {
     const cities = await CityAndCountry.find()
-      .sort({ city_name: 1 })
+      .sort({ cityName: 1 })
       .select("-__v");
     if (!cities || cities.length === 0) {
       return res.status(404).json({ msg: "Cities not found" });
@@ -58,10 +58,10 @@ router.get("/fetch-city-countries", async (req, res) => {
   }
 });
 
-router.get("/fetch-city-countries/:city_name", async (req, res) => {
+router.get("/fetch-city-countries/:cityName", async (req, res) => {
   try {
-    const cityName = req.params.city_name;
-    const city = await CityAndCountry.find({city_name: cityName }).select("-__v");
+    const cityName = req.params.cityName;
+    const city = await CityAndCountry.find({cityName: cityName }).select("-__v");
 
     if (city) {
       return res.status(201).json(city);

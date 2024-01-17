@@ -7,7 +7,7 @@ import checkToken from '../middleware/checkToken.js';
 
 router.post('/create', checkToken, async (req, res) => {
     try {
-      const { artist_name, genre, biography,  banner, photos, socialMedia, contact, discography, streamingLinks, awards } = req.body;
+      const { artistName, genre, biography,  banner, photos, socialMedia, contact, discography, streamingLinks, awards } = req.body;
   
       // Verifique se o usuário logado é um promotor antes de permitir a criação do art
       const userId = req.user._id; // Promoter ID obtained from the token
@@ -18,7 +18,7 @@ router.post('/create', checkToken, async (req, res) => {
   
       // Crie um novo objeto do tipo Artist com as informações fornecidas
       const newArtist = new Artist({
-        artist_name,
+        artistName,
         genre,
         biography,
         banner,

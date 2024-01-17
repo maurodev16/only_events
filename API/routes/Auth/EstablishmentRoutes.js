@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { Router } from "express";
 import Establishment from "../../models/Establishment.js";
-import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import User from "../../models/User.js";
 import BarDetails from "../../models/BarDetail.js"
 import ClubDetails from "../../models/ClubDetail.js"
@@ -16,16 +15,16 @@ const router = Router();
 
 router.post("/signup-establishment", checkRequiredFields(
   [
-    'establishment_name',
+    'establishmentName',
     'email',
     'password',
-    'state_name',
-    'city_name',
-    'postal_code',
-    'street_name',
+    'stateName',
+    'cityName',
+    'postalCode',
+    'streetName',
     'number',
     'phone',
-    'company_type',
+    'companyType',
   ]
 ), uploadSingleBanner.single("file"), async (req, res) => {
   try {
@@ -42,16 +41,16 @@ router.post("/signup-establishment", checkRequiredFields(
     }
 
     const establishment = new Establishment({
-      establishment_name: establishmentData.establishment_name,
+      establishmentName: establishmentData.establishmentName,
       email: establishmentData.email,
       password: establishmentData.password,
-      state_name: establishmentData.state_name,
-      city_name: establishmentData.city_name,
-      postal_code: establishmentData.postal_code,
-      street_name: establishmentData.street_name,
+      stateName: establishmentData.stateName,
+      cityName: establishmentData.cityName,
+      postalCode: establishmentData.postalCode,
+      streetName: establishmentData.streetName,
       number: establishmentData.number,
       phone: establishmentData.phone,
-      company_type: establishmentData.company_type,
+      companyType: establishmentData.companyType,
     });
 
     // Salvar o estabelecimento no banco de dados
@@ -86,19 +85,19 @@ router.get("/get-details/:establishmentsId", async (req, res) => {
       return res.status(404).json({ message: "Establishment not found." });
     }
 
-    const typeEstablishment = establishment.company_type;
+    const typeEstablishment = establishment.companyType;
 
     // Recuperar dados com base no tipo de estabelecimento
     let establishmentDetails;
     switch (typeEstablishment) {
       case 'bar':
-        establishmentDetails = await BarDetails.findOne({ establishment_id: establishmentsId });
+        establishmentDetails = await BarDetails.findOne({ establishmentId: establishmentsId });
         break;
       case 'club':
-        establishmentDetails = await ClubDetails.findOne({ establishment_id: establishmentsId });
+        establishmentDetails = await ClubDetails.findOne({ establishmentId: establishmentsId });
         break;
       case 'kiosk':
-        establishmentDetails = await KioskDetails.findOne({ establishment_id: establishmentsId });
+        establishmentDetails = await KioskDetails.findOne({ establishmentId: establishmentsId });
         break;
       default:
         return res.status(400).json({ message: "Invalid establishment type." });
@@ -107,18 +106,18 @@ router.get("/get-details/:establishmentsId", async (req, res) => {
     // Retorna os dados combinados
     const combinedData = {
       _id: establishment._id,
-      establishment_name: establishment.establishment_name,
-      logo_url: establishment.logo_url,
+      establishmentName: establishment.establishmentName,
+      logoUrl: establishment.logoUrl,
       email: establishment.email,
-      state_name: establishment.state_name,
-      city_name: establishment.city_name,
-      postal_code: establishment.postal_code,
-      street_name: establishment.street_name,
+      stateName: establishment.stateName,
+      cityName: establishment.cityName,
+      postalCode: establishment.postalCode,
+      streetName: establishment.streetName,
       number: establishment.number,
       phone: establishment.phone,
-      company_type: establishment.company_type,
+      companyType: establishment.companyType,
       followers: establishment.followers,
-      followers_count: establishment.followers_count,
+      followersCount: establishment.followersCount,
       ///
       establishmentDetails,
     };
@@ -141,19 +140,19 @@ router.get("/get-all-establishments-wiht-details", async (req, res) => {
     // Iterar sobre cada estabelecimento
     for (const establishment of allEstablishments) {
       const establishmentsId = establishment._id;
-      const typeEstablishment = establishment.company_type;
+      const typeEstablishment = establishment.companyType;
 
       // Recuperar dados com base no tipo de estabelecimento
       let establishmentDetails;
       switch (typeEstablishment) {
         case 'bar':
-          establishmentDetails = await BarDetails.findOne({ establishment_id: establishmentsId });
+          establishmentDetails = await BarDetails.findOne({ establishmentId: establishmentsId });
           break;
         case 'club':
-          establishmentDetails = await ClubDetails.findOne({ establishment_id: establishmentsId });
+          establishmentDetails = await ClubDetails.findOne({ establishmentId: establishmentsId });
           break;
         case 'kiosk':
-          establishmentDetails = await KioskDetails.findOne({ establishment_id: establishmentsId });
+          establishmentDetails = await KioskDetails.findOne({ establishmentId: establishmentsId });
           break;
         default:
           return res.status(400).json({ message: "Invalid establishment type." });
@@ -164,18 +163,18 @@ router.get("/get-all-establishments-wiht-details", async (req, res) => {
         // Dados combinados para o estabelecimento atual
         const combinedData = {
           _id: establishment._id,
-          establishment_name: establishment.establishment_name,
-          logo_url: establishment.logo_url,
+          establishmentName: establishment.establishmentName,
+          logoUrl: establishment.logoUrl,
           email: establishment.email,
-          state_name: establishment.state_name,
-          city_name: establishment.city_name,
-          postal_code: establishment.postal_code,
-          street_name: establishment.street_name,
+          stateName: establishment.stateName,
+          cityName: establishment.cityName,
+          postalCode: establishment.postalCode,
+          streetName: establishment.streetName,
           number: establishment.number,
           phone: establishment.phone,
-          company_type: establishment.company_type,
+          companyType: establishment.companyType,
           followers: establishment.followers,
-          followers_count: establishment.followers_count,
+          followersCount: establishment.followersCount,
           ///
           establishmentDetails,
         };
@@ -212,9 +211,9 @@ router.get("/fetch-all-establishment", async (req, res) => {
 
 router.get("/fetch-establishment-type", async (req, res) => {
   try {
-    const { company_type, page = 1, limit = 10 } = req.query;
+    const { companyType, page = 1, limit = 10 } = req.query;
 
-    if (!company_type) {
+    if (!companyType) {
       return res.status(400).json({ error: "Company type parameter is missing" });
     }
 
@@ -223,7 +222,7 @@ router.get("/fetch-establishment-type", async (req, res) => {
       limit: parseInt(limit, 10),
     };
 
-    const query = { company_type };
+    const query = { companyType };
 
     const establishments = await Establishment.paginate(query, options, {
       sort: { createdAt: 1 }
@@ -253,15 +252,15 @@ router.get("/fetchEstablishmentByUser/:userId", async (req, res) => {
     const establishments = await Establishment.find({ user: userId })
       .select("-isFeatured")
       .populate({
-        path: "city_and_country_obj",
+        path: "citAndCountryObj",
         populate: {
           path: "userId",
-          select: "first_name last_name logo_url", // Seleciona os campos desejados do User
+          select: "firstName lastName logoUrl", // Seleciona os campos desejados do User
         },
       })
-      .populate("user", "first_name last_name email logo_url")
+      .populate("user", "firstName lastName email logoUrl")
       .populate({
-        select: "music_category_name", // Ajuste para a propriedade correta da categoria de música
+        select: "musicCategoryName", // Ajuste para a propriedade correta da categoria de música
       });
 
     if (establishments.length === 0) {
@@ -280,7 +279,7 @@ router.get("/fetchEstablishmentByEstablishmentId/:id", async (req, res) => {
     const establishment = await Establishment.findById(
       id,
       "-isFeatured"
-    ).populate("city", "city_name");
+    ).populate("city", "cityName");
     if (!establishment) {
       res.status(404).json({ msg: `Establishment not found for id ${id}` });
       return [];
@@ -356,20 +355,20 @@ router.get("/fetchEventIsFeatured/:isFeatured", async (req, res) => {
 });
 
 router.get(
-  "/fetchEstablishmentByOrganizedBy/:organized_by",
+  "/fetchEstablishmentByOrganizedBy/:organizedBy",
   async (req, res) => {
     try {
-      const organized_by = req.params.organized_by;
+      const organizedBy = req.params.organizedBy;
 
       const establishments = await Establishment.find({
-        organized_by: organized_by,
+        organizedBy: organizedBy,
       })
         .select("-isFeatured")
         .populate("cityId");
 
       if (establishments.length === 0) {
         return res.status(404).json({
-          msg: `${organized_by} has not organized any establishments so far`,
+          msg: `${organizedBy} has not organized any establishments so far`,
         });
       }
 
@@ -427,16 +426,16 @@ router.put(
         return res.status(403).json({ msg: "Unauthorized access" });
       }
       // Atualizar os dados do evento
-      establishment.establishment_name = establishmentData.establishment_name,
+      establishment.establishmentName = establishmentData.establishmentName,
         establishment.email = establishmentData.email,
         establishment.password = establishmentData.password,
-        establishment.state_name = establishmentData.state_name,
-        establishment.city_name = establishmentData.city_name,
-        establishment.postal_code = establishmentData.postal_code,
-        establishment.street_name = establishmentData.street_name,
+        establishment.stateName = establishmentData.stateName,
+        establishment.cityName = establishmentData.cityName,
+        establishment.postalCode = establishmentData.postalCode,
+        establishment.streetName = establishmentData.streetName,
         establishment.number = establishmentData.number,
         establishment.phone = establishmentData.phone,
-        establishment.company_type = establishmentData.company_type,
+        establishment.companyType = establishmentData.companyType,
         establishment.updatedAt = Date.now();
 
       // Salvar as alterações no banco de dados

@@ -18,12 +18,12 @@ router.get('/fetch', checkToken, async (req, res) => {
     const userdata = users.map(user => {
       return {
         id: user._id,
-        logo_url: user.logo_url,
-        first_name: user.first_name,
-        last_name: user.last_name,
+        logoUrl: user.logoUrl,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         role: user.role,
-        company_type: user.company_type,
+        companyType: user.companyType,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       }
@@ -59,15 +59,15 @@ router.put('/editUser/:id', checkToken, async (req, res) => {
     }
 
     // Atualizar os dados do user
-    user.first_name = userData.first_name;
-    user.last_name = userData.last_name;
+    user.firstName = userData.firstName;
+    user.lastName = userData.lastName;
     user.password = userData.password;
     user.gender = userData.gender;
     user.interest = userData.interest;
-    user.street_name = userData.street_name;
-    user.hause_number = userData.hause_name;
+    user.streetName = userData.streetName;
+    user.hauseNumber = userData.hauseNumber;
     user.phone = userData.phone;
-    user.logo_url = userData.logo_url;
+    user.logoUrl = userData.logoUrl;
     user.updatedAt = Date.now();
 
     // Salvar as alterações no banco de dados
@@ -97,17 +97,17 @@ router.put('/edituser/:id', checkToken, async (req, res) => {
 
     // Update the user data
     // Atualizar os dados do user
-    user.first_name = userData.first_name;
-    user.last_name = userData.last_name;
+    user.firstName = userData.firstName;
+    user.lastName = userData.lastName;
     user.password = userData.password;
     user.dateOfBirth = userData.dateOfBirth;
     user.gender = userData.gender;
     user.interest = userData.interest;
-    user.hause_number = userData.hause_number;
-    user.street_name = userData.street_name;
+    user.hauseNumber = userData.hauseNumber;
+    user.streetName = userData.streetName;
     user.phone = userData.phone;
-    user.logo_url = userData.logo_url;
-    user.updated = Date.now();
+    user.logoUrl = userData.logoUrl;
+    user.updatedAt = Date.now();
 
     // Save the updated user data to the database
     const updatedUser = await user.save();

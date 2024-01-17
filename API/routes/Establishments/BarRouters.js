@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { Router } from "express";
 import Establishment from "../../models/Establishment.js";
-import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
@@ -21,11 +20,11 @@ router.post("/bar-detail/:establishmentId", uploadSingleBanner.single("file"), a
             return res.status(422).json({ error: 'establishmentDoesNotExist' });
         }
         // Verificar se o tipo do estabelecimento é um bar
-        if (establishmentObj.company_type !== 'bar') {
+        if (establishmentObj.companyType !== 'bar') {
             return res.status(422).json({ error: 'EstablishmentNotBarType' });
         }
         // Verificar se já existe um registro BarDetail para o establishmentId
-        const existingBarDetail = await BarDetail.findOne({ establishment_id: establishmentId });
+        const existingBarDetail = await BarDetail.findOne({ establishmentId: establishmentId });
         if (existingBarDetail) {
             return res.status(422).json({ error: 'EstablishmentIdDetailAlreadyRegistered' });
         }
@@ -33,115 +32,115 @@ router.post("/bar-detail/:establishmentId", uploadSingleBanner.single("file"), a
 
         // Criar um novo objeto BarDetail
         const barDetail = new BarDetail({
-            establishment_id: establishmentId,
-            // opening_hours: [openingHoursSchema],
-            is_age_verified: bardDetailsData.is_age_verified,
-            selected_age: bardDetailsData.selected_age,
-            is_free_entry: bardDetailsData.is_free_entry,
-            free_entry_till: bardDetailsData.free_entry_till,
-            can_pay_with_card_entry: bardDetailsData.can_pay_with_card_entry,
-            can_pay_with_card_consumption: bardDetailsData.can_pay_with_card_consumption,
-            music_category_id: bardDetailsData.music_category_id,
-            music_category_name: bardDetailsData.music_category_name,
+            establishmentId: establishmentId,
+            // openingHours: [openingHoursSchema],
+            isAgeVerified: bardDetailsData.isAgeVerified,
+            selectedAge: bardDetailsData.selectedAge,
+            isFreeEntry: bardDetailsData.isFreeEntry,
+            freeEntryTill: bardDetailsData.freeEntryTill,
+            canPayWithCardEntry: bardDetailsData.canPayWithCardEntry,
+            canPayWithCardConsumption: bardDetailsData.canPayWithCardConsumption,
+            musicCategoryId: bardDetailsData.musicCategoryId,
+            musicCategoryName: bardDetailsData.musicCategoryName,
 
             //Detail
             drinks: bardDetailsData.drinks,
             dance: bardDetailsData.dance,
             casual: bardDetailsData.casual,
-            good_to_go_with_group: bardDetailsData.good_to_go_with_group,
+            goodToGoWithGroup: bardDetailsData.goodToGoWithGroup,
 
             //Services options
-            dine_In: bardDetailsData.dine_In,
+            dineIn: bardDetailsData.dineIn,
             delivery: bardDetailsData.delivery,
-            take_way: bardDetailsData.take_way,
+            takeWay: bardDetailsData.takeWay,
 
             ///Acessibility
-            accessible_parking: bardDetailsData.accessible_parking,
-            step_free_entry: bardDetailsData.step_free_entry,
-            accessible_restrooms: bardDetailsData.accessible_restrooms,
-            elevator_or_ramps: bardDetailsData.elevator_or_ramps,
-            wide_corridors: bardDetailsData.wide_corridors,
-            braille_signage: bardDetailsData.braille_signage,
-            mobility_assistance: bardDetailsData.mobility_assistance,
-            service_dog_access: bardDetailsData.service_dog_access,
-            audio_description_or_visual_guide: bardDetailsData.audio_description_or_visual_guide,
-            accessible_communication: bardDetailsData.accessible_communication,
+            accessibleParking: bardDetailsData.accessibleParking,
+            stepFreeEntry: bardDetailsData.stepFreeEntry,
+            accessibleRestrooms: bardDetailsData.accessibleRestrooms,
+            elevatorOrRamps: bardDetailsData.elevatorOrRamps,
+            wideCorridors: bardDetailsData.wideCorridors,
+            brailleSignage: bardDetailsData.brailleSignage,
+            mobilityAssistance: bardDetailsData.mobilityAssistance,
+            serviceDogAccess: bardDetailsData.serviceDogAccess,
+            audioDescriptionOrVisualGuide: bardDetailsData.audioDescriptionOrVisualGuide,
+            accessibleCommunication: bardDetailsData.accessibleCommunication,
 
             ///Convenience
-            convenience_parking: bardDetailsData.convenience_parking,
-            wi_fi_access: bardDetailsData.wi_fi_access,
-            outdoor_seating: bardDetailsData.outdoor_seating,
-            indoor_seating: bardDetailsData.indoor_seating,
-            takeout_or_to_go_orders: bardDetailsData.takeout_or_to_go_orders,
-            delivery_service: bardDetailsData.delivery_service,
-            reservation_service: bardDetailsData.reservation_service,
-            drive_through: bardDetailsData.drive_through,
-            online_ordering: bardDetailsData.online_ordering,
-            atm_access: bardDetailsData.atm_access,
+            convenienceParking: bardDetailsData.convenienceParking,
+            wiFiAccess: bardDetailsData.wiFiAccess,
+            outdoorSeating: bardDetailsData.outdoorSeating,
+            indoorSeating: bardDetailsData.indoorSeating,
+            takeoutOrToGoOrders: bardDetailsData.takeoutOrToGoOrders,
+            deliveryService: bardDetailsData.deliveryService,
+            reservationService: bardDetailsData.reservationService,
+            driveThrough: bardDetailsData.driveThrough,
+            onlineOrdering: bardDetailsData.onlineOrdering,
+            atmAccess: bardDetailsData.atmAccess,
 
             // Menu Options
             dining: bardDetailsData.dining,
-            alcoholic_beverages: bardDetailsData.alcoholic_beverages,
+            alcoholicBeverages: bardDetailsData.alcoholicBeverages,
             shisha: bardDetailsData.shisha,
-            wine_selection: bardDetailsData.wine_selection,
-            beer_selection: bardDetailsData.beer_selection,
+            wineSelection: bardDetailsData.wineSelection,
+            beerSelection: bardDetailsData.beerSelection,
             cocktails: bardDetailsData.cocktails,
-            non_alcoholic_beverages: bardDetailsData.non_alcoholic_beverages,
-            coffee_and_tea: bardDetailsData.coffee_and_tea,
+            nonAlcoholicBeverages: bardDetailsData.nonAlcoholicBeverages,
+            coffeeAndTea: bardDetailsData.coffeeAndTea,
             desserts: bardDetailsData.desserts,
             vegetarian: bardDetailsData.vegetarian,
-            vegan_options: bardDetailsData.vegan_options,
+            veganOptions: bardDetailsData.veganOptions,
 
             // Atmosphere
-            dance_floor: bardDetailsData.dance_floor,
-            casual_setting: bardDetailsData.casual_setting,
-            formal_setting: bardDetailsData.formal_setting,
-            live_music: bardDetailsData.live_music,
+            danceFloor: bardDetailsData.danceFloor,
+            casualSetting: bardDetailsData.casualSetting,
+            formalSetting: bardDetailsData.formalSetting,
+            liveMusic: bardDetailsData.liveMusic,
             karaoke: bardDetailsData.karaoke,
-            outdoor_seating_atmosphere: bardDetailsData.outdoor_seating_atmosphere,
-            bar_area: bardDetailsData.bar_area,
-            good_for_groups: bardDetailsData.good_for_groups,
-            intimate_setting: bardDetailsData.intimate_setting,
-            family_friendly: bardDetailsData.family_friendly,
-            lounge_area: bardDetailsData.lounge_area,
+            outdoorSeatingAtmosphere: bardDetailsData.outdoorSeatingAtmosphere,
+            barArea: bardDetailsData.barArea,
+            goodForGroups: bardDetailsData.goodForGroups,
+            intimateSetting: bardDetailsData.intimateSetting,
+            familyFriendly: bardDetailsData.familyFriendly,
+            loungeArea: bardDetailsData.loungeArea,
 
             // Public type
-            good_for_groups_public: bardDetailsData.good_for_groups_public,
-            family_friendly_public: bardDetailsData.family_friendly_public,
-            kid_friendly: bardDetailsData.kid_friendly,
-            adults_only: bardDetailsData.adults_only,
-            solo_friendly: bardDetailsData.solo_friendly,
-            pet_friendly: bardDetailsData.pet_friendly,
-            lgbtq_plus_friendly: bardDetailsData.lgbtq_plus_friendly,
-            accessible_to_all: bardDetailsData.accessible_to_all,
-            couples_retreat: bardDetailsData.couples_retreat,
-            student_friendly: bardDetailsData.student_friendly,
+            goodForGroupsPublic: bardDetailsData.goodForGroupsPublic,
+            familyFriendlyPublic: bardDetailsData.familyFriendlyPublic,
+            kidFriendly: bardDetailsData.kidFriendly,
+            adultsOnly: bardDetailsData.adultsOnly,
+            soloFriendly: bardDetailsData.soloFriendly,
+            petFriendly: bardDetailsData.petFriendly,
+            lgbtqPlusFriendly: bardDetailsData.lgbtqPlusFriendly,
+            accessibleToAll: bardDetailsData.accessibleToAll,
+            couplesRetreat: bardDetailsData.couplesRetreat,
+            studentFriendly: bardDetailsData.studentFriendly,
 
             // Planning
-            reservations_accepted: bardDetailsData.reservations_accepted,
-            walk_ins_welcome: bardDetailsData.walk_ins_welcome,
-            private_events: bardDetailsData.private_events,
-            event_planning_services: bardDetailsData.event_planning_services,
-            catering_services: bardDetailsData.catering_services,
-            table_reservations: bardDetailsData.table_reservations,
-            online_booking: bardDetailsData.online_booking,
-            event_space_rental: bardDetailsData.event_space_rental,
-            party_packages: bardDetailsData.party_packages,
-            custom_event_packages: bardDetailsData.custom_event_packages,
+            reservationsAccepted: bardDetailsData.reservationsAccepted,
+            walkInsWelcome: bardDetailsData.walkInsWelcome,
+            privateEvents: bardDetailsData.privateEvents,
+            eventPlanningServices: bardDetailsData.eventPlanningServices,
+            cateringServices: bardDetailsData.cateringServices,
+            tableReservations: bardDetailsData.tableReservations,
+            onlineBooking: bardDetailsData.onlineBooking,
+            eventSpaceRental: bardDetailsData.eventSpaceRental,
+            partyPackages: bardDetailsData.partyPackages,
+            customEventPackages: bardDetailsData.customEventPackages,
 
             // Payment Options
-            credit_cards_accepted: bardDetailsData.credit_cards_accepted,
-            debit_cards_accepted: bardDetailsData.debit_cards_accepted,
-            cash_only: bardDetailsData.cash_only,
-            mobile_payments: bardDetailsData.mobile_payments,
-            contactless_payments: bardDetailsData.contactless_payments,
-            online_payments: bardDetailsData.online_payments,
+            creditCardsAccepted: bardDetailsData.creditCardsAccepted,
+            debitCardsAccepted: bardDetailsData.debitCardsAccepted,
+            cashOnly: bardDetailsData.cashOnly,
+            mobilePayments: bardDetailsData.mobilePayments,
+            contactlessPayments: bardDetailsData.contactlessPayments,
+            onlinePayments: bardDetailsData.onlinePayments,
             checks: bardDetailsData.checks,
-            split_bills: bardDetailsData.split_bills,
-            gift_cards: bardDetailsData.gift_cards,
-            crypto_currency: bardDetailsData.crypto_currency,
-            establishment_is_online: bardDetailsData.establishment_is_online,
-            extra_info: bardDetailsData.extra_info,
+            splitBills: bardDetailsData.splitBills,
+            giftCards: bardDetailsData.giftCards,
+            cryptoCurrency: bardDetailsData.cryptoCurrency,
+            establishmentIsOnline: bardDetailsData.establishmentIsOnline,
+            extraInfo: bardDetailsData.extraInfo,
         });
 
         // Salvar o objeto BarDetail no banco de dados

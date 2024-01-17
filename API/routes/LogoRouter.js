@@ -33,9 +33,9 @@ router.put('/upload-logo/:userId', uploadSingleLogo.single('logo'), checkToken, 
             const imageUrl = result.secure_url;
      
             // Atualizar o user com a URL da imagem
-            user.logo_url = imageUrl;
+            user.logoUrl = imageUrl;
        
-            console.log("Image url", user.logo_url)
+            console.log("Image url", user.logoUrl)
             await user.save()
 
             return res.status(200).send(imageUrl);

@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 
 const openingHoursSchema = new mongoose.Schema({
-    day_of_week: {
+    dayOfWeek: {
       type: String,
       enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Holiday'],
       required: true,
     },
-    opening_time: {
+    openingTime: {
       type: String,
       required: true,
     },
-    closing_time: {
+    closingTime: {
       type: String,
       required: true,
     },

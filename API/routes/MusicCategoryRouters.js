@@ -9,24 +9,24 @@ const router = Router();
 
 router.post('/create', async (req, res) => {
     // Body
-    const { music_category_name } = req.body;
+    const { musicCategoryName } = req.body;
 
     try {
-        // Check if music_category_name is provided
-        if (!music_category_name) {
+        // Check if musicCategoryName is provided
+        if (!musicCategoryName) {
             res.status(422).json({ msg: "O nome do estilo de música é obrigatório!" });
             return;
         }
 
         // Check if music style already exists
-        const music_category_nameExists = await MusicCategory.findOne({ music_category_name: music_category_name });
-        if (music_category_nameExists) {
+        const musicCategoryNameExists = await MusicCategory.findOne({ musicCategoryName: musicCategoryName });
+        if (musicCategoryNameExists) {
             res.status(422).json({ msg: "Já existe um estilo de música com este nome!" });
             return;
         }
 
         // Create a new music style
-        const musicCategory = new MusicCategory({ music_category_name });
+        const musicCategory = new MusicCategory({ musicCategoryName });
         const created = await musicCategory.save();
 
         if (created) {

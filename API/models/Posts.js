@@ -10,7 +10,7 @@ const postSchema = new mongoose.Schema({
     products: { type: [String] },// Lista de produtos em destaque
     tags: { type: [String] }, // Lista de tags para categorizar o post (ex: #Evento, #Promoção)
     like: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
-    likes_count: { type: Number, default: 0 },
+    likesCount: { type: Number, default: 0 },
     location: { type: String }, // Pode ser um endereço ou nome do local
     postStatus: { type: String, default: "active", enum: ["active", "inactive", "rascunho"] },
     expirationDate: { type: Date },//Promoção Expirada:
