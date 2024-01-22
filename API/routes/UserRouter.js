@@ -19,8 +19,7 @@ router.get('/fetch', checkToken, async (req, res) => {
       return {
         id: user._id,
         logoUrl: user.logoUrl,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        nickname: user.nickname,
         email: user.email,
         role: user.role,
         companyType: user.companyType,
@@ -59,8 +58,7 @@ router.put('/editUser/:id', checkToken, async (req, res) => {
     }
 
     // Atualizar os dados do user
-    user.firstName = userData.firstName;
-    user.lastName = userData.lastName;
+    user.nickname = userData.nickname;
     user.password = userData.password;
     user.gender = userData.gender;
     user.interest = userData.interest;
@@ -97,8 +95,7 @@ router.put('/edituser/:id', checkToken, async (req, res) => {
 
     // Update the user data
     // Atualizar os dados do user
-    user.firstName = userData.firstName;
-    user.lastName = userData.lastName;
+    user.nickname = userData.nickname;
     user.password = userData.password;
     user.dateOfBirth = userData.dateOfBirth;
     user.gender = userData.gender;

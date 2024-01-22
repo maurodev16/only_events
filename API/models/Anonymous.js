@@ -10,6 +10,7 @@ const anonymousUserSchema = new mongoose.Schema({
         type: String, default:"Anonymous"
 
     },
+    token: { type: String },
 }, {
     timestamps: true,
 });

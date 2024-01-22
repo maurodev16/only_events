@@ -82,7 +82,7 @@ router.get("/get-details/:establishmentsId", async (req, res) => {
     // Encontrar o tipo de estabelecimento
     const establishment = await Establishment.findById(establishmentsId);
     if (!establishment) {
-      return res.status(404).json({ message: "Establishment not found." });
+      return res.status(404).json({ error: "Establishment not found." });
     }
 
     const typeEstablishment = establishment.companyType;
@@ -126,7 +126,7 @@ router.get("/get-details/:establishmentsId", async (req, res) => {
     return res.status(200).json(combinedData);
   } catch (error) {
     console.error("Error when fetching establishment data:", error);
-    return res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ error: "Internal server error." });
   }
 });
 router.get("/get-all-establishments-wiht-details", async (req, res) => {
@@ -155,7 +155,7 @@ router.get("/get-all-establishments-wiht-details", async (req, res) => {
           establishmentDetails = await KioskDetails.findOne({ establishmentId: establishmentsId });
           break;
         default:
-          return res.status(400).json({ message: "Invalid establishment type." });
+          return res.status(400).json({ error: "Invalid establishment type." });
       }
 
       // Verificar se os detalhes do estabelecimento estão preenchidos
@@ -187,7 +187,7 @@ router.get("/get-all-establishments-wiht-details", async (req, res) => {
     return res.status(200).json(combinedDataArray);
   } catch (error) {
     console.error("Error when fetching establishments data:", error);
-    return res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ error: "Internal server error." });
   }
 });
 
@@ -255,16 +255,16 @@ router.get("/fetchEstablishmentByUser/:userId", async (req, res) => {
         path: "citAndCountryObj",
         populate: {
           path: "userId",
-          select: "firstName lastName logoUrl", // Seleciona os campos desejados do User
+          select: "nickname logoUrl", // Seleciona os campos desejados do User
         },
       })
-      .populate("user", "firstName lastName email logoUrl")
+      .populate("user", "nickname email logoUrl")
       .populate({
         select: "musicCategoryName", // Ajuste para a propriedade correta da categoria de música
       });
 
     if (establishments.length === 0) {
-      return res.status(404).json({ msg: "Establishment not found" });
+      return res.status(404).json({ error: "Establishment not found" });
     }
 
     return res.status(201).json(establishments); // Retorna os establishments encontrados
@@ -281,7 +281,7 @@ router.get("/fetchEstablishmentByEstablishmentId/:id", async (req, res) => {
       "-isFeatured"
     ).populate("city", "cityName");
     if (!establishment) {
-      res.status(404).json({ msg: `Establishment not found for id ${id}` });
+      res.status(404).json({ error: `Establishment not found for id ${id}` });
       return [];
     }
     res.status(200).json(establishment);
@@ -345,7 +345,7 @@ router.get("/fetchEventIsFeatured/:isFeatured", async (req, res) => {
     console.log(establishments);
 
     if (events.length === 0) {
-      return res.status(404).json({ msg: `No Featured establishments so far` });
+      return res.status(404).json({ error: `No Featured establishments so far` });
     }
 
     res.status(200).json(establishments);
@@ -368,7 +368,7 @@ router.get(
 
       if (establishments.length === 0) {
         return res.status(404).json({
-          msg: `${organizedBy} has not organized any establishments so far`,
+          error: `${organizedBy} has not organized any establishments so far`,
         });
       }
 
@@ -417,7 +417,7 @@ router.put(
         .select("-isFeatured")
         .populate("cityId");
       if (!establishment) {
-        return res.status(404).json({ msg: "Establishment not found" });
+        return res.status(404).json({ error: "Establishment not found" });
       }
 
       // Verificar se o Promoter tem permissão para editar o evento
@@ -460,18 +460,18 @@ router.delete(
         "-isFeatured"
       );
       if (!establishment) {
-        return res.status(404).json({ msg: "Establishment not found" });
+        return res.status(404).json({ error: "Establishment not found" });
       }
 
       // Verificar se o User tem permissão para editar o establishment
       if (establishment.user.toString() !== req.user._id) {
         console.log(establishment.user.toString());
-        return res.status(403).json({ msg: "Unauthorized access" });
+        return res.status(403).json({ error: "Unauthorized access" });
       }
       // Delete the establishment
       await Establishment.deleteOne({ _id: establishmentId });
 
-      res.status(200).json({ msg: "Establishment deleted successfully" });
+      res.status(200).json({ error: "Establishment deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

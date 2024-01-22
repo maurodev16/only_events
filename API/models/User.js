@@ -6,8 +6,7 @@ dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
 
 const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true, },
-  lastName: { type: String, required: true, },
+  nickname: { type: String, required: true, },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   token: { type: String },

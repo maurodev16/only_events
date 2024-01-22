@@ -29,6 +29,7 @@ import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
+import camelCase from "./API/routes/camelcase.js";
 
 /// Register routers
 app.use('/api/v1/logo', logoRoutes);
@@ -47,6 +48,7 @@ app.use("/api/v1/bar", barDetailRoutes);
 app.use("/api/v1/club", clubDetailRoutes);
 app.use("/api/v1/kiosk", kioskDetailRoutes);
 app.use("/api/v1/post", postRoutes);
+app.use("/api/v1/camelCase", camelCase);
 
 
 // Configuração do Swagger

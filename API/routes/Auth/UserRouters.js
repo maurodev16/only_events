@@ -21,8 +21,8 @@ const BCRYPT_SALT = process.env.BCRYPT_SALT;
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 
 /// Signup
-router.post("/signup-user", checkRequiredFields(['firstName', 'lastName', 'email', 'password']), async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+router.post("/signup-user", checkRequiredFields(['nickname', 'email', 'password']), async (req, res) => {
+  const { nickname, email, password } = req.body;
 
   const session = await mongoose.startSession();
 
@@ -36,8 +36,7 @@ router.post("/signup-user", checkRequiredFields(['firstName', 'lastName', 'email
     }
 
     const user = new User({
-      firstName: firstName,
-      lastName: lastName,
+      nickname: nickname,
       email: email,
       password: password,
     });
