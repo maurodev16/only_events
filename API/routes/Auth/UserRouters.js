@@ -56,7 +56,7 @@ router.post("/signup-user", checkRequiredFields(['nickname', 'email', 'password'
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
     console.error(`Erro ao registrar: ${error}`);
-    return res.status(500).json({ error: 'Error registering user.' });
+    return res.status(500).json({ error: 'Error registering user' });
   }
 });
 
