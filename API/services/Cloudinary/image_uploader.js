@@ -1,9 +1,6 @@
 import cloudinary from 'cloudinary';
-import { configureCloudinary } from './cloudinary_config';
-
-
+import configureCloudinary from '../Cloudinary/cloudinary_config.js'
 configureCloudinary();
-
 async function uploadImage(file) {
   try {
     if (!file || file.length === 0) {
@@ -29,8 +26,8 @@ async function uploadImage(file) {
   }
 }
 
+export default uploadImage; // Exporte a função uploadImage como uma função isolada
 
-export default { uploadImage };
 
 // const deleteImageFromCloudinary = async (imageUrl) => {
 //   try {

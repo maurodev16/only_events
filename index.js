@@ -12,9 +12,7 @@ app.use(urlencoded({ extended: true }));
 app.use(json());
 
 // Import routers
-import logoRoutes from './API/routes/LogoRouter.js';
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
-import establishmentFiltersRoutes from './API/routes/EstablishmentFiltersRoutes.js';
 import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
 import likeRoutes from './API/routes/LikeRoutes.js';
 import followRouters from "./API/routes/FollowRouters.js";
@@ -29,16 +27,13 @@ import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
-import camelCase from "./API/routes/camelcase.js";
 
 /// Register routers
-app.use('/api/v1/logo', logoRoutes);
 app.use('/api/v1/auth', authUserRoutes);
 app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/establishment', establishmentRoutes);
-app.use('/api/v1/establishment/filter', establishmentFiltersRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/follow', followRouters);
 app.use('/api/v1/artist', artistRoutes);
@@ -48,7 +43,6 @@ app.use("/api/v1/bar", barDetailRoutes);
 app.use("/api/v1/club", clubDetailRoutes);
 app.use("/api/v1/kiosk", kioskDetailRoutes);
 app.use("/api/v1/post", postRoutes);
-app.use("/api/v1/camelCase", camelCase);
 
 
 // Configuração do Swagger

@@ -7,72 +7,86 @@ import ClubDetails from "../../models/ClubDetail.js"
 import KioskDetails from "../../models/KioskDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
+import uploadSingleLogo from "../../middleware/multerSingleLogoMiddleware.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
+import configureCloudinary from '../../services/Cloudinary/cloudinary_config.js';
+import uploadImage from '../../services/Cloudinary/image_uploader.js'
 const router = Router();
 
+router.use((req, res, next) => {
+  console.log(req.body);
+  next();
+});
+router.post("/signup-establishment", uploadSingleLogo.single('file'), checkRequiredFields([
+  'establishmentName',
+  'email',
+  'password',
+  'stateName',
+  'cityName',
+  'postalCode',
+  'streetName',
+  'number',
+  'phone',
+  'companyType'
+]), async (req, res) => {  
+  const { establishmentName, email, password, stateName, cityName, postalCode, streetName, number, phone, companyType } = req.body;
 
-router.post("/signup-establishment", checkRequiredFields(
-  [
-    'establishmentName',
-    'email',
-    'password',
-    'stateName',
-    'cityName',
-    'postalCode',
-    'streetName',
-    'number',
-    'phone',
-    'companyType',
-  ]
-), uploadSingleBanner.single("file"), async (req, res) => {
   try {
-    const establishmentData = await req.body;
-
-    const session = await mongoose.startSession();
-
-    session.startTransaction(); // Iniciar transação
-
     // Verifica se o email do Establishment já está em uso
-    const emailExists = await Establishment.findOne({ email: establishmentData.email });
+    const emailExists = await Establishment.findOne({ email });
     if (emailExists) {
       return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
+    let imageUrl;
+    if (req.file) {
+      imageUrl = await uploadImage(req.file); // Aqui chamamos o método uploadImage
+    }
 
+    // Crie uma instância do Establishment com os dados fornecidos
     const establishment = new Establishment({
-      establishmentName: establishmentData.establishmentName,
-      email: establishmentData.email,
-      password: establishmentData.password,
-      stateName: establishmentData.stateName,
-      cityName: establishmentData.cityName,
-      postalCode: establishmentData.postalCode,
-      streetName: establishmentData.streetName,
-      number: establishmentData.number,
-      phone: establishmentData.phone,
-      companyType: establishmentData.companyType,
+      logoUrl: imageUrl,
+      establishmentName,
+      email,
+      password,
+      stateName,
+      cityName,
+      postalCode,
+      streetName,
+      number,
+      phone,
+      companyType,
     });
 
-    // Salvar o estabelecimento no banco de dados
+    // Salve o estabelecimento no banco de dados
     const createdEstablishment = await establishment.save();
     console.log(createdEstablishment);
 
-    if (!createdEstablishment) {
-      return res.status(500).json({ error: 'ErroSignupOnDatabaseException' });
-    }
-
-    await session.commitTransaction(); // Confirm Transaction
-    session.endSession(); // End Session
+    // Responda com o estabelecimento criado
     return res.status(201).json({ establishment: createdEstablishment });
   } catch (error) {
-    console.log(`Error creating Establishment: ${error}`);
-    await session.abortTransaction(); // Rollback da Transaction
-    session.endSession(); // End Session
-    console.error(`Erro ao registrar: ${error}`);
+    console.error(`Error creating Establishment: ${error}`);
     return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
   }
-}
-);
+});
+
+//fetch-all-establishment
+router.get("/fetch-all-establishment", async (req, res) => {
+  try {
+    const establishments = await Establishment.find({})
+      .sort({ createdAt: 1 })
+
+
+    if (establishments.length === 0) {
+      return res.status(404).json({ error: "Establishment not found" });
+    }
+
+    return res.status(200).json(establishments);
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+});
+
 
 // Exemplo de endpoint GET
 router.get("/get-details/:establishmentsId", async (req, res) => {
@@ -129,6 +143,7 @@ router.get("/get-details/:establishmentsId", async (req, res) => {
     return res.status(500).json({ error: "Internal server error." });
   }
 });
+
 router.get("/get-all-establishments-wiht-details", async (req, res) => {
   try {
     // Encontrar todos os estabelecimentos
@@ -192,29 +207,15 @@ router.get("/get-all-establishments-wiht-details", async (req, res) => {
 });
 
 
-router.get("/fetch-all-establishment", async (req, res) => {
-  try {
-    const establishments = await Establishment.find({})
-      .sort({ createdAt: 1 })
-
-
-    if (establishments.length === 0) {
-      return res.status(404).json({ error: "Establishment not found" });
-    }
-
-    return res.status(200).json(establishments);
-  } catch (error) {
-    res.status(500).json(error.message);
-  }
-});
-
-
 router.get("/fetch-establishment-type", async (req, res) => {
   try {
     const { companyType, page = 1, limit = 10 } = req.query;
 
-    if (!companyType) {
-      return res.status(400).json({ error: "Company type parameter is missing" });
+    let query = {}; // Start the query as empty query
+
+    // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
+    if (companyType) {
+      query.companyType = companyType;
     }
 
     const options = {
@@ -222,19 +223,23 @@ router.get("/fetch-establishment-type", async (req, res) => {
       limit: parseInt(limit, 10),
     };
 
-    const query = { companyType };
-
+    // Execute a consulta
     const establishments = await Establishment.paginate(query, options, {
       sort: { createdAt: 1 }
-
     });
 
     if (establishments.docs.length === 0) {
       return res.status(404).send("Establishments not found for the specified company type");
     }
 
+    // Mapeie os estabelecimentos para remover o campo 'password'
+    const sanitizedEstablishments = establishments.docs.map(establishment => {
+      const { password, ...rest } = establishment.toObject();
+      return rest;
+    });
+
     return res.status(200).json({
-      establishments: establishments.docs,
+      establishments: sanitizedEstablishments,
       total: establishments.totalDocs,
       totalPages: establishments.totalPages,
     });
@@ -242,8 +247,6 @@ router.get("/fetch-establishment-type", async (req, res) => {
     res.status(500).send(error.message);
   }
 });
-
-
 
 
 router.get("/fetchEstablishmentByUser/:userId", async (req, res) => {
@@ -290,11 +293,11 @@ router.get("/fetchEstablishmentByEstablishmentId/:id", async (req, res) => {
   }
 });
 
-router.get("/fetchEstablishmentByCity/:city", async (req, res) => {
+router.get("/fetchEstablishmentByCity/:cityName", async (req, res) => {
   try {
-    const city = req.params.city;
+    const cityName = req.params.cityName;
 
-    const establishments = await Establishment.find({ city: city }).select(
+    const establishments = await Establishment.find({ cityName: cityName }).select(
       "-isFeatured"
     );
 

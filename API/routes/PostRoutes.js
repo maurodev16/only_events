@@ -17,7 +17,7 @@ router.post("/create-post/:establishmentId", async (req, res) => {
     // Verifique se o estabelecimento existe
     const establishmentExists = await Establishment.findById(establishmentId);
     if (!establishmentExists) {
-      return res.status(404).json({ error: "Estabelecimento não encontrado." });
+      return res.status(404).json({ error: "Establishment not Found." });
     }
 
     // Verifique se o tipo de evento é válido (opcional)
@@ -40,16 +40,15 @@ router.post("/create-post/:establishmentId", async (req, res) => {
 });
 
 // Rota para buscar todos os posts
-router.get("/get-posts", async (req, res) => {//checkToken,
+router.get("/get-posts", async (req, res) => {
   try {
-    // Busca todos os posts e popula a opção 'like' com os dados dos usuários que deram like
     const posts = await Post.find()
-    .populate('like', 'user') 
-    .populate({
-      path: 'establishmentId',
-      model: 'Establishment',
-      select: '-password',  // Exclui o campo 'password' do resultado
-    });
+      .populate('like', 'user') 
+      .populate({
+        path: 'establishmentId',
+        model: Establishment, 
+        select: '-password',  
+      });
 
     return res.status(200).json(posts);
   } catch (error) {
