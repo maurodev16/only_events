@@ -9,7 +9,7 @@ const bcryptSalt = process.env.BCRYPT_SALT;
 const establishmentSchema = new mongoose.Schema(
   {
     // Dados iniciais obrigatorios para o primeiro registro
-    logoUrl: { type: String, default: "https://res.cloudinary.com/dhkyslgft/image/upload/v1704488249/logoNo_avaliable_fehssq.png" },
+    logoUrl: { type: String, default: "https://res.cloudinary.com/dhkyslgft/image/upload/v1707663549/wasGehtAb-folder/icon_launcher_jhckg7.png" },
     establishmentName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
