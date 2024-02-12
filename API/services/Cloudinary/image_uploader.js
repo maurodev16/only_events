@@ -9,7 +9,7 @@ async function uploadImage(file) {
 
     const public_id = `${file.originalname.split(".")[0]}`;
     const result = await cloudinary.uploader.upload(file.path, {
-      allowed_formats: ["png", "jpg", "gif", "jpeg"],
+      allowed_formats: ["png", "jpg", "jpeg"],
       public_id: public_id,
       overwrite: false,
       upload_preset: "wasGehtAb_preset",

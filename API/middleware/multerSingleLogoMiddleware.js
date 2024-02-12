@@ -13,6 +13,7 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
   } else {
     // Rejeitar o arquivo
+    console.log('Unsupported Image Format, MIME Type:', file.mimetype);
     cb(new Error('Unsupported Image Format, only JPEG, PNG, and JPG can be supported.'), false);
   }
 };
