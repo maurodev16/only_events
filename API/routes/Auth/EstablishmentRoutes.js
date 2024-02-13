@@ -7,7 +7,7 @@ import ClubDetails from "../../models/ClubDetail.js"
 import KioskDetails from "../../models/KioskDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import handleUpload from "../../middleware/multerSingleLogoMiddleware.js";
+import uploadSingleInvoice from "../../middleware/multerSingleLogoMiddleware.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 import configureCloudinary from '../../services/Cloudinary/cloudinary_config.js';
@@ -18,7 +18,7 @@ router.use((req, res, next) => {
   console.log(req.body);
   next();
 });
-router.post("/signup-establishment", handleUpload, checkRequiredFields([
+router.post("/signup-establishment",   uploadSingleInvoice.single("file"), checkRequiredFields([
   'establishmentName',
   'email',
   'password',
@@ -38,14 +38,19 @@ router.post("/signup-establishment", handleUpload, checkRequiredFields([
     if (emailExists) {
       return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
-    let imageUrl;
-    if (req.file) {
-      imageUrl = await uploadImage(req.file); // Aqui chamamos o método uploadImage
-    }
+    const file = req.file;
+    const logo_name = `${file.originalname.split(".")[0]}`;
 
+    const result = await cloudinary.uploader.upload(file.path, {
+      resource_type: "image",
+      allowedFormats: ["jpg", "png", "jpeg"],
+      public_id: logo_name,
+      overwrite: false,
+      upload_preset: "wasGehtAb_preset",
+    });
     // Crie uma instância do Establishment com os dados fornecidos
     const establishment = new Establishment({
-      logoUrl: imageUrl,
+      logoUrl: result.secure_url,
       establishmentName,
       email,
       password,
