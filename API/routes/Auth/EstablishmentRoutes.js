@@ -7,7 +7,7 @@ import ClubDetails from "../../models/ClubDetail.js"
 import KioskDetails from "../../models/KioskDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import handleUpload from "../../middleware/multerSingleLogoMiddleware.js";
+//import handleUpload from "../../middleware/multerSingleLogoMiddleware.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 import configureCloudinary from '../../services/Cloudinary/cloudinary_config.js';
@@ -18,7 +18,7 @@ router.use((req, res, next) => {
   console.log(req.body);
   next();
 });
-router.post("/signup-establishment", handleUpload, checkRequiredFields([
+router.post("/signup-establishment", checkRequiredFields([
   'establishmentName',
   'email',
   'password',
