@@ -9,10 +9,10 @@ import multer from 'multer';
 // });
 
 
+import multer from 'multer';
 
 // Configure multer with the storage settings and file filter
 const uploadSinglelogo = multer({
-  // storage: storage,
   limits: {
     // Limit the file size to 5MB
     fileSize: 1024 * 1024 * 5 // 5 Megabytes
@@ -20,11 +20,12 @@ const uploadSinglelogo = multer({
   // Define a function to filter the types of files allowed for upload
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-      return cb(new Error('Please upload a valid image file'));
+      return cb(new Error('Please upload a valid image file'), false);
     }
 
-    cb(new Error('Unsupported File Format, only JPEG, PNG and JPG can be supported.'), true);
+    cb(null, true);
   }
 });
 
 export default uploadSinglelogo; // Export the configured multer middleware
+
