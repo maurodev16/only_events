@@ -23,5 +23,5 @@ const uploadSinglelogo = multer({
   }
 });
 
-export default uploadSinglelogo; // Export the configured multer middleware
+export default uploadSinglelogo;
 
