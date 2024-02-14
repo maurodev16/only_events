@@ -9,8 +9,6 @@ import multer from 'multer';
 // });
 
 
-import multer from 'multer';
-
 // Configure multer with the storage settings and file filter
 const uploadSinglelogo = multer({
   limits: {
