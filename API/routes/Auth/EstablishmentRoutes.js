@@ -10,7 +10,7 @@ import checkToken from "../../middleware/checkToken.js";
 import uploadSinglelogo from "../../middleware/multerSingleLogoMiddleware.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
-import handleUpload from "../../services/Cloudinary/image_uploader.js";
+import uploadSingleLogo from "../../services/Cloudinary/image_uploader.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -22,7 +22,7 @@ router.use((req, res, next) => {
   console.log(req.body);
   next();
 });
-router.post("/signup-establishment", handleUpload, checkRequiredFields([
+router.post("/signup-establishment", uploadSingleLogo, checkRequiredFields([
   'establishmentName',
   'email',
   'password',
