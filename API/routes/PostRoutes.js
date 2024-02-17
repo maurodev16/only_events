@@ -9,13 +9,13 @@ import Establishment from "../models/Establishment.js";
 import checkToken from '../middleware/checkToken.js';
 
 // Rota para criar uma nova postagem
-router.post("/create-post/:establishmentId", async (req, res) => {
+router.post("/create-post/:establishmentObjId", async (req, res) => {
   try {
-    const establishmentId = req.params.establishmentId;
+    const establishmentObjId = req.params.establishmentObjId;
     const postData = req.body; // Dados da postagem enviados no corpo da solicitação
 
     // Verifique se o estabelecimento existe
-    const establishmentExists = await Establishment.findById(establishmentId);
+    const establishmentExists = await Establishment.findById(establishmentObjId);
     if (!establishmentExists) {
       return res.status(404).json({ error: "Establishment not Found." });
     }
@@ -27,7 +27,7 @@ router.post("/create-post/:establishmentId", async (req, res) => {
     }
 
     // Crie uma nova instância de Post com os dados fornecidos
-    const newPost = new Post({ ...postData, establishmentId });
+    const newPost = new Post({ ...postData, establishmentObjId });
 
     // Salve a nova postagem no banco de dados
     const savedPost = await newPost.save();
@@ -43,9 +43,9 @@ router.post("/create-post/:establishmentId", async (req, res) => {
 router.get("/get-posts", async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('like', 'user') 
+      .populate('likeObjIds', 'user') 
       .populate({
-        path: 'establishmentId',
+        path: 'establishmentObjId',
         model: Establishment, 
         select: '-password',  
       });

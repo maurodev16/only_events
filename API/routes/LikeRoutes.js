@@ -17,21 +17,21 @@ router.post("/post/:postId/:userId", checkToken, async (req, res) => {
     if (!post) {
       return res.status(404).json({ success: false, message: "Post not found" });
     }
-        // Verifica se o User existe
-        const user = await User.findById(userId);
-        if (!user) {
-          return res.status(404).json({ success: false, message: "User not found" });
-        }
+    // Verifica se o User existe
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     // Verifica se o usuário já deu like neste Post
-    const existingLike = await Like.findOne({ post: postId, user: userId });
-
+    const existingLike = await Like.findOne({ postObjId: postId, userObjId: userId });
+    
     if (existingLike) {
       // Remove o like do schema Like
       await Like.findByIdAndDelete(existingLike._id);
 
       // Atualiza o array de likes e o contador no Post correspondente
-      post.like.pull(existingLike._id);
+      post.likeObjIds.pull(existingLike._id);
       post.likesCount--;
       await post.save();
 
@@ -40,20 +40,22 @@ router.post("/post/:postId/:userId", checkToken, async (req, res) => {
         message: "Disliked",
         userId: userId,
       });
+
     } else {
       // Adiciona um novo like
-      const newLike = new Like({ user: userId, post: postId });
+      const newLike = new Like({ userObjId: userId, postObjId: postId });
       await newLike.save();
-      // Atualiza o array de likes e o contador no Post correspondente
-      post.like.push(newLike._id);
-      post.likesCount++;
+      console.log(newLike)
 
+      // Atualiza o array de likes e o contador no Post correspondente
+      post.likeObjIds.push(newLike._id);
+      post.likesCount++;
       await post.save();
 
       return res.status(200).json({
         success: true,
         message: "Liked",
-       userId: userId,
+        userId: userId,
       });
     }
   } catch (error) {
@@ -64,7 +66,6 @@ router.post("/post/:postId/:userId", checkToken, async (req, res) => {
     });
   }
 });
-
 
 
 export default router;

@@ -7,7 +7,6 @@ import ClubDetails from "../../models/ClubDetail.js"
 import KioskDetails from "../../models/KioskDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import uploadSinglelogo from "../../middleware/multerSingleLogoMiddleware.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 import uploadSingleLogo from "../../services/Cloudinary/image_uploader.js";
@@ -22,7 +21,7 @@ router.use((req, res, next) => {
   console.log(req.body);
   next();
 });
-router.post("/signup-establishment", uploadSingleLogo, checkRequiredFields([
+router.post("/signup-establishment", uploadSingleLogo.single('file'), checkRequiredFields([
   'establishmentName',
   'email',
   'password',
@@ -35,48 +34,47 @@ router.post("/signup-establishment", uploadSingleLogo, checkRequiredFields([
   'companyType'
 ]), async (req, res) => {  
   try {
-    const { establishmentName, email, password, stateName, cityName, postalCode, streetName, number, phone, companyType } = req.body;
+    const estaData = await req.body;
 
     // Verifica se o email do Establishment já está em uso
-    const emailExists = await Establishment.findOne({ email });
+    const emailExists = await Establishment.findOne({ email: estaData.email });
     if (emailExists) {
       return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
 
-  
-    // Verifica se o formato do arquivo é válido
-    const allowedFormats = ["png", "jpg", "jpeg"];
-    const fileFormat = req.file.originalname.split('.').pop().toLowerCase();
-    if (!allowedFormats.includes(fileFormat)) {
-      return res.status(400).send('Unsupported file format. Only PNG, JPG, and JPEG are allowed.');
-    }
+      // Check if photos for the gallery have been sent
+      if (!req.file || req.file.length === 0) {
+        return res.status(400).send("No file provided");
+      }
 
-    // Realiza o upload da imagem para o Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      allowed_formats: allowedFormats,
-      overwrite: false,
-      upload_preset: "wasGehtAb_preset",
-    });
+      const file = req.file;
+      const logo_name = `${file.originalname.split(".")[0]}`;
 
-    // Verifica se o upload foi bem-sucedido
-    if (!result.secure_url) {
-      return res.status(400).send('Error uploading image to Cloudinary');
-    }
-    console.log(result.secure_url)
+      const result = await cloudinary.uploader.upload(file.path, {
+        resource_type: "raw",
+        allowedFormats: ["jpg", "png", "jpeg", "pdf"],
+        public_id: logo_name,
+        overwrite: false,
+        upload_preset: "wasGehtAb_preset",
+      });
+
+      if (!result.secure_url) {
+        return res.status(500).send("Error uploading Invoice to cloudinary");
+      }
 
     // Cria uma instância do Establishment com os dados fornecidos
     const establishment = new Establishment({
       logoUrl: result.secure_url,
-      establishmentName,
-      email,
-      password,
-      stateName,
-      cityName,
-      postalCode,
-      streetName,
-      number,
-      phone,
-      companyType,
+      establishmentName: estaData.establishmentName,
+      email: estaData.email,
+      password: estaData.password,
+      stateName: estaData.stateName,
+      cityName: estaData.cityName,
+      postalCode: estaData.postalCode,
+      streetName: estaData.streetName,
+      number: estaData.number,
+      phone: estaData.phone,
+      companyType: estaData.companyType,
     });
 
     // Salva o estabelecimento no banco de dados
