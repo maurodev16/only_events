@@ -21,7 +21,6 @@ const establishmentSchema = new mongoose.Schema(
     phone: { type: String, required: true, unique: true },
     companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
     token: { type: String  },
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Followers' }],
     followersCount: { type: Number, default: 0 },
     passwordChanged_at: { type: Date },
     passwordResetToken: { type: String },

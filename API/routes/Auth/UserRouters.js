@@ -61,9 +61,9 @@ router.post("/signup-user", checkRequiredFields(['nickname', 'email', 'password'
 });
 
 /// Login route
-router.post("/login", async (req, res) => {
+router.post("/login-user", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = await req.body;
 
     // Validate User data
     if (!email) {

@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { Router } from "express";
 import Establishment from "../../models/Establishment.js";
 import User from "../../models/User.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import BarDetails from "../../models/BarDetail.js"
 import ClubDetails from "../../models/ClubDetail.js"
 import KioskDetails from "../../models/KioskDetail.js"
@@ -12,7 +14,9 @@ import CityAndCountry from "../../models/CityAndCountry.js";
 import uploadSingleLogo from "../../services/Cloudinary/image_uploader.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import { v2 as cloudinary } from "cloudinary";
-
+import dotenv from "dotenv";
+dotenv.config();
+const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 
 
@@ -86,6 +90,60 @@ router.post("/signup-establishment", uploadSingleLogo.single('file'), checkRequi
   } catch (error) {
     console.error(`Error creating Establishment: ${error}`);
     return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
+  }
+});
+
+/// Login route
+router.post("/login-establishment", async (req, res) => {
+  try {
+    const { email, password } = await req.body;
+
+    // Validate establishment data
+    if (!email) {
+      console.log(email);
+
+      return res.status(401).json({ error: "Please provide a valid email!" });
+    }
+
+    let establishment;
+
+    // Check if Email is an email using regular expression
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (isEmail) {
+      establishment = await Establishment.findOne({ email: email });
+      console.log(email);
+    } else {
+      // Find establishment using email
+      establishment = await Establishment.findOne({
+        email: { $regex: `^${email}`, $options: "i" },
+      });
+      console.log(establishment);
+    }
+
+    if (!establishment) {
+      return res.status(404).json({ error: "No establishment found with this email!" });
+    }
+
+    if (!password) {
+      return res.status(422).json({ error: "Password is required!" });
+    }
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, establishment.password);
+
+    if (!isPasswordValid) {
+      return res.status(422).json({ error: "Incorrect password" });
+    }
+
+    // Generate token
+    const token = jwt.sign({ _id: establishment._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
+
+    // Return the authentication token, ID, and email
+    return res
+      .status(200).json({ token });
+  } catch (error) {
+    console.error(`Erro no login: ${error}`);
+    res.status(500).json({ error: 'Erro no login' });
   }
 });
 

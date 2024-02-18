@@ -18,6 +18,7 @@ import likeRoutes from './API/routes/LikeRoutes.js';
 import followRouters from "./API/routes/FollowRouters.js";
 import userRoutes from './API/routes/UserRouter.js';
 import artistRoutes from './API/routes/ArtistRoutes.js';
+import authEstablRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import authUserRoutes from './API/routes/Auth/UserRouters.js';
 import authAnonimousRoutes from './API/routes/Auth/AnonymousRouters.js';
 import countriesRoutes from './API/routes/CityAndCountryRouters.js';
@@ -29,6 +30,7 @@ import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
 
 /// Register routers
+app.use('/api/v1/auth', authEstablRoutes);
 app.use('/api/v1/auth', authUserRoutes);
 app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
