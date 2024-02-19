@@ -140,7 +140,7 @@ router.post("/login-establishment", async (req, res) => {
 
     // Return the authentication token, ID, and email
     return res
-      .status(200).json({ token });
+      .status(200).json({ login:establishment });
   } catch (error) {
     console.error(`Erro no login: ${error}`);
     res.status(500).json({ error: 'Erro no login' });
