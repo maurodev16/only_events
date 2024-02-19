@@ -55,8 +55,8 @@ router.post("/signup-establishment", uploadSingleLogo.single('file'), checkRequi
       const logo_name = `${file.originalname.split(".")[0]}`;
 
       const result = await cloudinary.uploader.upload(file.path, {
-        resource_type: "raw",
-        allowedFormats: ["jpg", "png", "jpeg", "pdf"],
+        resource_type: "auto",
+        allowedFormats: ["jpg", "png", "jpeg"],
         public_id: logo_name,
         overwrite: false,
         upload_preset: "wasGehtAb_preset",
