@@ -1,14 +1,5 @@
 import multer from 'multer';
 
-// Define the storage settings for multer
-const storage = multer.diskStorage({
-
-    // Define how the filename should be stored
-    filename: function (req, file, cb) {
-        cb(null, new Date.now() + '-' + file.originalname);
-    }
-});
-
 // Define a function to filter the types of files allowed for upload
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'image/jpeg', file.mimetype === 'image/png', file.mimetype === 'image/jpg') {
@@ -20,7 +11,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Configure multer with the storage settings and file filter
-const uploadSingleLogo = multer({
+const singleLogoMiddleware = multer({
     storage: storage,
     limits: {
         // Limit the file size to 5MB
@@ -29,4 +20,4 @@ const uploadSingleLogo = multer({
     fileFilter: fileFilter // Apply the file filter function
 });
 
-export default uploadSingleLogo; // Export the configured multer middleware
+export default singleLogoMiddleware; // Export the configured multer middleware

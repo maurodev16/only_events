@@ -6,10 +6,11 @@ import express from "express";
 const router = express.Router();
 import User from '../models/User.js';
 import Establishment from "../models/Establishment.js";
+import muiltiImagesMiddleware from "../middleware/multMiddleware.js"
 import checkToken from '../middleware/checkToken.js';
 
 // Rota para criar uma nova postagem
-router.post("/create-post/:establishmentObjId", async (req, res) => {
+router.post("/create-post/:establishmentObjId",muiltiImagesMiddleware.array("images"), async (req, res) => {
   try {
     const establishmentObjId = req.params.establishmentObjId;
     const postData = req.body; // Dados da postagem enviados no corpo da solicitação

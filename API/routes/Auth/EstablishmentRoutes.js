@@ -11,7 +11,7 @@ import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
-import uploadSingleLogo from "../../services/Cloudinary/image_uploader.js";
+import singleLogoMiddleware from "../../middleware/singleMiddleware.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
@@ -25,7 +25,7 @@ router.use((req, res, next) => {
   console.log(req.body);
   next();
 });
-router.post("/signup-establishment", uploadSingleLogo.single('file'), checkRequiredFields([
+router.post("/signup-establishment", singleLogoMiddleware.single('file'), checkRequiredFields([
   'establishmentName',
   'email',
   'password',
