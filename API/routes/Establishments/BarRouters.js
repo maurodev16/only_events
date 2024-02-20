@@ -3,13 +3,12 @@ import { Router } from "express";
 import Establishment from "../../models/Establishment.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
 import BarDetail from "../../models/BarDetail.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 const router = Router();
 
-router.post("/bar-detail/:establishmentId", uploadSingleBanner.single("file"), async (req, res, next) => {
+router.post("/bar-detail/:establishmentId",  async (req, res, next) => {
     try {
         const bardDetailsData = req.body;
         const establishmentId = req.params.establishmentId;

@@ -12,7 +12,6 @@ const fileFilter = (req, file, cb) => {
 
 // Configure multer with the storage settings and file filter
 const singleLogoMiddleware = multer({
-    storage: storage,
     limits: {
         // Limit the file size to 5MB
         fileSize: 1024 * 1024 * 5 // 5 Megabytes

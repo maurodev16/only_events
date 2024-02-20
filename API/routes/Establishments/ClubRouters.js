@@ -4,13 +4,12 @@ import Establishment from "../../models/Establishment.js";
 import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import uploadSingleBanner from "../../middleware/multerSingleBannerMiddleware.js";
 import ClubDetail from "../../models/ClubDetail.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 const router = Router();
 
-router.post("/club-detail/:establishmentId", uploadSingleBanner.single("file"), async (req, res, next) => {
+router.post("/club-detail/:establishmentId", async (req, res, next) => {
     try {
         const clubDetailsData = req.body;
         const establishmentId = req.params.establishmentId;
