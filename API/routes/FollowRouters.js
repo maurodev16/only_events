@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import Follower from '../models/Followers.js';
-import Establishment from '../models/Establishment.js';
+import Establishment from '../models/Establishment/Establishment.js';
 import User from '../models/User.js';
 import checkToken from '../middleware/checkToken.js';
 

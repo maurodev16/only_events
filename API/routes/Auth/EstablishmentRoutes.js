@@ -1,44 +1,28 @@
 import mongoose from "mongoose";
 import { Router } from "express";
-import Establishment from "../../models/Establishment.js";
+import Establishment from "../../models/Establishment/Establishment.js";
 import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import BarDetails from "../../models/BarDetail.js"
-import ClubDetails from "../../models/ClubDetail.js"
-import KioskDetails from "../../models/KioskDetail.js"
+import BarDetails from "../../models/Establishment/Details/BarDetail.js"
+import ClubDetails from "../../models/Establishment/Details/ClubDetail.js"
+import KioskDetails from "../../models/Establishment/Details/KioskDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
-import singleLogoMiddleware from "../../middleware/singleMiddleware.js";
+import singleLogoMiddleware from "../../middleware/singleLogoMiddleware.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 dotenv.config();
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
-
-
 const router = Router();
-router.use((req, res, next) => {
-  console.log(req.body);
-  next();
-});
-router.post("/signup-establishment", singleLogoMiddleware.single('file'), checkRequiredFields([
-  'establishmentName',
-  'email',
-  'password',
-  'stateName',
-  'cityName',
-  'postalCode',
-  'streetName',
-  'number',
-  'phone',
-  'companyType'
-]), async (req, res) => {  
+
+router.post("/signup-establishment", singleLogoMiddleware.single('file'), async (req, res) => {
   try {
-    const estaData = await req.body;
+    const estaData = req.body;
 
     // Verifica se o email do Establishment já está em uso
     const emailExists = await Establishment.findOne({ email: estaData.email });
@@ -46,29 +30,16 @@ router.post("/signup-establishment", singleLogoMiddleware.single('file'), checkR
       return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
 
-      // Check if photos for the gallery have been sent
-      if (!req.file || req.file.length === 0) {
-        return res.status(400).send("No file provided");
-      }
+    // Check if photos for the gallery have been sent
+    if (!req.file || req.file.length === 0) {
+      return res.status(400).send("No file provided");
+    }
 
-      const file = req.file;
-      const logo_name = `${file.originalname.split(".")[0]}`;
-
-      const result = await cloudinary.uploader.upload(file.path, {
-        resource_type: "auto",
-        allowedFormats: ["jpg", "png", "jpeg"],
-        public_id: logo_name,
-        overwrite: false,
-        upload_preset: "wasGehtAb_preset",
-      });
-
-      if (!result.secure_url) {
-        return res.status(500).send("Error uploading Invoice to cloudinary");
-      }
+    const file = req.file;
+    const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos
     const establishment = new Establishment({
-      logoUrl: result.secure_url,
       establishmentName: estaData.establishmentName,
       email: estaData.email,
       password: estaData.password,
@@ -82,16 +53,53 @@ router.post("/signup-establishment", singleLogoMiddleware.single('file'), checkR
     });
 
     // Salva o estabelecimento no banco de dados
-    const createdEstablishment = await establishment.save();
-    console.log(createdEstablishment);
+    const newEstablishment = await establishment.save();
+
+    // Envio do arquivo para o Cloudinary
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: `wasGehtAb-folder/allEstablishments/${newEstablishment._id}/${newEstablishment.establishmentName}/logo/`,
+      resource_type: "auto",
+      allowedFormats: ["jpg", "png", "jpeg"],
+      public_id: logo_name,
+      overwrite: false,
+      upload_preset: "wasGehtAb_preset",
+      transformation: [{ width: 200, height: 200, crop: "limit" }],
+    });
+
+    if (!result.secure_url) {
+      return res.status(500).send("Error uploading Invoice to cloudinary");
+    }
+
+    // Atualiza a URL do logo do estabelecimento com a URL do Cloudinary
+    newEstablishment.logoUrl = result.secure_url;
+    await newEstablishment.save();
+
+    // Crie os detalhes correspondentes automaticamente
+    let details;
+    switch (newEstablishment.companyType) {
+      case 'bar':
+        details = await BarDetails.create({ establishment: newEstablishment._id });
+        break;
+      case 'club':
+        details = await ClubDetails.create({ establishment: newEstablishment._id });
+        break;
+      case 'kiosk':
+        details = await KioskDetails.create({ establishment: newEstablishment._id });
+        break;
+    }
+
+    // Associe os detalhes criados ao estabelecimento
+    newEstablishment.details = details._id;
+    await newEstablishment.save();
 
     // Responde com o estabelecimento criado
-    return res.status(201).json({ establishment: createdEstablishment });
+    return res.status(201).json({ establishment: newEstablishment });
   } catch (error) {
-    console.error(`Error creating Establishment: ${error}`);
+    console.error("Error creating Establishment: ", error);
     return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
   }
 });
+
 
 /// Login route
 router.post("/login-establishment", async (req, res) => {
@@ -137,10 +145,10 @@ router.post("/login-establishment", async (req, res) => {
 
     // Generate token
     const token = jwt.sign({ _id: establishment._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
-     establishment.token = token;
+    establishment.token = token;
     // Return the authentication token, ID, and email
     return res
-      .status(200).json({ login:establishment });
+      .status(200).json({ login: establishment });
   } catch (error) {
     console.error(`Erro no login: ${error}`);
     res.status(500).json({ error: 'Erro no login' });

@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import MusicCategory from "./MusicCategory.js";
-import Establishment from "./Establishment.js";
+import MusicCategory from "../../MusicCategory.js";
+import Details from "./Details.js";
 dotenv.config();
 
 const barDetailSchema = new mongoose.Schema(
   {
-    establishmentId:{ type: mongoose.Schema.Types.ObjectId, ref: "Establishment", require: true, unique: true },
-   // openingHours: [openingHoursSchema],
     isAgeVerified: { type: Boolean, default: false },
     selectedAge: { type: String },
     isFreeEntry: { type: Boolean, default: false },
@@ -115,12 +113,7 @@ const barDetailSchema = new mongoose.Schema(
     cryptoCurrency: { type: Boolean, default: false },
     establishmentIsOnline: { type: Boolean, default: false },
     extraInfo: { type: String, default: "" },
-  },
-  {
-    timestamps: true,
-  }
-);
+  });
 
-const BarDetail = mongoose.model("BarDetail", barDetailSchema);
-
+const BarDetail = Details.discriminator("bar", barDetailSchema);
 export default BarDetail;

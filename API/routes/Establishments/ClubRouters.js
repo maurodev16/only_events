@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { Router } from "express";
-import Establishment from "../../models/Establishment.js";
+import Establishment from "../../models/Establishment/Establishment.js";
 import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import ClubDetail from "../../models/ClubDetail.js";
+import ClubDetail from "../../models/Establishment/Details/ClubDetail.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 const router = Router();

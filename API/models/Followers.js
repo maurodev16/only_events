@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Establishment from "./Establishment.js";
+import Establishment from "./Establishment/Establishment.js";
 import User from "./User.js";
 
 const followerSchema = new mongoose.Schema({

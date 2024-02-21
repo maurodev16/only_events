@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import { Router } from "express";
-import Establishment from "../../models/Establishment.js";
+import Establishment from "../../models/Establishment/Establishment.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import BarDetail from "../../models/BarDetail.js";
+import BarDetail from "../../models/Establishment/Details/BarDetail.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 const router = Router();

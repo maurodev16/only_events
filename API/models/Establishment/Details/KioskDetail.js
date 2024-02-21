@@ -1,17 +1,12 @@
 import mongoose from "mongoose";
+import Details from "./Details.js";
 import dotenv from "dotenv";
-import MusicCategory from "./MusicCategory.js";
-import Establishment from "./Establishment.js";
 dotenv.config();
 
 const kioskDetailSchema = new mongoose.Schema(
   {
-    establishmentId:{type: mongoose.Schema.Types.ObjectId, ref: "Establishment", require: true, unique: true },
-   // openingHours: [openingHoursSchema],
- 
     //Services options
     delivery: { type: Boolean, default: false },
-
     ///Convenience
     indoorSeating: { type: Boolean, default: false },
     atmAccess: { type: Boolean, default: false },
@@ -38,12 +33,9 @@ const kioskDetailSchema = new mongoose.Schema(
     onlinePayments: { type: Boolean, default: false },
     establishmentIsOnline: { type: Boolean, default: false },
     extraInfo: { type: String, default: "" },
-  },
-  {
-    timestamps: true,
-  }
-);
+  });
 
-const KioskDetail = mongoose.model("KioskDetail", kioskDetailSchema);
+const KioskDetail = Details.discriminator("kiosk", kioskDetailSchema);
+
 
 export default KioskDetail;

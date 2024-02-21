@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Establishment from "./Establishment.js";
+import Establishment from "./Establishment/Establishment.js";
 import User from "./User.js";
 import Like from "./Likes.js";
 const postSchema = new mongoose.Schema({
@@ -7,8 +7,8 @@ const postSchema = new mongoose.Schema({
     content: { type: String, required: true },//O conteúdo do post (texto).
     mediaUrls: { type: [String] },// Lista de URLs de mídia (imagens, vídeos, etc.)
     eventType: { type: String },// Tipo de evento (pode ser usado para filtrar por tipo)
-    products: { type: [String] },// Lista de produtos em destaque
-    tags: { type: [String] }, // Lista de tags para categorizar o post (ex: #Evento, #Promoção)
+    products: { type: [String], default:[] },// Lista de produtos em destaque
+    tags: { type: [String], default:[] }, // Lista de tags para categorizar o post (ex: #Evento, #Promoção)
     likesCount: { type: Number, default: 0 },
     location: { type: String }, // Pode ser um endereço ou nome do local
     postStatus: { type: String, default: "active", enum: ["active", "inactive", "rascunho"] },

@@ -5,60 +5,74 @@ dotenv.config();
 import express from "express";
 const router = express.Router();
 import User from '../models/User.js';
-import Establishment from "../models/Establishment.js";
-import muiltiImagesMiddleware from "../middleware/multMiddleware.js"
+import Establishment from "../models/Establishment/Establishment.js";
+import muiltiImagesMiddleware from "../middleware/multiImagesMiddleware.js"
 import checkToken from '../middleware/checkToken.js';
+import configureCloudinary from "../services/Cloudinary/cloudinary_config.js";
+configureCloudinary();
+import { v2 as cloudinary } from "cloudinary";
 
 // Rota para criar uma nova postagem
-router.post("/create-post/:establishmentObjId",muiltiImagesMiddleware.array("images"), async (req, res) => {
+router.post("/create-post/:establishmentObjId", muiltiImagesMiddleware.array('images'), async (req, res) => {
   try {
     const establishmentObjId = req.params.establishmentObjId;
-    const images = req.files; // Imagens enviadas na solicitação
-    const postData = req.body; // Dados da postagem enviados no corpo da solicitação
+    const files =  req.files; // Imagens enviadas na solicitação
+     console.log(req.files)
+    const { content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
 
     // Verifique se o estabelecimento existe
     const establishmentExists = await Establishment.findById(establishmentObjId);
     if (!establishmentExists) {
       return res.status(404).json({ error: "Establishment not Found." });
     }
-
     // Verifique se o tipo de evento é válido (opcional)
     const validEventTypes = ["Concert", "Party", "Promotion", "Other"];
-    if (postData.eventType && !validEventTypes.includes(postData.eventType)) {
+    if (eventType && !validEventTypes.includes(eventType)) {
       return res.status(400).json({ error: "Tipo de evento inválido." });
     }
-   // Check if photos for the gallery have been sent
- // Verifique se foram enviadas imagens
- if (!images || images.length === 0) {
-  return res.status(400).send("Nenhuma imagem fornecida");
-}
-  // Faça upload das imagens para o Cloudinary e obtenha os URLs seguros
-  const uploadedImageUrls = [];
-  for (const image of images) {
-    const result = await cloudinary.uploader.upload(image.path, {
-      resource_type: "auto",
-      allowed_formats: ["jpg", "jpeg", "png"],
-      folder: "posts",
-      overwrite: false,
-      upload_preset: "wasGehtAb_preset",
-    });
-     // Adicione os URLs das imagens à postagem
-     postData.mediaUrls = uploadedImageUrls;
 
-    if (!result.secure_url) {
-      return res.status(500).send("Erro ao fazer upload das imagens para o Cloudinary");
+    // Check if photos for the gallery have been sent
+    // Verifique se foram enviadas imagens
+    if (!files || files.length === 0) {
+      return res.status(400).send("Nenhuma imagem fornecida");
     }
-    uploadedImageUrls.push(result.secure_url);
-  }
+
     // Crie uma nova instância de Post com os dados fornecidos
-    const newPost = new Post({ ...postData, establishmentObjId });
-
+    const post = new Post({
+      content: content,
+    });
+   
     // Salve a nova postagem no banco de dados
-    const savedPost = await newPost.save();
+    const newPost = await post.save();
+    // Faça upload das imagens para o Cloudinary e obtenha os URLs seguros
+    const uploadedImageUrls = [];
+    for (const file of files) {
 
+      const result = await cloudinary.uploader.upload(file.path, {
+        resource_type: "auto",
+        allowed_formats: ["jpg", "jpeg", "png"],
+        folder: `wasGehtAb-folder/allEstablishments/${establishmentObjId}/${establishmentExists.establishmentName}/posts/${newPost._id}/${newPost.createdAt}`,
+        overwrite: false,
+        upload_preset: "wasGehtAb_preset",
+        transformation: [{ width: 500, height: 500, crop: "limit" }],
+        unique_filename: true,
+      }
+      );
+
+      if (!result.secure_url) {
+        return res.status(500).send("Erro ao fazer upload das imagens para o Cloudinary");
+      }
+      uploadedImageUrls.push(result.secure_url);
+
+    }
+    newPost.mediaUrls = uploadedImageUrls;
+   await newPost.save()
+
+   console.log(newPost)
     res.status(201).json({ post: newPost });
+
   } catch (error) {
-    console.error(error);
+console.log(error)
     res.status(500).json({ error: "Erro ao criar a postagem." });
   }
 });
@@ -67,11 +81,11 @@ router.post("/create-post/:establishmentObjId",muiltiImagesMiddleware.array("ima
 router.get("/get-posts", async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('likeObjIds', 'user') 
+      .populate('likeObjIds', 'user')
       .populate({
         path: 'establishmentObjId',
-        model: Establishment, 
-        select: '-password',  
+        model: Establishment,
+        select: '-password',
       });
 
     return res.status(200).json(posts);
