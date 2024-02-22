@@ -25,9 +25,9 @@ const singleLogoMiddleware = multer({
             cb({ message: "Unsupported file format" }, false);
         }
     },
-    limits: { fileSize: 1024 * 1024 * 5 }, // 1 megabyte
+    limits: { fileSize: 1024 * 1024  }, // 1 megabyte
 });
-
+console.log("fileFilter:", singleLogoMiddleware.fileFilter);
 
 console.log("singleLogoMiddleware:::", singleLogoMiddleware)
 
