@@ -15,6 +15,7 @@ const storage = multer.diskStorage({
     }
 });
 
+
 const singleLogoMiddleware = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {
