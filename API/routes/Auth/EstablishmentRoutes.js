@@ -56,7 +56,7 @@ router.post("/signup-establishment", singleLogoMiddleware.single('file'), async 
     const newEstablishment = await establishment.save();
 
     // Envio do arquivo para o Cloudinary
-    const result = await cloudinary.uploader.upload(file.path, {
+    const result = await cloudinary.uploader.upload(file, {
       folder: `wasGehtAb-folder/allEstablishments/${newEstablishment._id}/${newEstablishment.establishmentName}/logo/`,
       resource_type: "auto",
       allowedFormats: ["jpg", "png", "jpeg"],
