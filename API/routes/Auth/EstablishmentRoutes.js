@@ -56,7 +56,7 @@ router.post("/signup-establishment", singleLogoMiddleware.single('file'), async 
     const newEstablishment = await establishment.save();
 
     // Envio do arquivo para o Cloudinary
-    const result = await cloudinary.uploader.upload(file, {
+    const result = await cloudinary.uploader.upload(file.path, {
       folder: `wasGehtAb-folder/allEstablishments/${newEstablishment._id}/${newEstablishment.establishmentName}/logo/`,
       resource_type: "auto",
       allowedFormats: ["jpg", "png", "jpeg"],
@@ -65,8 +65,9 @@ router.post("/signup-establishment", singleLogoMiddleware.single('file'), async 
       upload_preset: "wasGehtAb_preset",
       transformation: [{ width: 200, height: 200, crop: "limit" }],
     });
-
+console.log("CAMINHO DA IMAGEM NO NOJS:::",file.path)
     if (!result.secure_url) {
+      console.log("Error uploading Invoice to cloudinary:", result); // Adiciona este log
       return res.status(500).send("Error uploading Invoice to cloudinary");
     }
 
@@ -93,12 +94,14 @@ router.post("/signup-establishment", singleLogoMiddleware.single('file'), async 
     await newEstablishment.save();
 
     // Responde com o estabelecimento criado
+    console.log("Establishment created successfully:", newEstablishment); // Adiciona este log
     return res.status(201).json({ establishment: newEstablishment });
   } catch (error) {
     console.error("Error creating Establishment: ", error);
     return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
   }
 });
+
 
 
 /// Login route

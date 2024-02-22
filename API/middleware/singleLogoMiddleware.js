@@ -2,9 +2,7 @@ import multer from 'multer';
 
 // Storage 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, "../images"));
-    },
+
     filename: function (req, file, cb) {
         if (file) {
             cb(null, new Date().toISOString().replace(/:/g, "-")
