@@ -20,7 +20,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
-router.post("/signup-establishment",  async (req, res) => {//singleLogoMiddleware.single('file'),
+router.post("/signup-establishment", singleLogoMiddleware.single('file'), async (req, res) => {
   try {
     const estaData = await req.body;
 
