@@ -35,8 +35,8 @@ router.post("/signup-establishment",  async (req, res) => {
     //   return res.status(400).send("No file provided");
     // }
 
-    const file = req.file;
-    const logo_name = `${file.originalname.split(".")[0]}`;
+  //  const file = req.file;
+    //const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos
     const establishment = new Establishment({
