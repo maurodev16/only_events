@@ -20,12 +20,23 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
-router.post("/signup-establishment",  async (req, res) => {
+router.post("/signup-establishment", async (req, res) => {
   try {
-    const estaData = await req.body;
+    const {
+      establishmentName,
+      email,
+      password,
+      stateName,
+      cityName,
+      postalCode,
+      streetName,
+      number,
+      phone,
+      companyType,
+    } = await req.body;
 
     // Verifica se o email do Establishment já está em uso
-    const emailExists = await Establishment.findOne({ email: estaData.email });
+    const emailExists = await Establishment.findOne({ email: email });
     if (emailExists) {
       return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
@@ -35,45 +46,47 @@ router.post("/signup-establishment",  async (req, res) => {
     //   return res.status(400).send("No file provided");
     // }
 
-  //  const file = req.file;
+    //  const file = req.file;
     //const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos
-    const establishment = new Establishment({
-      establishmentName: estaData.establishmentName,
-      email: estaData.email,
-      password: estaData.password,
-      stateName: estaData.stateName,
-      cityName: estaData.cityName,
-      postalCode: estaData.postalCode,
-      streetName: estaData.streetName,
-      number: estaData.number,
-      phone: estaData.phone,
-      companyType: estaData.companyType,
-    });
+    const establishment = new Establishment(
+      {
+        establishmentName,
+        email,
+        password,
+        stateName,
+        cityName,
+        postalCode,
+        streetName,
+        number,
+        phone,
+        companyType,
+      }
+    );
 
     // Salva o estabelecimento no banco de dados
     const newEstablishment = await establishment.save();
 
-    // Envio do arquivo para o Cloudinary
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: `wasGehtAb-folder/allEstablishments/${newEstablishment._id}/${newEstablishment.establishmentName}/logo/`,
-      resource_type: "auto",
-      allowedFormats: ["jpg", "png", "jpeg"],
-      public_id: logo_name,
-      overwrite: false,
-      upload_preset: "wasGehtAb_preset",
-      transformation: [{ width: 200, height: 200, crop: "limit" }],
-    });
-console.log("CAMINHO DA IMAGEM NO NOJS:::",file.path)
-    if (!result.secure_url) {
-      console.log("Error uploading Invoice to cloudinary:", result); // Adiciona este log
-      return res.status(500).send("Error uploading Invoice to cloudinary");
-    }
+    // // Envio do arquivo para o Cloudinary
+    // const result = await cloudinary.uploader.upload(file.path, {
+    //   folder: `wasGehtAb-folder/allEstablishments/${newEstablishment._id}/${newEstablishment.establishmentName}/logo/`,
+    //   resource_type: "auto",
+    //   allowedFormats: ["jpg", "png", "jpeg"],
+    //   public_id: logo_name,
+    //   overwrite: false,
+    //   upload_preset: "wasGehtAb_preset",
+    //   transformation: [{ width: 200, height: 200, crop: "limit" }],
+    // });
+    // console.log("CAMINHO DA IMAGEM NO NOJS:::", file.path)
+    // if (!result.secure_url) {
+    //   console.log("Error uploading Invoice to cloudinary:", result); // Adiciona este log
+    //   return res.status(500).send("Error uploading Invoice to cloudinary");
+    // }
 
-    // Atualiza a URL do logo do estabelecimento com a URL do Cloudinary
-    newEstablishment.logoUrl = result.secure_url;
-    await newEstablishment.save();
+    // // Atualiza a URL do logo do estabelecimento com a URL do Cloudinary
+    // newEstablishment.logoUrl = result.secure_url;
+    // await newEstablishment.save();
 
     // Crie os detalhes correspondentes automaticamente
     let details;
