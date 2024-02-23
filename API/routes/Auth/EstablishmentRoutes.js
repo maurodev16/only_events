@@ -31,9 +31,9 @@ router.post("/signup-establishment",  async (req, res) => {
     }
 
     // Check if photos for the gallery have been sent
-    if (!req.file || req.file.length === 0) {
-      return res.status(400).send("No file provided");
-    }
+    // if (!req.file || req.file.length === 0) {
+    //   return res.status(400).send("No file provided");
+    // }
 
     const file = req.file;
     const logo_name = `${file.originalname.split(".")[0]}`;
