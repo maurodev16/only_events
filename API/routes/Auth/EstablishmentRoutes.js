@@ -20,9 +20,9 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
-router.post("/signup-establishment", singleLogoMiddleware.single('file'), async (req, res) => {
+router.post("/signup-establishment",  async (req, res) => {//singleLogoMiddleware.single('file'),
   try {
-    const estaData = req.body;
+    const estaData = await req.body;
 
     // Verifica se o email do Establishment já está em uso
     const emailExists = await Establishment.findOne({ email: estaData.email });
