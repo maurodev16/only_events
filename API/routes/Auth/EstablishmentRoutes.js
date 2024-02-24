@@ -4,6 +4,7 @@ import Establishment from "../../models/Establishment/Establishment.js";
 import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import Post from "../../models/Posts.js";
 import BarDetails from "../../models/Establishment/Details/BarDetail.js"
 import ClubDetails from "../../models/Establishment/Details/ClubDetail.js"
 import KioskDetails from "../../models/Establishment/Details/KioskDetail.js"
@@ -348,33 +349,37 @@ router.get("/fetch-establishment-type", async (req, res) => {
   }
 });
 
-
-router.get("/fetchEstablishmentByUser/:userId", async (req, res) => {
+router.get("/establishmentProfile/:establishmentId", async (req, res) => {
   try {
-    const userId = req.params.userId;
-    const establishments = await Establishment.find({ user: userId })
-      .select("-isFeatured")
-      .populate({
-        path: "citAndCountryObj",
-        populate: {
-          path: "userId",
-          select: "nickname logoUrl", // Seleciona os campos desejados do User
-        },
-      })
-      .populate("user", "nickname email logoUrl")
-      .populate({
-        select: "musicCategoryName", // Ajuste para a propriedade correta da categoria de música
-      });
+    const establishmentId = req.params.establishmentId;
 
-    if (establishments.length === 0) {
-      return res.status(404).json({ error: "Establishment not found" });
+    // Buscar o estabelecimento pelo ID
+    const establishment = await Establishment.findById(establishmentId).select("-password");
+
+    // Verificar se encontrou o estabelecimento
+    if (!establishment) {
+      return res.status(404).json({ error: "Estabelecimento não encontrado" });
     }
 
-    return res.status(201).json(establishments); // Retorna os establishments encontrados
+    // Buscar os detalhes do estabelecimento
+    const establishmentWithDetails = await Establishment.findById(establishmentId).populate('details').select("-password");
+
+    // Buscar os posts relacionados a este estabelecimento
+    const posts = await Post.find({ establishmentObjId: establishmentId }).sort({ createdAt: -1 });
+    
+    // Retornar o estabelecimento com os detalhes e os posts
+    const establishmentWithDetailsAndPosts = {
+      establishment: establishmentWithDetails,
+      posts: posts
+    };
+
+    return res.status(200).json({ establishmentWithDetailsAndPosts: establishmentWithDetailsAndPosts });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error("Erro ao buscar perfil do estabelecimento:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
+
 
 router.get("/fetchEstablishmentByEstablishmentId/:id", async (req, res) => {
   const id = req.params.id;
