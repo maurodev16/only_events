@@ -20,7 +20,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Configure multer with the storage settings and file filter
-const multiImagesMiddleware = multer({
+const singleBannerPostMiddleware = multer({
   storage:storage,
 
   limits: {
@@ -30,4 +30,4 @@ const multiImagesMiddleware = multer({
   fileFilter: fileFilter // Apply the file filter function
 });
 
-export default multiImagesMiddleware; // Export the configured multer middleware
+export default singleBannerPostMiddleware; // Export the configured multer middleware

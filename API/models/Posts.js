@@ -5,7 +5,7 @@ import Like from "./Likes.js";
 const postSchema = new mongoose.Schema({
     establishmentObjId: { type: mongoose.Schema.Types.ObjectId, ref: "Establishment" },//Referência ao estabelecimento ao qual o post pertence.
     content: { type: String, required: true },//O conteúdo do post (texto).
-    mediaUrls: { type: [String] },// Lista de URLs de mídia (imagens, vídeos, etc.)
+    mediaUrl: { type: String },// URL de mídia (imagens, vídeos, etc.)
     eventType: { type: String },// Tipo de evento (pode ser usado para filtrar por tipo)
     products: { type: [String], default:[] },// Lista de produtos em destaque
     tags: { type: [String], default:[] }, // Lista de tags para categorizar o post (ex: #Evento, #Promoção)
