@@ -86,9 +86,12 @@ router.post("/create-post", singleBannerPostMiddleware.single('banner'), async (
     // Verificar se o estabelecimento existe
     const establishment = await Establishment.findById(establishmentObjId);
     if (!establishment) {
-      return res.status(404).json({ error: "Estabelecimento não encontrado." });
-    }
 console.log(establishment)
+
+      return res.status(404).json({ error: "Estabelecimento não encontrado." });
+
+    }
+console.log(establishmentObjId)
     // Check if photos for the gallery have been sent
     // Verificar se foram enviadas imagens
     if (!file || file.length === 0) {
@@ -125,6 +128,8 @@ console.log(establishment)
     });
 
     if (!result.secure_url) {
+console.log(result)
+
       return res.status(500).send("Erro ao fazer upload das imagens para o Cloudinary");
     }
     var bannerUrl = result.secure_url;
