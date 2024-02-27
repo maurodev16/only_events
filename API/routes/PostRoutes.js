@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 import Post from "../models/Posts.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -12,6 +11,71 @@ import checkToken from '../middleware/checkToken.js';
 import configureCloudinary from "../services/Cloudinary/cloudinary_config.js";
 configureCloudinary();
 import { v2 as cloudinary } from "cloudinary";
+/////
+router.get('/get-posts-with-filter-cityname', async (req, res) => {
+  try {
+    const { cityName, companyType, page = 1, limit = 10 } = req.query;
+    let query = {}; // Inicie a consulta como uma consulta vazia
+
+    // Verifique se cityName e companyType estão presentes na solicitação
+    if (cityName && companyType) {
+      // Encontre o estabelecimento com base no nome da cidade e no tipo de empresa
+      const establishment = await Establishment.findOne({ cityName, companyType });
+
+      if (establishment) {
+        // Se o estabelecimento for encontrado, filtre as postagens por esse estabelecimento
+        query.establishmentObjId = establishment._id;
+      } else {
+        // Se não houver um estabelecimento correspondente, retorne 404
+        return res.status(404).send('No establishment found for the specified city and company type');
+      }
+    } else if (cityName) {
+      // Se apenas o cityName estiver presente, filtre as postagens pelo nome da cidade
+      const establishment = await Establishment.findOne({ cityName });
+
+      if (establishment) {
+        query.establishmentObjId = establishment._id;
+      } else {
+        // Se não houver um estabelecimento com o nome da cidade fornecido, traga todas as postagens
+        query = {};
+      }
+    } else if (companyType) {
+      // Se apenas o companyType estiver presente, filtre as postagens pelo tipo de empresa
+      const establishments = await Establishment.find({ companyType });
+
+      if (establishments.length > 0) {
+        // Se houver estabelecimentos correspondentes, pegue os IDs e filtre as postagens por esses IDs
+        const establishmentIds = establishments.map(est => est._id);
+        query.establishmentObjId = { $in: establishmentIds };
+      } else {
+        // Se não houver estabelecimentos correspondentes, retorne 404
+        return res.status(404).send('No establishment found for the specified company type');
+      }
+    }
+
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      sort: { createdAt: 1 }
+    };
+
+    // Execute a consulta
+    const posts = await Post.paginate(query, options);
+
+    if (posts.docs.length === 0) {
+      return res.status(404).send('Posts not found');
+    }
+
+    return res.status(200).json({
+      posts: posts.docs,
+      total: posts.totalDocs,
+      totalPages: posts.totalPages,
+    });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 
 // Rota para criar uma nova postagem
 router.post("/create-post", singleBannerPostMiddleware.single('banner'), async (req, res) => {
@@ -81,8 +145,9 @@ router.post("/create-post", singleBannerPostMiddleware.single('banner'), async (
 // Rota para buscar todos os posts
 router.get("/get-posts", async (req, res) => {
   try {
+
     const posts = await Post.find()
-     // .populate('likeObjIds', 'user')
+      // .populate('likeObjIds', 'user')
       .populate({
         path: 'establishmentObjId',
         model: Establishment,
@@ -99,50 +164,7 @@ router.get("/get-posts", async (req, res) => {
   }
 });
 
-router.get("/get-posts-with-filter", async (req, res) => {
-  try {
-    const {cityName, companyType, page = 1, limit = 10 } = req.query;
-    let query = {}; // Start the query as empty query
 
-    // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
-    if (companyType) {
-      query.companyType = companyType;
-    }
-    
-      // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
-    if (cityName) {
-      query.cityName = cityName;
-    }
-
-    const options = {
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
-    };
-
-    // Execute a consulta
-    const establishments = await Post.paginate(query, options, {
-      sort: { createdAt: 1 }
-    });
-
-    if (establishments.docs.length === 0) {
-      return res.status(404).send("Establishments not found for the specified company type");
-    }
-
-    // Mapeie os estabelecimentos para remover o campo 'password'
-    const sanitizedEstablishments = establishments.docs.map(establishment => {
-      const { password, ...rest } = establishment.toObject();
-      return rest;
-    });
-
-    return res.status(200).json({
-      establishments: sanitizedEstablishments,
-      total: establishments.totalDocs,
-      totalPages: establishments.totalPages,
-    });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
 
 export default router;
 
