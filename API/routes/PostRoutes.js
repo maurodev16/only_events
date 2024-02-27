@@ -82,7 +82,7 @@ router.post("/create-post", singleBannerPostMiddleware.single('banner'), async (
   try {
     const file = req.file; // Imagem enviada na solicitação
     const { establishmentObjId, content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
-    console.log("1:::establishment ID",establishment)
+    console.log("1:::establishment ID",establishmentObjId)
 
     // Verificar se o estabelecimento existe
     const establishment = await Establishment.findById(establishmentObjId);
