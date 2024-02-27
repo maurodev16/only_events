@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import mongoosePaginate from 'mongoose-paginate-v2';
+
 import Establishment from "./Establishment/Establishment.js";
 import User from "./User.js";
 import Like from "./Likes.js";
@@ -26,7 +28,7 @@ const postSchema = new mongoose.Schema({
         timestamps: true,
     }
 );
-
+postSchema.plugin(mongoosePaginate);
 const Post = mongoose.model("Post", postSchema);
 
 export default Post;
