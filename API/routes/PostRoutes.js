@@ -12,9 +12,9 @@ import configureCloudinary from "../services/Cloudinary/cloudinary_config.js";
 configureCloudinary();
 import { v2 as cloudinary } from "cloudinary";
 /////
-router.get('/get-posts-with-filter-cityname', async (req, res) => {
+router.get('/get-posts-with-filters', async (req, res) => {
   try {
-    const { cityName, companyType, page = 1, limit = 10 } = req.query;
+    const { cityName, companyType, page = 1, limit = 10 } =  req.query;
     let query = {}; // Inicie a consulta como uma consulta vazia
 
     // Verifique se cityName e companyType estão presentes na solicitação
@@ -88,7 +88,7 @@ router.post("/create-post", singleBannerPostMiddleware.single('banner'), async (
     if (!establishment) {
       return res.status(404).json({ error: "Estabelecimento não encontrado." });
     }
-
+console.log(establishment)
     // Check if photos for the gallery have been sent
     // Verificar se foram enviadas imagens
     if (!file || file.length === 0) {
