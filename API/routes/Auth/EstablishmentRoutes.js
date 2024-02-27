@@ -311,12 +311,17 @@ router.get("/get-all-establishments-wiht-details", async (req, res) => {
 
 router.get("/fetch-establishment-type", async (req, res) => {
   try {
-    const { companyType, page = 1, limit = 10 } = req.query;
+    const {cityName, companyType, page = 1, limit = 10 } = req.query;
     let query = {}; // Start the query as empty query
 
     // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
     if (companyType) {
       query.companyType = companyType;
+    }
+    
+      // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
+    if (cityName) {
+      query.cityName = cityName;
     }
 
     const options = {
