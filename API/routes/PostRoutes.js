@@ -82,7 +82,7 @@ router.post("/create-post", singleBannerPostMiddleware.single('banner'), async (
 router.get("/get-posts", async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('likeObjIds', 'user')
+     // .populate('likeObjIds', 'user')
       .populate({
         path: 'establishmentObjId',
         model: Establishment,
@@ -96,6 +96,51 @@ router.get("/get-posts", async (req, res) => {
       success: false,
       message: "An error occurred while processing the request",
     });
+  }
+});
+
+router.get("/get-posts-with-filter", async (req, res) => {
+  try {
+    const {cityName, companyType, page = 1, limit = 10 } = req.query;
+    let query = {}; // Start the query as empty query
+
+    // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
+    if (companyType) {
+      query.companyType = companyType;
+    }
+    
+      // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
+    if (cityName) {
+      query.cityName = cityName;
+    }
+
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
+
+    // Execute a consulta
+    const establishments = await Post.paginate(query, options, {
+      sort: { createdAt: 1 }
+    });
+
+    if (establishments.docs.length === 0) {
+      return res.status(404).send("Establishments not found for the specified company type");
+    }
+
+    // Mapeie os estabelecimentos para remover o campo 'password'
+    const sanitizedEstablishments = establishments.docs.map(establishment => {
+      const { password, ...rest } = establishment.toObject();
+      return rest;
+    });
+
+    return res.status(200).json({
+      establishments: sanitizedEstablishments,
+      total: establishments.totalDocs,
+      totalPages: establishments.totalPages,
+    });
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
