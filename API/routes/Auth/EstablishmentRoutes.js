@@ -21,7 +21,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
-router.post("/signup-establishment", async (req, res) => {
+router.post("/signup-establishment", singleLogoMiddleware.single("file"),async (req, res) => {
   try {
     const {
       establishmentName,
@@ -42,13 +42,13 @@ router.post("/signup-establishment", async (req, res) => {
       return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
 
-    // Check if photos for the gallery have been sent
-    // if (!req.file || req.file.length === 0) {
-    //   return res.status(400).send("No file provided");
-    // }
+   // Check if photos for the gallery have been sent
+    if (!req.file || req.file.length === 0) {
+      return res.status(400).send("No file provided");
+    }
 
-    //  const file = req.file;
-    //const logo_name = `${file.originalname.split(".")[0]}`;
+     const file = req.file;
+    const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos
     const establishment = new Establishment(
@@ -70,24 +70,24 @@ router.post("/signup-establishment", async (req, res) => {
     const newEstablishment = await establishment.save();
 
     // // Envio do arquivo para o Cloudinary
-    // const result = await cloudinary.uploader.upload(file.path, {
-    //   folder: `wasGehtAb-folder/allEstablishments/${newEstablishment._id}/${newEstablishment.establishmentName}/logo/`,
-    //   resource_type: "auto",
-    //   allowedFormats: ["jpg", "png", "jpeg"],
-    //   public_id: logo_name,
-    //   overwrite: false,
-    //   upload_preset: "wasGehtAb_preset",
-    //   transformation: [{ width: 200, height: 200, crop: "limit" }],
-    // });
-    // console.log("CAMINHO DA IMAGEM NO NOJS:::", file.path)
-    // if (!result.secure_url) {
-    //   console.log("Error uploading Invoice to cloudinary:", result); // Adiciona este log
-    //   return res.status(500).send("Error uploading Invoice to cloudinary");
-    // }
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: `wasGehtAb-folder/allEstablishments/${newEstablishment._id}/${newEstablishment.establishmentName}/logo/`,
+      resource_type: "auto",
+      allowedFormats: ["jpg", "png", "jpeg"],
+      public_id: logo_name,
+      overwrite: false,
+      upload_preset: "wasGehtAb_preset",
+      transformation: [{ width: 200, height: 200, crop: "limit" }],
+    });
+    console.log("CAMINHO DA IMAGEM NO NOJS:::", file.path)
+    if (!result.secure_url) {
+      console.log("Error uploading Invoice to cloudinary:", result); // Adiciona este log
+      return res.status(500).send("Error uploading Invoice to cloudinary");
+    }
 
-    // // Atualiza a URL do logo do estabelecimento com a URL do Cloudinary
-    // newEstablishment.logoUrl = result.secure_url;
-    // await newEstablishment.save();
+    // Atualiza a URL do logo do estabelecimento com a URL do Cloudinary
+    newEstablishment.logoUrl = result.secure_url;
+    await newEstablishment.save();
 
     // Crie os detalhes correspondentes automaticamente
     let details;
@@ -318,7 +318,6 @@ router.get("/fetch-establishment-type", async (req, res) => {
     if (companyType) {
       query.companyType = companyType;
     }
-    
       // Se o parâmetro companyType estiver presente na solicitação, adicione-o à consulta
     if (cityName) {
       query.cityName = cityName;
