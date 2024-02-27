@@ -127,9 +127,10 @@ console.log("3:::", establishmentObjId)
       transformation: [{ width: 500, height: 500, crop: "limit" }],
       unique_filename: true,
     });
+    console.log("4:::",result)
 
     if (!result.secure_url) {
-console.log("4:::",result)
+console.log("5:::",result)
 
       return res.status(500).send("Erro ao fazer upload das imagens para o Cloudinary");
     }
