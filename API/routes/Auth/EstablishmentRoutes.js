@@ -22,6 +22,7 @@ configureCloudinary();
 const router = Router();
 
 router.post("/signup-establishment", singleLogoMiddleware.single("file"),async (req, res) => {
+  const file = req.file; // Imagem enviada na solicitação
   try {
     const {
       establishmentName,
@@ -43,11 +44,10 @@ router.post("/signup-establishment", singleLogoMiddleware.single("file"),async (
     }
 
    // Check if photos for the gallery have been sent
-    if (!req.file || req.file.length === 0) {
+    if (!file || file.length === 0) {
       return res.status(400).send("No file provided");
     }
 
-     const file = req.file;
     const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos

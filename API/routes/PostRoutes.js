@@ -14,7 +14,7 @@ import { v2 as cloudinary } from "cloudinary";
 /////
 router.get('/get-posts-with-filters', async (req, res) => {
   try {
-    const { cityName, companyType, page = 1, limit = 10 } =  req.query;
+    const { cityName, companyType, page = 1, limit = 10 } = req.query;
     let query = {}; // Inicie a consulta como uma consulta vazia
 
     // Verifique se cityName e companyType estão presentes na solicitação
@@ -77,22 +77,21 @@ router.get('/get-posts-with-filters', async (req, res) => {
 });
 
 
-// Rota para criar uma nova postagem
 router.post("/create-post", singleBannerPostMiddleware.single('banner'), async (req, res) => {
   try {
     const file = req.file; // Imagem enviada na solicitação
     const { establishmentObjId, content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
-    console.log("1:::establishment ID",establishmentObjId)
+    console.log("1::: establishment ID", establishmentObjId)
 
     // Verificar se o estabelecimento existe
     const establishment = await Establishment.findById(establishmentObjId);
     if (!establishment) {
-console.log("2:::establishment",establishment)
+      console.log("2::: establishment", establishment)
+      console.log("3::: establishmentObjId", establishmentObjId)
 
       return res.status(404).json({ error: "Estabelecimento não encontrado." });
-
     }
-console.log("3:::", establishmentObjId)
+
     // Check if photos for the gallery have been sent
     // Verificar se foram enviadas imagens
     if (!file || file.length === 0) {
@@ -127,11 +126,9 @@ console.log("3:::", establishmentObjId)
       transformation: [{ width: 500, height: 500, crop: "limit" }],
       unique_filename: true,
     });
-    console.log("4:::",result)
 
     if (!result.secure_url) {
-console.log("5:::",result)
-
+      console.log("5::: result", result)
       return res.status(500).send("Erro ao fazer upload das imagens para o Cloudinary");
     }
     var bannerUrl = result.secure_url;
