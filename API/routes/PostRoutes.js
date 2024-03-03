@@ -83,7 +83,7 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
     const establishmentObjId = req.params.establishmentObjId;
     const {  content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
     console.log("1::: establishment ID", establishmentObjId)
-    console.log("IMAGE::: establishment ID", file)
+    console.log("IMAGE:::", file)
 
     // Verificar se o estabelecimento existe
     const establishment = await Establishment.findById(establishmentObjId);
