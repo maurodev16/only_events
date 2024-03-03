@@ -96,7 +96,7 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
 
     // Check if photos for the gallery have been sent
     // Verificar se foram enviadas imagens
-    if (!file || file.length === 0) {
+    if (!file) {
       return res.status(400).send("Nenhuma imagem fornecida");
     }
 
