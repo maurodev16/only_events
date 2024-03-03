@@ -91,13 +91,13 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
       console.log("2::: establishment", establishment)
       console.log("3::: establishmentObjId", establishmentObjId)
 
-      return res.status(404).json({ error: "Estabelecimento não encontrado." });
+      return res.status(404).json({ error: "Establishment not found." });
     }
 
     // Check if photos for the gallery have been sent
     // Verificar se foram enviadas imagens
     if (!file) {
-      return res.status(400).send("Nenhuma imagem fornecida");
+      return res.status(400).json({error:"No images provided."});
     }
 
     // Criar uma nova instância do modelo de postagem
@@ -126,12 +126,11 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
       overwrite: false,
       upload_preset: "wasGehtAb_preset",
       transformation: [{ width: 500, height: 500, crop: "limit" }],
-      unique_filename: true,
     });
 
     if (!result.secure_url) {
       console.log("5::: result", result)
-      return res.status(500).send("Erro ao fazer upload das imagens para o Cloudinary");
+      return res.status(500).json({error:"Error uploading image"});
     }
     var bannerUrl = result.secure_url;
 
@@ -142,7 +141,7 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Erro ao criar a postagem." });
+    res.status(500).json({ error: "Error creating post." });
   }
 });
 
