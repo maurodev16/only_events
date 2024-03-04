@@ -1,15 +1,25 @@
 import { connect } from "mongoose";
 import dotenv from 'dotenv';
-dotenv.config();
-
 import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path'; // Importe join do módulo path
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
+
+// Configurando o diretório estático
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.use(express.static(join(__dirname, 'public'))); // Use join para construir o caminho
+
+
 
 // Import routers
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';

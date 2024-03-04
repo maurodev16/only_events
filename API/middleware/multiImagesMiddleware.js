@@ -1,16 +1,19 @@
 import multer from 'multer';
-
-// Define the storage settings for multer
+import path from 'path';
+//Set Storage Engine
 const storage = multer.diskStorage({
-  // Define how the filename should be stored
+  destination: './public/uploads/images',
   filename: function (req, file, cb) {
-      cb(null, Date.now() + '-' + file.originalname);
+    console.log("storage::::", req.file);
+      cb(null, file.fieldname + '-' + Date.now() + 
+  path.extname(file.originalname));
   }
 });
 
 
 // Define a function to filter the types of files allowed for upload
 const fileFilter = (req, file, cb) => {
+  console.log("fileFilter:::", req.file);
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
     cb(null, true);
   } else {
@@ -22,12 +25,7 @@ const fileFilter = (req, file, cb) => {
 // Configure multer with the storage settings and file filter
 const singleBannerPostMiddleware = multer({
   storage:storage,
-
-  limits: {
-    // Limit the file size to 10MB
-    fileSize: 10 * 1024 * 1024 
-  },
-  fileFilter: fileFilter // Apply the file filter function
+  fileFilter: fileFilter// Apply the file filter function
 });
 
 export default singleBannerPostMiddleware; // Export the configured multer middleware
