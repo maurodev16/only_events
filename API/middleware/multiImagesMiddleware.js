@@ -24,8 +24,8 @@ const singleBannerPostMiddleware = multer({
   storage:storage,
 
   limits: {
-    // Limit the file size to 5MB
-    fileSize: 1024 * 1024 * 5 // 5 Megabytes
+    // Limit the file size to 10MB
+    fileSize: 10 * 1024 * 1024 
   },
   fileFilter: fileFilter // Apply the file filter function
 });
