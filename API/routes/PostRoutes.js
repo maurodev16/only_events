@@ -77,7 +77,7 @@ router.get('/get-posts-with-filters', async (req, res) => {
 });
 
 
-router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.single('file'), async (req, res) => {
+router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.single('file'),  async  function (req, res, next) {
   try {
     const file = req.file; // Imagem enviada na solicitação
     const establishmentObjId = req.params.establishmentObjId;
