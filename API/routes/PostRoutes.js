@@ -77,11 +77,11 @@ router.get('/get-posts-with-filters', async (req, res) => {
 });
 
 
-router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.single('file'),  async  function (req, res, next) {
+router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.single("file",{name:"file"}),  async  function (req, res, next) {
   try {
     const file = req.file; // Imagem enviada na solicitação
     const establishmentObjId = req.params.establishmentObjId;
-    const {  content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
+    const { content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
     console.log("1::: establishment ID", establishmentObjId)
     console.log("IMAGE:::", file)
 
