@@ -56,7 +56,8 @@ router.get('/get-posts-with-filters', async (req, res) => {
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
-      sort: { createdAt: 1 }
+      sort: { createdAt: -1 }// Ordena os posts por data de criação em ordem decrescente
+      
     };
 
     // Execute a consulta, populando os dados do estabelecimento
