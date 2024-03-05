@@ -49,7 +49,7 @@ router.get('/get-posts-with-filters', async (req, res) => {
         query.establishmentObjId = { $in: establishmentIds };
       } else {
         // Se não houver estabelecimentos correspondentes, retorne 404
-        return res.status(404).send('No establishment found for the specified company type');
+        return res.status(404).json({error:'No establishment found for the specified company type'});
       }
     }
 
@@ -59,22 +59,40 @@ router.get('/get-posts-with-filters', async (req, res) => {
       sort: { createdAt: 1 }
     };
 
-    // Execute a consulta
+    // Execute a consulta, populando os dados do estabelecimento
     const posts = await Post.paginate(query, options);
 
     if (posts.docs.length === 0) {
       return res.status(404).send('Posts not found');
     }
-
+    
+    // Array para armazenar os posts populados com os dados do estabelecimento
+    const populatedPosts = [];
+    
+    // Popula cada documento de post individualmente
+    for (const post of posts.docs) {
+      // Use o ID do estabelecimento de cada post para encontrar os dados do estabelecimento
+      const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
+      if (establishment) {
+        // Crie um novo objeto post com o campo de estabelecimento populado
+        const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
+        // Adicione o post populado ao array de posts populados
+        populatedPosts.push(populatedPost);
+      }
+    }
+    
+    // Retorna os posts populados
     return res.status(200).json({
-      posts: posts.docs,
+      posts: populatedPosts,
       total: posts.totalDocs,
       totalPages: posts.totalPages,
     });
+    
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
+
 
 
 router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.single("file",{name:"file"}),  async  function (req, res, next) {
@@ -99,7 +117,11 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
     if (!file) {
       return res.status(400).json({error:"No images provided."});
     }
-
+  // After successful processing, remove the image file
+ 
+  
+    
+  
     // Criar uma nova instância do modelo de postagem
     const newPost = new Post({
       establishmentObjId: establishmentObjId,
@@ -127,7 +149,6 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
       upload_preset: "wasGehtAb_preset",
       transformation: [{ width: 500, height: 500, crop: "limit" }],
     });
-
     if (!result.secure_url) {
       console.log("5::: result", result)
       return res.status(500).json({error:"Error uploading image"});

@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 //Set Storage Engine
 const storage = multer.diskStorage({
-  destination: './public/uploads/images',
+ // destination: './public/uploads/images',
   filename: function (req, file, cb) {
     console.log("storage::::", req.file);
       cb(null, file.fieldname + '-' + Date.now() + 
@@ -25,7 +25,7 @@ const fileFilter = (req, file, cb) => {
 // Configure multer with the storage settings and file filter
 const singleBannerPostMiddleware = multer({
   storage:storage,
-  fileFilter: fileFilter// Apply the file filter function
+  fileFilter: fileFilter,
 });
 
 export default singleBannerPostMiddleware; // Export the configured multer middleware

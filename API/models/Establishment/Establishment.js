@@ -42,7 +42,6 @@ establishmentSchema.pre("save", function (next) {
       const hash = bcrypt.hashSync(this.password, Number(bcryptSalt));
       this.password = hash;
     }
-
     next();
   } catch (error) {
     next(error);

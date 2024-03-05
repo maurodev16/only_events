@@ -2,8 +2,8 @@ import { connect } from "mongoose";
 import dotenv from 'dotenv';
 import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path'; // Importe join do módulo path
+// import { fileURLToPath } from 'url';
+// import { dirname, join } from 'path'; // Importe join do módulo path
 
 dotenv.config();
 
@@ -14,10 +14,10 @@ app.use(urlencoded({ extended: true }));
 app.use(json());
 
 // Configurando o diretório estático
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
-app.use(express.static(join(__dirname, 'public'))); // Use join para construir o caminho
+// app.use(express.static(join(__dirname, 'public'))); // Use join para construir o caminho
 
 
 
