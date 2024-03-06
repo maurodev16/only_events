@@ -106,10 +106,10 @@ router.post("/login-user", async (req, res) => {
     // Generate token
     const token = jwt.sign({ _id: user._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
     user.token = token;
-    const logedUser = await User.findById(user._id).select('-password').select('-__v');
+   
     // Return the authentication token, ID, and email
     return res
-      .status(200).json({ login: logedUser });
+      .status(200).json({ login: user });
   } catch (error) {
     console.error(`Erro no login: ${error}`);
     res.status(500).json({ error: 'Erro no login' });
