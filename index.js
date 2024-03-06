@@ -2,23 +2,24 @@ import { connect } from "mongoose";
 import dotenv from 'dotenv';
 import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
-// import { fileURLToPath } from 'url';
-// import { dirname, join } from 'path'; // Importe join do módulo path
-
-dotenv.config();
-
+import http from 'http';
+import { Server } from 'socket.io';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Inicialização do servidor HTTP
+const httpServer = http.createServer(app);
+
+// Criação da instância do servidor Socket.IO
+// Criação da instância do servidor Socket.IO
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+    }
+});
+
 app.use(urlencoded({ extended: true }));
 app.use(json());
-
-// Configurando o diretório estático
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
-// app.use(express.static(join(__dirname, 'public'))); // Use join para construir o caminho
-
 
 
 // Import routers
@@ -45,7 +46,7 @@ app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/establishment', establishmentRoutes);
-app.use('/api/v1/like', likeRoutes);
+app.use('/api/v1/like', likeRoutes(io));
 app.use('/api/v1/follow', followRouters);
 app.use('/api/v1/city-and-country', countriesRoutes);
 app.use("/api/v1/password-reset", passwordReset);
@@ -73,15 +74,14 @@ const CLUSTER = process.env.CLUSTER
 
 connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`)
     .then(() => {
-       
-        app.listen(PORT, ()=>{
+        httpServer.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
             console.log('Connected to MongoDB');
         });
     })
-    .catch((err) =>{
+    .catch((err) => {
         console.error('Failed to connect to MongoDB', err);
-});
+    });
 
 
 

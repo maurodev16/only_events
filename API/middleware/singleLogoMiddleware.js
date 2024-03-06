@@ -25,8 +25,6 @@ const singleLogoMiddleware = multer({
     },
     limits: { fileSize: 1024 * 1024  }, // 1 megabyte
 });
-console.log("fileFilter:", singleLogoMiddleware.fileFilter);
 
-console.log("singleLogoMiddleware:::", singleLogoMiddleware)
 
 export default singleLogoMiddleware; // Export the configured multer middleware

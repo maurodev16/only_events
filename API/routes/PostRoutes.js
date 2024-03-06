@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 const router = express.Router();
+import { Socket } from "socket.io";
 import User from '../models/User.js';
 import Establishment from "../models/Establishment/Establishment.js";
 import singleBannerPostMiddleware from "../middleware/multiImagesMiddleware.js"
