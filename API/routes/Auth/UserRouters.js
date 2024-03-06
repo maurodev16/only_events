@@ -104,7 +104,7 @@ router.post("/login-user", async (req, res) => {
 
     // Generate token
     const token = jwt.sign({ _id: user._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
-
+    user.token = token;
     // Return the authentication token, ID, and email
     return res
       .status(200).json({ token });
