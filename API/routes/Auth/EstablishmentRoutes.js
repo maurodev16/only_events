@@ -106,10 +106,10 @@ router.post("/signup-establishment", singleLogoMiddleware.single("file"),async (
     // Associe os detalhes criados ao estabelecimento
     newEstablishment.details = details._id;
     await newEstablishment.save();
-
+    const createdEstablishment = await Establishment.findById(newEstablishment._id).select('-password');
     // Responde com o estabelecimento criado
-    console.log("Establishment created successfully:", newEstablishment); // Adiciona este log
-    return res.status(201).json({ establishment: newEstablishment });
+    console.log("Establishment created successfully:", createdEstablishment); // Adiciona este log
+    return res.status(201).json({ establishment: createdEstablishment });
   } catch (error) {
     console.error("Error creating Establishment: ", error);
     return res.status(500).json({ error: 'Error creating establishment, please try again later!' });

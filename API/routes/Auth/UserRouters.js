@@ -50,8 +50,9 @@ router.post("/signup-user", checkRequiredFields(['nickname', 'email', 'password'
 
     await session.commitTransaction(); // Confirm Transaction
     session.endSession(); // End seccion
+    const createdUser = await User.findById(newCreatedUser._id).select('-password');
 
-    return res.status(201).json({ newCreatedUser });
+    return res.status(201).json({ createdUser });
   } catch (error) {
     await session.abortTransaction(); // Rollback da Transaction
     session.endSession(); // End Section
