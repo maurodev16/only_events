@@ -46,8 +46,8 @@ const likeRouter = (io) => {
         });
 
         return res.status(200).json({
-          success: true,
-          message: "Disliked",
+          isLiked: false,
+          postObjId:postId,
           userId: userId,
         });
 
@@ -74,8 +74,8 @@ const likeRouter = (io) => {
 
 
         return res.status(200).json({
-          success: true,
-          message: "Liked",
+          isLiked: true,
+          postObjId:postId,
           userId: userId,
         });
       }
