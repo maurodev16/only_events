@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import Post from "../models/Posts.js";
+import User from '../models/User.js';
+import Like from '../models/Likes.js';
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 const router = express.Router();
 import { Socket } from "socket.io";
-import User from '../models/User.js';
 import Establishment from "../models/Establishment/Establishment.js";
 import singleBannerPostMiddleware from "../middleware/multiImagesMiddleware.js"
 import checkToken from '../middleware/checkToken.js';
@@ -76,8 +77,10 @@ router.get('/get-posts-with-filters', async (req, res) => {
       // Use o ID do estabelecimento de cada post para encontrar os dados do estabelecimento
       const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
       if (establishment) {
-        // Crie um novo objeto post com o campo de estabelecimento populado
-        const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
+        // Popula a contagem de likes
+        const likesCount = await  Like.countDocuments({ postObjId: post._id });
+       //Crie um novo objeto post com o campo de estabelecimento populado e a contagem de likes
+        const populatedPost = { ...post.toObject(), establishmentObjId: establishment, likesCount };
         // Adicione o post populado ao array de posts populados
         populatedPosts.push(populatedPost);
       }
