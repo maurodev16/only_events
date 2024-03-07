@@ -48,7 +48,7 @@ const likeRouter = (io) => {
         return res.status(200).json({
           isLiked: false,
           postObjId:postId,
-          userId: userId,
+          userObjId: userId,
         });
 
       } else {
@@ -76,7 +76,7 @@ const likeRouter = (io) => {
         return res.status(200).json({
           isLiked: true,
           postObjId:postId,
-          userId: userId,
+          userObjId: userId,
         });
       }
     } catch (error) {
