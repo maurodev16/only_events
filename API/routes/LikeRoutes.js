@@ -75,8 +75,12 @@ const likeRouter = (io) => {
 
         return res.status(200).json({
           isLiked: true,
+          _id : newLike._id,
           postObjId:postId,
           userObjId: userId,
+          createdAt:newLike.createdAt,
+          updatedAt:newLike.updatedAt,
+
         });
       }
     } catch (error) {
