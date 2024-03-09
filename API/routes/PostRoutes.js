@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 const router = express.Router();
-import { Socket } from "socket.io";
 import Establishment from "../models/Establishment/Establishment.js";
 import singleBannerPostMiddleware from "../middleware/multiImagesMiddleware.js"
 import checkToken from '../middleware/checkToken.js';
@@ -14,6 +13,7 @@ import configureCloudinary from "../services/Cloudinary/cloudinary_config.js";
 configureCloudinary();
 import { v2 as cloudinary } from "cloudinary";
 /////
+
 router.get('/get-posts-with-filters', async (req, res) => {
   try {
     const { cityName, companyType, page = 1, limit = 10 } = req.query;
@@ -170,32 +170,6 @@ router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.singl
     res.status(500).json({ error: "Error creating post." });
   }
 });
-
-
-
-// Rota para buscar todos os posts
-router.get("/get-posts", async (req, res) => {
-  try {
-
-    const posts = await Post.find()
-      // .populate('likeObjIds', 'user')
-      .populate({
-        path: 'establishmentObjId',
-        model: Establishment,
-        select: '-password',
-      });
-
-    return res.status(200).json(posts);
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    return res.status(500).json({
-      success: false,
-      message: "An error occurred while processing the request",
-    });
-  }
-});
-
-
 
 export default router;
 

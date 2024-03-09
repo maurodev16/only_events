@@ -10,14 +10,6 @@ const PORT = process.env.PORT || 3000;
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
 
-// Criação da instância do servidor Socket.IO
-// Criação da instância do servidor Socket.IO
-const io = new Server(httpServer, {
-    cors: {
-        origin: "*",
-    }
-});
-
 app.use(urlencoded({ extended: true }));
 app.use(json());
 
@@ -46,7 +38,7 @@ app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/establishment', establishmentRoutes);
-app.use('/api/v1/like', likeRoutes(io));
+app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/follow', followRouters);
 app.use('/api/v1/city-and-country', countriesRoutes);
 app.use("/api/v1/password-reset", passwordReset);
@@ -63,6 +55,17 @@ app.use('/api/v1/docs', serve, setup(swaggerSpec));
 app.get('/', (_req, _res) => {
     //show req
     _res.send('Welcome!');
+});
+// Criação da instância do servidor Socket.IO
+// Criação da instância do servidor Socket.IO
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+    }
+});
+
+io.on('connection', (socket)=>{
+    console.log(socket.id)
 });
 
 

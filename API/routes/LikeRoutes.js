@@ -6,8 +6,7 @@ import checkToken from '../middleware/checkToken.js';
 
 const router = Router();
 
-const likeRouter = (io) => {
-  // Rota para dar like e dislike em um post
+
   router.post("/post/:postId/:userId", async (req, res) => {
     try {
       const postId = req.params.postId;
@@ -32,9 +31,9 @@ const likeRouter = (io) => {
         await Like.findByIdAndDelete(existingLike._id);
 
         // Emitir evento de like/dislike para os clientes conectados
-        io.on('connection', (socket) => {
-          socket.emit('likeUpdate', existingLike);
-          socket.on('removed Like', async () => {
+        // io.on('connection', (socket) => {
+        //   socket.emit('likeUpdate', existingLike);
+        //   socket.on('removed Like', async () => {
             // Atualiza o array de likes e o contador no Post correspondente
             post.likeObjIds.pull(existingLike._id);
             post.likesCount--;
@@ -42,8 +41,8 @@ const likeRouter = (io) => {
             socket.broadcast.emit('likeUpdate', existingLike);
 
             await post.save();
-          });
-        });
+       //   });
+//});
 
         return res.status(200).json({
           isLiked: false,
@@ -59,18 +58,18 @@ const likeRouter = (io) => {
 
 
 
-        // Emitir evento de like/dislike para os clientes conectados
-        io.on('connection', (socket) => {
-          socket.emit('likeUpdate', existingLike);
-          socket.on('new Liked', async () => {
+        // // Emitir evento de like/dislike para os clientes conectados
+        // io.on('connection', (socket) => {
+        //   socket.emit('likeUpdate', existingLike);
+        //   socket.on('new Liked', async () => {
             // Atualiza o array de likes e o contador no Post correspondente
             post.likeObjIds.push(newLike._id);
             post.likesCount++;
             socket.emit('likeUpdate', existingLike);
             socket.broadcast.emit('likeUpdate', existingLike);
             await post.save();
-          });
-        });
+        //   });
+        // });
 
 
         return res.status(200).json({
@@ -91,8 +90,6 @@ const likeRouter = (io) => {
       });
     }
   });
-  return router;
-}
+  export default router;
 
 
-export default likeRouter;
