@@ -65,8 +65,7 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
-  
+    console.log('a user connected with id ',socket.id);  
     // ouvindo o evento 'teste'
     socket.on('teste', (data) => {
       console.log('Received data:', data);
