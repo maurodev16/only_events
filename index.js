@@ -64,12 +64,21 @@ const io = new Server(httpServer, {
     }
 });
 
-io.on('connection', (socket)=>{
-    console.log(socket.id)
-    socket.on('teste', (data)=>{})
-    console.log(data);
-
-});
+io.on('connection', (socket) => {
+    console.log('a user connected');
+  
+    // ouvindo o evento 'teste'
+    socket.on('teste', (data) => {
+      console.log('Received data:', data);
+      // Responda ao cliente se necessário
+      socket.emit('testeResponse', 'Received your message!');
+    });
+  
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
+  });
+  
 
 
 // Connect to MongoDB
