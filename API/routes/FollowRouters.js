@@ -37,7 +37,7 @@ router.post("/:establishmentId/:userId", checkToken, async (req, res) => {
 
             return res.status(200).json({
                 following: false,
-                message: `You stopped following ${establishment.establishment_name}`,
+                message: `You stopped following ${establishment.establishmentName}`,
                 userId: userId,
             });
         } else {

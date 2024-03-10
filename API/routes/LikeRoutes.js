@@ -6,7 +6,8 @@ import checkToken from '../middleware/checkToken.js';
 
 const router = Router();
 
-
+const likeRouter = (io) => {
+  // Rota para dar like e dislike em um post
   router.post("/post/:postId/:userId", async (req, res) => {
     try {
       const postId = req.params.postId;
@@ -30,23 +31,17 @@ const router = Router();
         // Remove o like do schema Like
         await Like.findByIdAndDelete(existingLike._id);
 
-        // Emitir evento de like/dislike para os clientes conectados
-        // io.on('connection', (socket) => {
-        //   socket.emit('likeUpdate', existingLike);
-        //   socket.on('removed Like', async () => {
-            // Atualiza o array de likes e o contador no Post correspondente
-            post.likeObjIds.pull(existingLike._id);
-            post.likesCount--;
-            socket.emit('likeUpdate', existingLike);
-            socket.broadcast.emit('likeUpdate', existingLike);
+        // Atualiza o array de likes e o contador no Post correspondente
+        post.likeObjIds.pull(existingLike._id);
+        post.likesCount--;
+        await post.save();
 
-            await post.save();
-       //   });
-//});
+        // Emitir evento de like/dislike para os clientes conectados
+        io.emit('likeUpdate', { action: 'remove', like: existingLike });
 
         return res.status(200).json({
           isLiked: false,
-          postObjId:postId,
+          postObjId: postId,
           userObjId: userId,
         });
 
@@ -54,32 +49,22 @@ const router = Router();
         // Adiciona um novo like
         const newLike = new Like({ userObjId: userId, postObjId: postId });
         await newLike.save();
-        console.log(newLike)
 
+        // Atualiza o array de likes e o contador no Post correspondente
+        post.likeObjIds.push(newLike._id);
+        post.likesCount++;
+        await post.save();
 
-
-        // // Emitir evento de like/dislike para os clientes conectados
-        // io.on('connection', (socket) => {
-        //   socket.emit('likeUpdate', existingLike);
-        //   socket.on('new Liked', async () => {
-            // Atualiza o array de likes e o contador no Post correspondente
-            post.likeObjIds.push(newLike._id);
-            post.likesCount++;
-            socket.emit('likeUpdate', existingLike);
-            socket.broadcast.emit('likeUpdate', existingLike);
-            await post.save();
-        //   });
-        // });
-
+        // Emitir evento de like/dislike para os clientes conectados
+        io.emit('likeUpdate', { action: 'add', like: newLike });
 
         return res.status(200).json({
           isLiked: true,
-          _id : newLike._id,
-          postObjId:postId,
+          _id: newLike._id,
+          postObjId: postId,
           userObjId: userId,
-          createdAt:newLike.createdAt,
-          updatedAt:newLike.updatedAt,
-
+          createdAt: newLike.createdAt,
+          updatedAt: newLike.updatedAt,
         });
       }
     } catch (error) {
@@ -90,6 +75,7 @@ const router = Router();
       });
     }
   });
-  export default router;
+  return router;
+}
 
-
+export default likeRouter;

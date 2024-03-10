@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import mongoosePaginate from 'mongoose-paginate-v2';
-
+import Favorite from "./Favorite.js";
 import Establishment from "./Establishment/Establishment.js";
 import User from "./User.js";
 import Like from "./Likes.js";
@@ -14,6 +14,8 @@ const postSchema = new mongoose.Schema({
     tags: { type: [String], default: [] }, // Lista de tags para categorizar o post (ex: #Evento, #Promoção)
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }], // Referência aos likes associados a este post
     likesCount: { type: Number, default: 0 },
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Favorite" }], // Referência aos likes associados a este post
+    favoritesCount: { type: Number, default: 0 },
     location: { type: String }, // Pode ser um endereço ou nome do local
     postStatus: { type: String, default: "active", enum: ["active", "inactive", "rascunho"] },
     expirationDate: { type: Date }, //Promoção Expirada:
