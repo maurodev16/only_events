@@ -2,14 +2,12 @@ import multer from 'multer';
 import path from 'path';
 //Set Storage Engine
 const storage = multer.diskStorage({
- // destination: './public/uploads/images',
   filename: function (req, file, cb) {
     console.log("storage::::", req.file);
-      cb(null, file.fieldname + '-' + Date.now() + 
-  path.extname(file.originalname));
+    cb(null, file.fieldname + '-' + Date.now() +
+      path.extname(file.originalname));
   }
 });
-
 
 // Define a function to filter the types of files allowed for upload
 const fileFilter = (req, file, cb) => {
@@ -23,9 +21,9 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Configure multer with the storage settings and file filter
-const singleBannerPostMiddleware = multer({
-  storage:storage,
+const postMediaMiddleware = multer({
+  storage: storage,
   fileFilter: fileFilter,
 });
 
-export default singleBannerPostMiddleware; // Export the configured multer middleware
+export default postMediaMiddleware; 

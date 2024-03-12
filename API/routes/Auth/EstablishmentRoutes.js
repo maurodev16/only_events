@@ -12,7 +12,7 @@ import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
-import singleLogoMiddleware from "../../middleware/singleLogoMiddleware.js";
+import logoMiddleware from "../../middleware/logoMiddleware.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
@@ -21,7 +21,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
-router.post("/signup-establishment", singleLogoMiddleware.single("file"),async (req, res) => {
+router.post("/signup-establishment", logoMiddleware.single("file"),async (req, res) => {
   const file = req.file; // Imagem enviada na solicitação
   try {
     const {
@@ -81,8 +81,8 @@ router.post("/signup-establishment", singleLogoMiddleware.single("file"),async (
     });
     console.log("CAMINHO DA IMAGEM NO NOJS:::", file.path)
     if (!result.secure_url) {
-      console.log("Error uploading Invoice to cloudinary:", result); // Adiciona este log
-      return res.status(500).send("Error uploading Invoice to cloudinary");
+      console.log("Error uploading Logo to cloudinary:", result); // Adiciona este log
+      return res.status(500).send("Error uploading Logo");
     }
 
     // Atualiza a URL do logo do estabelecimento com a URL do Cloudinary

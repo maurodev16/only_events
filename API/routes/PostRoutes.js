@@ -7,13 +7,81 @@ dotenv.config();
 import express from "express";
 const router = express.Router();
 import Establishment from "../models/Establishment/Establishment.js";
-import singleBannerPostMiddleware from "../middleware/multiImagesMiddleware.js"
+import postMediaMiddleware from "../middleware/postMediaMiddleware.js"
 import checkToken from '../middleware/checkToken.js';
 import configureCloudinary from "../services/Cloudinary/cloudinary_config.js";
 configureCloudinary();
 import { v2 as cloudinary } from "cloudinary";
 /////
 
+router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file"),  async  function (req, res, next) {
+  try {
+    const file = req.file; // Imagem enviada na solicitação
+    const establishmentObjId = req.params.establishmentObjId;
+    const { content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
+    console.log("1::: establishment ID", establishmentObjId)
+    console.log("IMAGE:::", file)
+
+    // Verificar se o estabelecimento existe
+    const establishment = await Establishment.findById(establishmentObjId);
+    if (!establishment) {
+      console.log("2::: establishment", establishment)
+      console.log("3::: establishmentObjId", establishmentObjId)
+
+      return res.status(404).json({ error: "Establishment not found." });
+    }
+
+    // Check if photos for the gallery have been sent
+    // Verificar se foram enviadas imagens
+    if (!file) {
+      return res.status(400).json({error:"No images provided."});
+    }
+  // After successful processing, remove the image file
+
+    // Criar uma nova instância do modelo de postagem
+    const newPost = new Post({
+      establishmentObjId: establishmentObjId,
+      content,
+      eventType,
+      products,
+      tags,
+      location,
+      expirationDate,
+      eventStartTime,
+      eventEndTime,
+      isRecurring,
+    });
+
+    // Salvar a nova postagem no banco de dados
+    const createdPost = await newPost.save();
+
+    // Fazer upload das imagens para o Cloudinary e obter os URLs seguros
+
+    const result = await cloudinary.uploader.upload(file.path, {
+      resource_type: "auto",
+      allowed_formats: ["jpg", "jpeg", "png"],
+      folder: `wasGehtAb-folder/allEstablishments/${establishmentObjId}/${establishment.establishmentName}/posts/${newPost._id}/${newPost.createdAt}`,
+      overwrite: false,
+      upload_preset: "wasGehtAb_preset",
+      transformation: [{ width: 500, height: 500, crop: "limit" }],
+    });
+    if (!result.secure_url) {
+      console.log("5::: result", result)
+      return res.status(500).json({error:"Error uploading Post Image"});
+    }
+    var bannerUrl = result.secure_url;
+
+    newPost.mediaUrl = bannerUrl;
+    await newPost.save();
+
+    res.status(201).json({ post: createdPost });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error creating post." });
+  }
+});
+///*
 router.get('/get-posts-with-filters', async (req, res) => {
   try {
     const { cityName, companyType, page = 1, limit = 10 } = req.query;
@@ -95,79 +163,6 @@ router.get('/get-posts-with-filters', async (req, res) => {
     
   } catch (error) {
     res.status(500).send(error.message);
-  }
-});
-
-
-
-router.post("/create-post/:establishmentObjId", singleBannerPostMiddleware.single("file",{name:"file"}),  async  function (req, res, next) {
-  try {
-    const file = req.file; // Imagem enviada na solicitação
-    const establishmentObjId = req.params.establishmentObjId;
-    const { content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
-    console.log("1::: establishment ID", establishmentObjId)
-    console.log("IMAGE:::", file)
-
-    // Verificar se o estabelecimento existe
-    const establishment = await Establishment.findById(establishmentObjId);
-    if (!establishment) {
-      console.log("2::: establishment", establishment)
-      console.log("3::: establishmentObjId", establishmentObjId)
-
-      return res.status(404).json({ error: "Establishment not found." });
-    }
-
-    // Check if photos for the gallery have been sent
-    // Verificar se foram enviadas imagens
-    if (!file) {
-      return res.status(400).json({error:"No images provided."});
-    }
-  // After successful processing, remove the image file
- 
-  
-    
-  
-    // Criar uma nova instância do modelo de postagem
-    const newPost = new Post({
-      establishmentObjId: establishmentObjId,
-      content,
-      eventType,
-      products,
-      tags,
-      location,
-      expirationDate,
-      eventStartTime,
-      eventEndTime,
-      isRecurring,
-    });
-
-    // Salvar a nova postagem no banco de dados
-    const createdPost = await newPost.save();
-
-    // Fazer upload das imagens para o Cloudinary e obter os URLs seguros
-
-    const result = await cloudinary.uploader.upload(file.path, {
-      resource_type: "auto",
-      allowed_formats: ["jpg", "jpeg", "png"],
-      folder: `wasGehtAb-folder/allEstablishments/${establishmentObjId}/${establishment.establishmentName}/posts/${newPost._id}/${newPost.createdAt}`,
-      overwrite: false,
-      upload_preset: "wasGehtAb_preset",
-      transformation: [{ width: 500, height: 500, crop: "limit" }],
-    });
-    if (!result.secure_url) {
-      console.log("5::: result", result)
-      return res.status(500).json({error:"Error uploading image"});
-    }
-    var bannerUrl = result.secure_url;
-
-    newPost.mediaUrl = bannerUrl;
-    await newPost.save();
-
-    res.status(201).json({ post: createdPost });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error creating post." });
   }
 });
 
