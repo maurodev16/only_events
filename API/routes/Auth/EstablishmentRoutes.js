@@ -45,14 +45,13 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
 
    // Check if photos for the gallery have been sent
     if (!file || file.length === 0) {
-      return res.status(400).send("No file provided");
+      return res.status(400).json({ error: "No File provided." });
     }
 
     const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos
-    const establishment = new Establishment(
-      {
+    const establishment = new Establishment({
         establishmentName,
         email,
         password,
@@ -63,8 +62,7 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
         number,
         phone,
         companyType,
-      }
-    );
+      });
 
     // Salva o estabelecimento no banco de dados
     const newEstablishment = await establishment.save();

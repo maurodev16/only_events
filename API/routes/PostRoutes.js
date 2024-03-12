@@ -14,11 +14,22 @@ configureCloudinary();
 import { v2 as cloudinary } from "cloudinary";
 /////
 
-router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file"), async (req, res, next)=> {
+router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file"), async (req, res) => {
+  const file = req.file;
+  const establishmentObjId = req.params.establishmentObjId;
   try {
-    const file = req.file; // Imagem enviada na solicitação
-    const establishmentObjId = req.params.establishmentObjId;
-    const { content, eventType, products, tags, location, expirationDate, eventStartTime, eventEndTime, isRecurring } = await req.body; // Dados da postagem enviados no corpo da solicitação
+    const {
+      content,
+      eventType,
+      products,
+      tags,
+      location,
+      expirationDate,
+      eventStartTime,
+      eventEndTime,
+      isRecurring,
+    } = await req.body; // Dados da postagem enviados no corpo da solicitação
+
     console.log("1::: establishment ID", establishmentObjId)
     console.log("IMAGE:::", file)
 
@@ -33,13 +44,13 @@ router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file
 
     // Check if photos for the gallery have been sent
     // Verificar se foram enviadas imagens
-    if (!file) {
-      return res.status(400).json({error:"No images provided."});
+    if (!file || file.length === 0) {
+      return res.status(400).json({ error: "No File provided." });
     }
-  // After successful processing, remove the image file
+    const file_name = `${file.originalname.split(".")[0]}`;
 
     // Criar uma nova instância do modelo de postagem
-    const newPost = new Post({
+    const post = new Post({
       establishmentObjId: establishmentObjId,
       content,
       eventType,
@@ -53,7 +64,7 @@ router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file
     });
 
     // Salvar a nova postagem no banco de dados
-    const createdPost = await newPost.save();
+    const newPost = await post.save();
 
     // Fazer upload das imagens para o Cloudinary e obter os URLs seguros
     const result = await cloudinary.uploader.upload(file.path, {
@@ -61,18 +72,19 @@ router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file
       allowed_formats: ["jpg", "jpeg", "png"],
       folder: `wasGehtAb-folder/allEstablishments/${establishmentObjId}/${establishment.establishmentName}/posts/${newPost._id}/${newPost.createdAt}`,
       overwrite: false,
+      public_id:file_name,
       upload_preset: "wasGehtAb_preset",
       transformation: [{ width: 500, height: 500, crop: "limit" }],
     });
+    console.log("CAMINHO DA IMAGEM NO NOJS:::", file.path)
     if (!result.secure_url) {
-      console.log("5::: result", result)
-      return res.status(500).json({error:"Error uploading Post Image"});
+      console.log("Error uploading Logo to cloudinary:", result); // Adiciona este log
+      return res.status(500).send("Error uploading File");
     }
-    var bannerUrl = result.secure_url;
-
-    newPost.mediaUrl = bannerUrl;
+    
+    newPost.mediaUrl = result.secure_url;
     await newPost.save();
-
+    const createdPost = await Post.findById(newPost._id);
     res.status(201).json({ post: createdPost });
 
   } catch (error) {
@@ -120,7 +132,7 @@ router.get('/get-posts-with-filters', async (req, res) => {
         query.establishmentObjId = { $in: establishmentIds };
       } else {
         // Se não houver estabelecimentos correspondentes, retorne 404
-        return res.status(404).json({error:'No establishment found for the specified company type'});
+        return res.status(404).json({ error: 'No establishment found for the specified company type' });
       }
     }
 
@@ -128,7 +140,7 @@ router.get('/get-posts-with-filters', async (req, res) => {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
       sort: { createdAt: -1 }// Ordena os posts por data de criação em ordem decrescente
-      
+
     };
 
     // Execute a consulta, populando os dados do estabelecimento
@@ -137,31 +149,31 @@ router.get('/get-posts-with-filters', async (req, res) => {
     if (posts.docs.length === 0) {
       return res.status(404).send('Posts not found');
     }
-    
+
     // Array para armazenar os posts populados com os dados do estabelecimento
     const populatedPosts = [];
-    
+
     // Popula cada documento de post individualmente
     for (const post of posts.docs) {
       // Use o ID do estabelecimento de cada post para encontrar os dados do estabelecimento
       const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
       if (establishment) {
         // Popula a contagem de likes
-        const likesCount = await  Like.countDocuments({ postObjId: post._id });
-       //Crie um novo objeto post com o campo de estabelecimento populado e a contagem de likes
+        const likesCount = await Like.countDocuments({ postObjId: post._id });
+        //Crie um novo objeto post com o campo de estabelecimento populado e a contagem de likes
         const populatedPost = { ...post.toObject(), establishmentObjId: establishment, likesCount };
         // Adicione o post populado ao array de posts populados
         populatedPosts.push(populatedPost);
       }
     }
-    
+
     // Retorna os posts populados
     return res.status(200).json({
       posts: populatedPosts,
       total: posts.totalDocs,
       totalPages: posts.totalPages,
     });
-    
+
   } catch (error) {
     res.status(500).send(error.message);
   }
