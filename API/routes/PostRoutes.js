@@ -14,7 +14,7 @@ configureCloudinary();
 import { v2 as cloudinary } from "cloudinary";
 /////
 
-router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file"),  async  function (req, res, next) {
+router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file"), async (req, res, next)=> {
   try {
     const file = req.file; // Imagem enviada na solicitação
     const establishmentObjId = req.params.establishmentObjId;
@@ -56,7 +56,6 @@ router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file
     const createdPost = await newPost.save();
 
     // Fazer upload das imagens para o Cloudinary e obter os URLs seguros
-
     const result = await cloudinary.uploader.upload(file.path, {
       resource_type: "auto",
       allowed_formats: ["jpg", "jpeg", "png"],
@@ -81,6 +80,8 @@ router.post("/create-post/:establishmentObjId", postMediaMiddleware.single("file
     res.status(500).json({ error: "Error creating post." });
   }
 });
+
+
 ///*
 router.get('/get-posts-with-filters', async (req, res) => {
   try {
