@@ -24,6 +24,6 @@ const fileFilter = (req, file, cb) => {
 const postMediaMiddleware = multer({
   storage: storage,
   fileFilter: fileFilter,
-});
+}).single("imagePost");
 
 export default postMediaMiddleware; 

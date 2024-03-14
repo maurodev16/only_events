@@ -42,12 +42,12 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
     if (emailExists) {
       return res.status(422).json({ error: 'EmailAlreadyExistsException' });
     }
-
+    console.log("file up", file)
    // Check if photos for the gallery have been sent
     if (!file || file.length === 0) {
       return res.status(400).json({ error: "No File provided." });
     }
-
+    console.log("file down", file)
     const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos
@@ -82,7 +82,7 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
       console.log("Error uploading Logo to cloudinary:", result); // Adiciona este log
       return res.status(500).send("Error uploading Logo");
     }
-
+    console.log("result file", result)
     // Atualiza a URL do logo do estabelecimento com a URL do Cloudinary
     newEstablishment.logoUrl = result.secure_url;
     await newEstablishment.save();

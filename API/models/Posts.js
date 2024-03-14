@@ -31,15 +31,7 @@ const postSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 });
-// Adicione um gancho (hook) para atualizar a contagem de likes sempre que um like for adicionado ou removido
-postSchema.post('save', async function(doc) {
-    // Conta o número de documentos na coleção de likes que correspondem ao post atual
-    const likesCount = await Like.countDocuments({ postObjId: doc._id });
-    // Atualiza o valor de likesCount no documento de post
-    doc.likesCount = likesCount;
-    // Salva as mudanças no documento de post
-    await doc.save();
-});
+
 
 postSchema.plugin(mongoosePaginate);
 
