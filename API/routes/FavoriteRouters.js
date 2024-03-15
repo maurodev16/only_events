@@ -16,7 +16,7 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ error: "Invalid user ID" });
         }
-        
+
         // Verifique se o ID é válido
         if (!mongoose.Types.ObjectId.isValid(postId)) {
             return res.status(400).json({ error: "Invalid post ID" });
@@ -91,7 +91,8 @@ router.get("/fetch-favorite-posts-by-user/:userId", async (req, res) => {
         const favoritedPosts = await Post.find({ _id: { $in: favoritedPostIds } })
             .select("-__v")
             .select("-favorites")
-            .select("-postStatus");
+            .select("-postStatus")
+            .select("-establishmentObjId");
 
         return res.status(200).json({
             favoritedPosts: favoritedPosts,
