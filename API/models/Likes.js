@@ -5,10 +5,8 @@ import Post from "./Posts.js";
 const likeSchema = new mongoose.Schema({
   userObjId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   postObjId: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true },
-},
-  {
-    timestamps: true,
-  });
+  createdAt: { type: Date, default: Date.now }
+});
 
 const Like = mongoose.model('Like', likeSchema);
 

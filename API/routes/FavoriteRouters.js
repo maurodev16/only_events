@@ -15,47 +15,38 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
         // Verifica se o Post existe
         const post = await Post.findById(postId);
         if (!post) {
-            return res.status(404).json({ success: false, message: "post not found" });
+            return res.status(404).json({ error: "post not found" });
         }
         // Verifica se o User existe
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json({ error: "User not found" });
         }
 
         // Verifica se o usuário já deu Favorite neste existingFavorite
         const existingFavorite = await Favorite.findOne({ post: postId, user: userId });
 
         if (existingFavorite) {
-            // Remove o existingFavorite do schema Like
-            await Favorite.findByIdAndDelete(existingFavorite._id);
+            // Remove o existingFavorite do schema Favorite
+          await Favorite.findByIdAndDelete(existingFavorite._id);
 
             // Atualiza o array de favorites e o contador no Post correspondente
             post.favorites.pull(existingFavorite._id);
             post.favoritesCount--;
             await post.save();
-
-            return res.status(200).json({
-                favorited: false,
-                message: "removed from favorite list",
-                userId: userId,
-                postId: postId,
-            });
+        
+            return res.status(200).json({ isFavorited : false});
         } else {
             // Adiciona um novo follower
-            const newfavorite = new Favorite({ user: userId, post: postId });
+            const newfavorite = new Favorite({ user: userId, post: postId,  isFavorited: true});
             await newfavorite.save();
             // Atualiza o array de newfavorite e o contador no Post correspondente
             post.favorites.push(newfavorite._id);
             post.favoritesCount++;
+
             await post.save();
 
-            return res.status(200).json({
-                favorited: true,
-                message: "Added to deine favorite listAdded to your favorite list successfully!",
-                userId: userId,
-                postId: postId,
-            });
+            return res.status(200).json({ favorited: newfavorite });
         }
     } catch (error) {
         console.error("Error performing favorite/Unfavorited action:", error);
@@ -67,8 +58,44 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
 });
 
 
+// Rota para buscar a lista de Favoritos por usuário
+router.get("/fetch-favorite-posts-by-user/:userId", async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Verifique se o User existe
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Encontre os posts favoritados para o usuário corrente
+        const favorites = await Favorite.find({ user: userId });
+
+        // Extraia os IDs dos posts favoritados
+        const favoritedPostIds = favorites.map(favorite => favorite.post);
+
+        // Encontre os favoritados correspondentes aos IDs
+        const favoritedPosts = await Post.find({ _id: { $in: favoritedPostIds } })
+        .select("-__v")
+        .select("-favorites")
+        .select("-postStatus");
+
+        return res.status(200).json({
+            favoritedPosts: favoritedPosts,
+        });
+    } catch (error) {
+        console.error("Error fetching favorited Posts:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while processing the request",
+        });
+    }
+});
+
+
 // Rota para obter os estabelecimentos seguidos por um usuário
-router.get("/:userId/favorite-post", checkToken, async (req, res) => {
+router.get("/:userId/follow-estab", checkToken, async (req, res) => {
     try {
         const userId = req.params.userId;
 
