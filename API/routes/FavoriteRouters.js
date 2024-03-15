@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import Post from '../models/Posts.js';
 import User from '../models/User.js';
 import Favorite from '../models/Favorite.js';
@@ -11,7 +12,15 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
     try {
         const postId = req.params.postId;
         const userId = req.params.userId;
-
+        // Verifique se o ID é válido
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ error: "Invalid user ID" });
+        }
+        
+        // Verifique se o ID é válido
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(400).json({ error: "Invalid post ID" });
+        }
         // Verifica se o Post existe
         const post = await Post.findById(postId);
         if (!post) {
@@ -28,17 +37,17 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
 
         if (existingFavorite) {
             // Remove o existingFavorite do schema Favorite
-          await Favorite.findByIdAndDelete(existingFavorite._id);
+            await Favorite.findByIdAndDelete(existingFavorite._id);
 
             // Atualiza o array de favorites e o contador no Post correspondente
             post.favorites.pull(existingFavorite._id);
             post.favoritesCount--;
             await post.save();
-        
-            return res.status(200).json({ isFavorited : false});
+
+            return res.status(200).json({ isFavorited: false });
         } else {
             // Adiciona um novo follower
-            const newfavorite = new Favorite({ user: userId, post: postId,  isFavorited: true});
+            const newfavorite = new Favorite({ user: userId, post: postId, isFavorited: true });
             await newfavorite.save();
             // Atualiza o array de newfavorite e o contador no Post correspondente
             post.favorites.push(newfavorite._id);
@@ -62,7 +71,10 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
 router.get("/fetch-favorite-posts-by-user/:userId", async (req, res) => {
     try {
         const userId = req.params.userId;
-
+        // Verifique se o ID é válido
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ error: "Invalid user ID" });
+        }
         // Verifique se o User existe
         const user = await User.findById(userId);
         if (!user) {
@@ -77,19 +89,16 @@ router.get("/fetch-favorite-posts-by-user/:userId", async (req, res) => {
 
         // Encontre os favoritados correspondentes aos IDs
         const favoritedPosts = await Post.find({ _id: { $in: favoritedPostIds } })
-        .select("-__v")
-        .select("-favorites")
-        .select("-postStatus");
+            .select("-__v")
+            .select("-favorites")
+            .select("-postStatus");
 
         return res.status(200).json({
             favoritedPosts: favoritedPosts,
         });
     } catch (error) {
         console.error("Error fetching favorited Posts:", error);
-        return res.status(500).json({
-            success: false,
-            message: "An error occurred while processing the request",
-        });
+        return res.status(500).json({ error: "An error occurred while processing the request" });
     }
 });
 
