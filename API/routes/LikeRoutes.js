@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import Like from '../models/Likes.js';
 import Post from '../models/Posts.js';
 import User from '../models/User.js';
@@ -12,7 +13,15 @@ const likeRouter = (io) => {
     try {
       const postId = req.params.postId;
       const userId = req.params.userId;
+      // Verifique se o ID é válido
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
 
+      // Verifique se o ID é válido
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ error: "Invalid post ID" });
+      }
       // Verifica se o Post existe
       const post = await Post.findById(postId);
       if (!post) {
@@ -32,40 +41,26 @@ const likeRouter = (io) => {
         await Like.findByIdAndDelete(existingLike._id);
 
         // Atualiza o array de likes e o contador no Post correspondente
-        post.likeObjIds.pull(existingLike._id);
+        post.likes.pull(existingLike._id);
         post.likesCount--;
         await post.save();
 
         // Emitir evento de like/dislike para os clientes conectados
         io.emit('likeUpdate', { action: 'remove', like: existingLike });
-
-        return res.status(200).json({
-          isLiked: false,
-          postObjId: postId,
-          userObjId: userId,
-        });
-
+        return res.status(200).json({  isLiked: false });
       } else {
         // Adiciona um novo like
-        const newLike = new Like({ userObjId: userId, postObjId: postId });
+        const newLike = new Like({  user: userId, post: postId, isLiked: true });
         await newLike.save();
-
         // Atualiza o array de likes e o contador no Post correspondente
-        post.likeObjIds.push(newLike._id);
+        post.likes.push(newLike._id);
         post.likesCount++;
         await post.save();
 
         // Emitir evento de like/dislike para os clientes conectados
         io.emit('likeUpdate', { action: 'add', like: newLike });
 
-        return res.status(200).json({
-          isLiked: true,
-          _id: newLike._id,
-          postObjId: postId,
-          userObjId: userId,
-          createdAt: newLike.createdAt,
-          updatedAt: newLike.updatedAt,
-        });
+        return res.status(200).json({ liked: newLike });
       }
     } catch (error) {
       console.error("Error performing like/dislike action:", error);
@@ -75,6 +70,7 @@ const likeRouter = (io) => {
       });
     }
   });
+
   return router;
 }
 

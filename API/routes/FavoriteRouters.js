@@ -7,7 +7,7 @@ import checkToken from '../middleware/checkToken.js';
 
 const router = Router();
 
-// Rota para Criatr Favorite e disFavorite em um post
+// Rota para Criar Favorite e disFavorite em um post
 router.post("/:postId/:userId", async (req, res) => {//checkToken, 
     try {
         const postId = req.params.postId;
@@ -43,7 +43,8 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
             post.favorites.pull(existingFavorite._id);
             post.favoritesCount--;
             await post.save();
-
+            // Emitir evento de favorite/disfavorite para os clientes conectados
+            io.emit('likeFavorite', { action: 'remove', favorite: existingFavorite });
             return res.status(200).json({ isFavorited: false });
         } else {
             // Adiciona um novo follower
@@ -55,6 +56,8 @@ router.post("/:postId/:userId", async (req, res) => {//checkToken,
 
             await post.save();
 
+            // Emitir evento de favorite/disfavorite para os clientes conectados
+            io.emit('favoriteUpdate', { action: 'add', favorite: newfavorite });
             return res.status(200).json({ favorited: newfavorite });
         }
     } catch (error) {
@@ -93,7 +96,6 @@ router.get("/fetch-favorite-posts-by-user/:userId", async (req, res) => {
             .select("-favorites")
             .select("-postStatus")
             .select("-establishmentObjId");
-
         return res.status(200).json({
             favoritedPosts: favoritedPosts,
         });

@@ -3,8 +3,9 @@ import User from "./User.js";
 import Post from "./Posts.js";
 
 const likeSchema = new mongoose.Schema({
-  userObjId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  postObjId: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },
+  isLiked: {type:Boolean},
   createdAt: { type: Date, default: Date.now }
 });
 
