@@ -8,7 +8,7 @@ import checkToken from '../middleware/checkToken.js';
 const router = Router();
 
 // Rota para Criar Favorite e disFavorite em um post
-router.post("/:postId/:userId", async (req, res) => {//checkToken, 
+router.post("/post/:postId/:userId", async (req, res) => {//checkToken, 
     try {
         const postId = req.params.postId;
         const userId = req.params.userId;
