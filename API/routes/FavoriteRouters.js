@@ -43,6 +43,7 @@ router.post("/post/:postId/:userId", async (req, res) => {//checkToken,
             post.favorites.pull(existingFavorite._id);
             post.favoritesCount--;
             await post.save();
+            
             // Emitir evento de favorite/disfavorite para os clientes conectados
             io.emit('likeFavorite', { action: 'remove', favorite: existingFavorite });
             return res.status(200).json({ isFavorited: false });

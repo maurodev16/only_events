@@ -142,10 +142,9 @@ router.get('/get-posts-with-filters', async (req, res) => {
       // Use o ID do estabelecimento de cada post para encontrar os dados do estabelecimento
       const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
       if (establishment) {
-        // Popula a contagem de likes
-        const likesCount = await Like.countDocuments({ postObjId: post._id });
+      
         //Crie um novo objeto post com o campo de estabelecimento populado e a contagem de likes
-        const populatedPost = { ...post.toObject(), establishmentObjId: establishment, likesCount };
+        const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
         // Adicione o post populado ao array de posts populados
         populatedPosts.push(populatedPost);
       }
