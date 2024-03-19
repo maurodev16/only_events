@@ -34,7 +34,7 @@ const likeRouter = (io) => {
       }
 
       // Verifica se o usuário já deu like neste Post
-      const existingLike = await Like.findOne({ postObjId: postId, userObjId: userId });
+      const existingLike = await Like.findOne({user: userId , post: postId });
 
       if (existingLike) {
         // Remove o like do schema Like
