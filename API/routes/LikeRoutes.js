@@ -51,7 +51,7 @@ const router = Router();
         await post.save();
 
         // Emitir evento de like/dislike para os clientes conectados
-        io.emit('likeUpdate', { action: 'remove', like: existingLike });
+        io.emit('likeUpdate', { isLiked: false });
 
         return res.status(200).json({  isLiked: false });
       } else {
@@ -62,9 +62,22 @@ const router = Router();
         post.likes.push(newLike._id);
         post.likesCount++;
         await post.save();
-       
-        // Emitir evento de like/dislike para os clientes conectados
-        io.emit('likeUpdate', { action: 'add', like: newLike });
+
+        io.on('connection', (socket) => {
+          console.log('a user connected with id ', socket.id);
+          // ouvindo o evento 'teste'
+          socket.on('likeUpdate', (data) => {
+              console.log('Received data:', data);
+              //  Emitir evento de like/dislike para os clientes conectados
+              socket.emit('likeUpdate', newLike);
+          });
+      
+          socket.on('disconnect', () => {
+              console.log('user disconnected');
+          });
+      });
+   
+     
 
         return res.status(200).json({ liked: newLike });
    
