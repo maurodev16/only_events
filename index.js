@@ -32,7 +32,7 @@ configureSocketServer(httpServer);
 app.use(urlencoded({ extended: true }));
 app.use(json());
 // Adicione uma referência ao objeto io ao app para que possa ser usado em outras partes do aplicativo
-app.set('socketio', io);
+
 
 /// Register routers
 app.use('/api/v1/auth', authEstablRoutes);
