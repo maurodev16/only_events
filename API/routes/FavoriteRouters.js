@@ -7,57 +7,57 @@ import checkToken from '../middleware/checkToken.js';
 
 const router = Router();
 
-// Rota para Criar Favorite e disFavorite em um post
+// Route to Create Favorite and disFavorite on a post
 router.post("/post/:postId/:userId", async (req, res) => {//checkToken, 
     try {
         const postId = req.params.postId;
         const userId = req.params.userId;
-        // Verifique se o ID é válido
+        // Check if ID is valid
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ error: "Invalid user ID" });
         }
 
-        // Verifique se o ID é válido
+        // Check if ID is valid
         if (!mongoose.Types.ObjectId.isValid(postId)) {
             return res.status(400).json({ error: "Invalid post ID" });
         }
-        // Verifica se o Post existe
+        // Check if Post exists
         const post = await Post.findById(postId);
         if (!post) {
             return res.status(404).json({ error: "post not found" });
         }
-        // Verifica se o User existe
+        // Check if User exists
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        // Verifica se o usuário já deu Favorite neste existingFavorite
+        // Check if the user has already favorited this post
         const existingFavorite = await Favorite.findOne({ post: postId, user: userId });
 
         if (existingFavorite) {
-            // Remove o existingFavorite do schema Favorite
+            // Remove the existingFavorite from the Favorite schema
             await Favorite.findByIdAndDelete(existingFavorite._id);
 
-            // Atualiza o array de favorites e o contador no Post correspondente
+            // Update the favorites array and counter on the corresponding Post
             post.favorites.pull(existingFavorite._id);
             post.favoritesCount--;
             await post.save();
             
-            // Emitir evento de favorite/disfavorite para os clientes conectados
+            // Emit favorite/disfavorite event to connected clients
             io.emit('likeFavorite', { action: 'remove', favorite: existingFavorite });
             return res.status(200).json({ isFavorited: false });
         } else {
-            // Adiciona um novo follower
+            // Add a new favorite
             const newfavorite = new Favorite({ user: userId, post: postId, isFavorited: true });
             await newfavorite.save();
-            // Atualiza o array de newfavorite e o contador no Post correspondente
+            // Update the newfavorite array and counter on the corresponding Post
             post.favorites.push(newfavorite._id);
             post.favoritesCount++;
 
             await post.save();
 
-            // Emitir evento de favorite/disfavorite para os clientes conectados
+            // Emit favorite/disfavorite event to connected clients
             io.emit('favoriteUpdate', { action: 'add', favorite: newfavorite });
             return res.status(200).json({ favorited: newfavorite });
         }

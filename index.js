@@ -32,7 +32,7 @@ app.use(json());
 // Criação da instância do servidor Socket.IO
 const io = new Server(httpServer, {
     cors: {
-        origin: "*",
+        origin: "https://velhodalancha.onrender.com",//
     }
 });
 
@@ -70,11 +70,11 @@ io.on('connection', (socket) => {
     socket.on('teste', (data) => {
         console.log('Received data:', data);
         // Responda ao cliente se necessário
-        socket.emit('testeResponse', 'Received your message!');
+        io.emit('testeResponse', 'Received your message!');
     });
 
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        console.log('user disconnected', socket.id);
     });
 });
 
@@ -88,7 +88,7 @@ const CLUSTER = process.env.CLUSTER
 
 connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`)
     .then(() => {
-        httpServer.listen(PORT, () => {
+        io.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
             console.log('Connected to MongoDB');
         });

@@ -78,44 +78,44 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
 });
 
 
-///*
+//
 router.get('/get-posts-with-filters', async (req, res) => {
   try {
     const { cityName, companyType, page = 1, limit = 10 } = req.query;
-    let query = {}; // Inicie a consulta como uma consulta vazia
+    let query = {}; // Initialize the query as an empty query
 
-    // Verifique se cityName e companyType estão presentes na solicitação
+    // Check if cityName and companyType are present in the request
     if (cityName && companyType) {
-      // Encontre o estabelecimento com base no nome da cidade e no tipo de empresa
+      // Find the establishment based on the city name and company type
       const establishment = await Establishment.findOne({ cityName, companyType });
 
       if (establishment) {
-        // Se o estabelecimento for encontrado, filtre as postagens por esse estabelecimento
+        // If the establishment is found, filter the posts by this establishment
         query.establishmentObjId = establishment._id;
       } else {
-        // Se não houver um estabelecimento correspondente, retorne 404
+        // If there is no corresponding establishment, return 404
         return res.status(404).send('No establishment found for the specified city and company type');
       }
     } else if (cityName) {
-      // Se apenas o cityName estiver presente, filtre as postagens pelo nome da cidade
+      // If only the cityName is present, filter the posts by the city name
       const establishment = await Establishment.findOne({ cityName });
 
       if (establishment) {
         query.establishmentObjId = establishment._id;
       } else {
-        // Se não houver um estabelecimento com o nome da cidade fornecido, traga todas as postagens
+        // If there is no establishment with the provided city name, bring all posts
         query = {};
       }
     } else if (companyType) {
-      // Se apenas o companyType estiver presente, filtre as postagens pelo tipo de empresa
+      // If only the companyType is present, filter the posts by the company type
       const establishments = await Establishment.find({ companyType });
 
       if (establishments.length > 0) {
-        // Se houver estabelecimentos correspondentes, pegue os IDs e filtre as postagens por esses IDs
+        // If there are corresponding establishments, get the IDs and filter the posts by those IDs
         const establishmentIds = establishments.map(est => est._id);
         query.establishmentObjId = { $in: establishmentIds };
       } else {
-        // Se não houver estabelecimentos correspondentes, retorne 404
+        // If there are no corresponding establishments, return 404
         return res.status(404).json({ error: 'No establishment found for the specified company type' });
       }
     }
@@ -123,34 +123,32 @@ router.get('/get-posts-with-filters', async (req, res) => {
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
-      sort: { createdAt: -1 }// Ordena os posts por data de criação em ordem decrescente
-
+      sort: { createdAt: -1 } // Sort the posts by creation date in descending order
     };
 
-    // Execute a consulta, populando os dados do estabelecimento
+    // Execute the query, populating the establishment data
     const posts = await Post.paginate(query, options);
 
     if (posts.docs.length === 0) {
-      return res.status(404).json({error : 'Posts not found' });
+      return res.status(404).json({ error: 'Posts not found' });
     }
 
-    // Array para armazenar os posts populados com os dados do estabelecimento
+    // Array to store the posts populated with establishment data
     const populatedPosts = [];
 
-    // Popula cada documento de post individualmente
+    // Populate each post document individually
     for (const post of posts.docs) {
-      // Use o ID do estabelecimento de cada post para encontrar os dados do estabelecimento
+      // Use the establishment ID of each post to find the establishment data
       const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
       if (establishment) {
-      
-        //Crie um novo objeto post com o campo de estabelecimento populado e a contagem de likes
+        // Create a new post object with the populated establishment field and likes count
         const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
-        // Adicione o post populado ao array de posts populados
+        // Add the populated post to the array of populated posts
         populatedPosts.push(populatedPost);
       }
     }
 
-    // Retorna os posts populados
+    // Return the populated posts
     return res.status(200).json({
       posts: populatedPosts,
       total: posts.totalDocs,
@@ -163,5 +161,6 @@ router.get('/get-posts-with-filters', async (req, res) => {
 });
 
 export default router;
+
 
 
