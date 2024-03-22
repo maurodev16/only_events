@@ -88,7 +88,7 @@ const CLUSTER = process.env.CLUSTER
 
 connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`)
     .then(() => {
-        io.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
             console.log('Connected to MongoDB');
         });
