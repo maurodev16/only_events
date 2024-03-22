@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
 import http from 'http';
-import { Server } from 'socket.io';
 // Import routers
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
@@ -23,16 +22,17 @@ import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
 import configureSocketServer from "./API/services/socketServer.js";
 const app = express();
-const PORT = process.env.PORT || 3000;
+
 
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
-
+const PORT = process.env.PORT || 3000;
 // Configurar o servidor Socket.IO
-configureSocketServer();
+configureSocketServer(httpServer);
 app.use(urlencoded({ extended: true }));
 app.use(json());
-
+// Adicione uma referência ao objeto io ao app para que possa ser usado em outras partes do aplicativo
+app.set('socketio', io);
 
 /// Register routers
 app.use('/api/v1/auth', authEstablRoutes);

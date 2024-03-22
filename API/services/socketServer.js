@@ -1,11 +1,10 @@
+// socketServer.js
 import { Server } from 'socket.io';
-import http from 'http'; // Importe o módulo http
 
- function configureSocketServer() {
-    const server = http.createServer(); // Crie uma instância http.Server
-    const io = new Server(server, {
+export default function configureSocketServer() {
+    const io = new Server({
         cors: {
-            origin: "*",
+            origin: '*',
         }
     });
 
@@ -17,6 +16,6 @@ import http from 'http'; // Importe o módulo http
             console.log('Um cliente se desconectou:', socket.id);
         });
     });
-    return server; // Retorne o servidor http.Server configurado
+
+    return io; // Retorne a instância do servidor Socket.IO configurado
 }
-export default configureSocketServer;
