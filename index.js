@@ -4,11 +4,6 @@ import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
 import http from 'http';
 import { Server } from 'socket.io';
-const io = new Server({
-    cors:{
-      origin:"https://velhodalancha.onrender.com/api/v1/",
-    }
-  });
 // Import routers
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
@@ -26,24 +21,21 @@ import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
-
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
 
-io.on("connection", (socket)=>{
-    console.log("connected");
-    console.log(socket.id, "has Connected");
-    socket.on("nome_evento", (msg)=>{
-        console.log(msg);
-    });
-});
-
-const PORT = process.env.PORT || 3000;
-
-
 app.use(urlencoded({ extended: true }));
 app.use(json());
+// Criação da instância do servidor Socket.IO
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+    }
+});
+
 /// Register routers
 app.use('/api/v1/auth', authEstablRoutes);
 app.use('/api/v1/auth', authUserRoutes);
@@ -60,7 +52,32 @@ app.use("/api/v1/bar", barDetailRoutes);
 app.use("/api/v1/club", clubDetailRoutes);
 app.use("/api/v1/kiosk", kioskDetailRoutes);
 app.use("/api/v1/post", postRoutes);
+
+
+// Configuração do Swagger
 app.use('/api/v1/docs', serve, setup(swaggerSpec));
+
+//initial endpoint
+app.get('/', (_req, _res) => {
+    //show req
+    _res.send('Welcome!');
+});
+
+
+io.on('connection', (socket) => {
+    console.log('a user connected with id ', socket.id);
+    // ouvindo o evento 'teste'
+    socket.on('testeResponse', (data) => {
+        console.log('Received data:', data);
+        // Responda ao cliente se necessário
+        socket.emit('testeResponse', 'Received your message!');
+    });
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
+
 
 
 // Connect to MongoDB
