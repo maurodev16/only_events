@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
     socket.on('teste', (data) => {
         console.log('Received data:', data);
         // Responda ao cliente se necessário
-        io.emit('testeResponse', 'Received your message!');
+        socket.emit('testeResponse', 'Received your message!');
     });
 
     socket.on('disconnect', () => {
