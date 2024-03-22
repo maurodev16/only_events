@@ -5,7 +5,11 @@ import Post from '../models/Posts.js';
 import User from '../models/User.js';
 import checkToken from '../middleware/checkToken.js';
 import { Server } from 'socket.io'; // Importe o módulo Server do Socket.IO
-const io = new Server();
+const io = new Server({
+  cors:{
+    origin:"*",
+  }
+});
 const router = Router();
 
 
@@ -48,6 +52,7 @@ const router = Router();
 
         // Emitir evento de like/dislike para os clientes conectados
         io.emit('likeUpdate', { action: 'remove', like: existingLike });
+
         return res.status(200).json({  isLiked: false });
       } else {
         // Adiciona um novo like

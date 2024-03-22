@@ -4,6 +4,11 @@ import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
 import http from 'http';
 import { Server } from 'socket.io';
+const io = new Server({
+    cors:{
+      origin:"https://velhodalancha.onrender.com/api/v1/",
+    }
+  });
 // Import routers
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
@@ -25,6 +30,15 @@ import postRoutes from "./API/routes/PostRoutes.js";
 const app = express();
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
+
+io.on("connection", (socket)=>{
+    console.log("connected");
+    console.log(socket.id, "has Connected");
+    socket.on("nome_evento", (msg)=>{
+        console.log(msg);
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 
 
