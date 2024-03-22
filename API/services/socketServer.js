@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 export default function configureSocketServer() {
     const io = new Server({
         cors: {
-            origin: '*',
+            origin: 'https://velhodalancha.onrender.com',
         }
     });
 
