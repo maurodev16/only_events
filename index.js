@@ -21,20 +21,18 @@ import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
+import configureSocketServer from "./API/services/socketServer.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
 
+// Configurar o servidor Socket.IO
+configureSocketServer();
 app.use(urlencoded({ extended: true }));
 app.use(json());
-// Criação da instância do servidor Socket.IO
-const io = new Server(httpServer, {
-    cors: {
-        origin: "*",
-    }
-});
+
 
 /// Register routers
 app.use('/api/v1/auth', authEstablRoutes);
@@ -56,28 +54,6 @@ app.use("/api/v1/post", postRoutes);
 
 // Configuração do Swagger
 app.use('/api/v1/docs', serve, setup(swaggerSpec));
-
-//initial endpoint
-app.get('/', (_req, _res) => {
-    //show req
-    _res.send('Welcome!');
-});
-
-
-io.on('connection', (socket) => {
-    console.log('a user connected with id ', socket.id);
-    // ouvindo o evento 'teste'
-    socket.on('testeResponse', (data) => {
-        console.log('Received data:', data);
-        // Responda ao cliente se necessário
-        socket.emit('testeResponse', 'Received your message!');
-    });
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
-
 
 
 // Connect to MongoDB
