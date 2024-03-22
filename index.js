@@ -28,7 +28,7 @@ const app = express();
 const httpServer = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 // Configurar o servidor Socket.IO
-configureSocketServer(httpServer);
+configureSocketServer();
 app.use(urlencoded({ extended: true }));
 app.use(json());
 // Adicione uma referência ao objeto io ao app para que possa ser usado em outras partes do aplicativo
