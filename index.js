@@ -66,12 +66,14 @@ app.get('/', (_req, _res) => {
 
 io.on('connection', (socket) => {
     console.log('a user connected with id ', socket.id);
+
     // ouvindo o evento 'teste'
-    socket.on('teste', (data) => {
-        console.log('Received data:', data);
+    socket.on('testeResponse', (data) => {
         // Responda ao cliente se necessário
-        socket.emit('testeResponse', 'Received your message!');
+        io.emit('testeResponse', 'Received your message!', data);  
+        console.log('Received data:', data);
     });
+    
 
     socket.on('disconnect', () => {
         console.log('user disconnected', socket.id);
