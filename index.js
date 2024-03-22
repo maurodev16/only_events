@@ -21,21 +21,15 @@ import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
-const app = express();
-const PORT = process.env.PORT || 3000;
 
+const app = express();
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
+const PORT = process.env.PORT || 3000;
+
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
-// Criação da instância do servidor Socket.IO
-const io = new Server(httpServer, {
-    cors: {
-        origin: "https://velhodalancha.onrender.com",//
-    }
-});
-
 /// Register routers
 app.use('/api/v1/auth', authEstablRoutes);
 app.use('/api/v1/auth', authUserRoutes);
@@ -43,7 +37,7 @@ app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/establishment', establishmentRoutes);
-app.use('/api/v1/like', likeRoutes(io));
+app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/favorite', favoriteRouters);
 app.use('/api/v1/follow', followRouters);
 app.use('/api/v1/city-and-country', countriesRoutes);
@@ -52,34 +46,7 @@ app.use("/api/v1/bar", barDetailRoutes);
 app.use("/api/v1/club", clubDetailRoutes);
 app.use("/api/v1/kiosk", kioskDetailRoutes);
 app.use("/api/v1/post", postRoutes);
-
-
-// Configuração do Swagger
 app.use('/api/v1/docs', serve, setup(swaggerSpec));
-
-//initial endpoint
-app.get('/', (_req, _res) => {
-    //show req
-    _res.send('Welcome!');
-});
-
-
-io.on('connection', (socket) => {
-    console.log('a user connected with id ', socket.id);
-
-    // ouvindo o evento 'teste'
-    socket.on('testeResponse', (data) => {
-        // Responda ao cliente se necessário
-        io.emit('testeResponse', 'Received your message!', data);  
-        console.log('Received data:', data);
-    });
-    
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected', socket.id);
-    });
-});
-
 
 
 // Connect to MongoDB

@@ -4,10 +4,11 @@ import Like from '../models/Likes.js';
 import Post from '../models/Posts.js';
 import User from '../models/User.js';
 import checkToken from '../middleware/checkToken.js';
-
+import { Server } from 'socket.io'; // Importe o módulo Server do Socket.IO
+const io = new Server();
 const router = Router();
 
-const likeRouter = (io) => {
+
   // Rota para dar like e dislike em um post
   router.post("/post/:postId/:userId", async (req, res) => {
     try {
@@ -71,8 +72,5 @@ const likeRouter = (io) => {
       });
     }
   });
-
-  return router;
-}
 
 export default likeRouter;
