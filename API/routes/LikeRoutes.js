@@ -73,4 +73,4 @@ const router = Router();
     }
   });
 
-export default likeRouter;
+export default router;
