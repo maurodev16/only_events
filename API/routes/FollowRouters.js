@@ -1,62 +1,68 @@
+import mongoose from 'mongoose';
 import { Router } from 'express';
 import Follower from '../models/Followers.js';
 import Establishment from '../models/Establishment/Establishment.js';
 import User from '../models/User.js';
 import checkToken from '../middleware/checkToken.js';
+import configureSocketServer from '../services/socketServer.js';
 
 const router = Router();
+// Configure o servidor Socket.IO
+const io = configureSocketServer(); // Obtenha a instância de io
 
-// Rota para dar like e dislike em um post
-router.post("/:establishmentId/:userId", checkToken, async (req, res) => {
+// Rota para seguir ou parar de seguir um estabelecimento
+router.post("/:establishmentId/:userId", async (req, res) => {
     try {
         const establishmentId = req.params.establishmentId;
         const userId = req.params.userId;
 
-        // Verifica se o Establishment existe
+        // Verifica se os IDs são válidos
+        if (!mongoose.Types.ObjectId.isValid(establishmentId) || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ error: "Invalid user or establishment ID" });
+        }
+
+        // Verifica se o estabelecimento existe
         const establishment = await Establishment.findById(establishmentId);
         if (!establishment) {
             return res.status(404).json({ success: false, message: "Establishment not found" });
         }
-        // Verifica se o User existe
+
+        // Verifica se o usuário existe
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // Verifica se o usuário já deu Followers neste Establishment
+        // Verifica se o usuário já segue o estabelecimento
         const existingFollower = await Follower.findOne({ establishment: establishmentId, user: userId });
 
         if (existingFollower) {
-            // Remove o Followers do schema Like
+            // Se o usuário já segue o estabelecimento, pare de seguir
             await Follower.findByIdAndDelete(existingFollower._id);
-
-            // Atualiza o array de Follower e o contador no Post correspondente
             establishment.followers.pull(existingFollower._id);
             establishment.followersCount--;
             await establishment.save();
+            // Emita um evento para notificar o estabelecimento que ele perdeu um seguidor
+            io.emit('followerLost', { establishmentId: establishmentId, followerId: userId });
 
             return res.status(200).json({
-                following: false,
+                isFollowed: false,
                 message: `You stopped following ${establishment.establishmentName}`,
-                userId: userId,
             });
         } else {
-            // Adiciona um novo follower
-            const newFollower = new Follower({ user: userId, establishment: establishmentId });
+            // Se o usuário não segue o estabelecimento, comece a seguir
+            const newFollower = new Follower({ user: userId, establishment: establishmentId, isFollowed: true });
             await newFollower.save();
-            // Atualiza o array de Follower e o contador no Post correspondente
             establishment.followers.push(newFollower._id);
             establishment.followersCount++;
             await establishment.save();
+            // Emita um evento para notificar o estabelecimento que ele ganhou um novo seguidor
+            io.emit('newFollower', { establishmentId: establishmentId, followerId: userId });
 
-            return res.status(200).json({
-                following: true,
-                message: `Now you're following ${establishment.establishmentName}`,
-                userId: userId,
-            });
+            return res.status(200).json({ Followed: newFollower });
         }
     } catch (error) {
-        console.error("Error performing Follow/Unfollowed action:", error);
+        console.error("Error performing follow/unfollow action:", error);
         return res.status(500).json({
             success: false,
             message: "An error occurred while processing the request",
@@ -64,25 +70,24 @@ router.post("/:establishmentId/:userId", checkToken, async (req, res) => {
     }
 });
 
-
 // Rota para obter os estabelecimentos seguidos por um usuário
-router.get("/:userId/followed-establishments", checkToken, async (req, res) => {
+router.get("/:userId/followed-establishments",  async (req, res) => {//checkToken,
     try {
         const userId = req.params.userId;
 
-        // Verifique se o User existe
+        // Verifica se o usuário existe
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // Encontre os registros de seguidores para o usuário
+        // Encontra os registros de seguidores do usuário
         const followers = await Follower.find({ user: userId });
 
-        // Extraia os IDs dos estabelecimentos seguidos
+        // Extrai os IDs dos estabelecimentos seguidos
         const followedEstablishmentIds = followers.map(follower => follower.establishment);
 
-        // Encontre os estabelecimentos correspondentes aos IDs
+        // Encontra os estabelecimentos correspondentes aos IDs
         const followedEstablishments = await Establishment.find({ _id: { $in: followedEstablishmentIds } });
 
         return res.status(200).json({
@@ -97,8 +102,5 @@ router.get("/:userId/followed-establishments", checkToken, async (req, res) => {
         });
     }
 });
-
-// Exporte o router
-
 
 export default router;

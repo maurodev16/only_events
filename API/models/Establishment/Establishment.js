@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import Followers from '../Followers.js';
 import Details from './Details/Details.js';
+import User from '../User.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
@@ -23,6 +24,7 @@ const establishmentSchema = new mongoose.Schema(
     companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
     details: { type: mongoose.Schema.Types.ObjectId, ref: 'Details' }, // Referência aos detalhes específicos
     token: { type: String  },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Followers", default: [] }],
     followersCount: { type: Number, default: 0 },
     passwordChanged_at: { type: Date },
     passwordResetToken: { type: String },

@@ -16,6 +16,7 @@ const postSchema = new mongoose.Schema({
     likesCount: { type: Number, default: 0 },
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Favorite" }], // Referência aos likes associados a este post
     favoritesCount: { type: Number, default: 0 },
+    viewsCount: { type: Number, default: 0 }, // Contador de visualizações do post
     location: { type: String }, // Pode ser um endereço ou nome do local
     postStatus: { type: String, default: "active", enum: ["active", "inactive", "rascunho"] },
     expirationDate: { type: Date }, //Promoção Expirada:
