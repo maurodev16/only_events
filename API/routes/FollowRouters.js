@@ -42,6 +42,7 @@ router.post("/:establishmentId/:userId", async (req, res) => {
             establishment.followers.pull(existingFollower._id);
             establishment.followersCount--;
             await establishment.save();
+            
             // Emita um evento para notificar o estabelecimento que ele perdeu um seguidor
             io.emit('followerLost', { establishmentId: establishmentId, followerId: userId });
 
@@ -57,7 +58,7 @@ router.post("/:establishmentId/:userId", async (req, res) => {
             establishment.followersCount++;
             await establishment.save();
             // Emita um evento para notificar o estabelecimento que ele ganhou um novo seguidor
-            io.emit('newFollower', { establishmentId: establishmentId, followerId: userId });
+            io.emit('newFollower', {newFollower:newFollower });
 
             return res.status(200).json({ Followed: newFollower });
         }
