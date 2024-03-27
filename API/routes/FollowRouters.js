@@ -4,11 +4,9 @@ import Follower from '../models/Followers.js';
 import Establishment from '../models/Establishment/Establishment.js';
 import User from '../models/User.js';
 import checkToken from '../middleware/checkToken.js';
-import configureSocketServer from '../services/socketServer.js';
 
 const router = Router();
 // Configure o servidor Socket.IO
-const io = configureSocketServer(); // Obtenha a instância de io
 
 // Rota para seguir ou parar de seguir um estabelecimento
 router.post("/:establishmentId/:userId", async (req, res) => {
@@ -42,9 +40,8 @@ router.post("/:establishmentId/:userId", async (req, res) => {
             establishment.followers.pull(existingFollower._id);
             establishment.followersCount--;
             await establishment.save();
-            
-            // Emita um evento para notificar o estabelecimento que ele perdeu um seguidor
-            io.emit('followerLost', { establishmentId: establishmentId, followerId: userId });
+
+         
 
             return res.status(200).json({
                 isFollowed: false,
@@ -57,8 +54,7 @@ router.post("/:establishmentId/:userId", async (req, res) => {
             establishment.followers.push(newFollower._id);
             establishment.followersCount++;
             await establishment.save();
-            // Emita um evento para notificar o estabelecimento que ele ganhou um novo seguidor
-            io.emit('newFollower', {newFollower:newFollower });
+    
 
             return res.status(200).json({ Followed: newFollower });
         }

@@ -20,15 +20,14 @@ import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
-import configureSocketServer from "./API/services/socketServer.js";
 const app = express();
 
 
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
 const PORT = process.env.PORT || 3000;
-// Configurar o servidor Socket.IO
-configureSocketServer(httpServer);
+const uri = process.env.MONGO_CONNECTION_STRING;
+const client = connect(uri);
 app.use(urlencoded({ extended: true }));
 app.use(json());
 // Adicione uma referência ao objeto io ao app para que possa ser usado em outras partes do aplicativo
@@ -50,20 +49,13 @@ app.use("/api/v1/bar", barDetailRoutes);
 app.use("/api/v1/club", clubDetailRoutes);
 app.use("/api/v1/kiosk", kioskDetailRoutes);
 app.use("/api/v1/post", postRoutes);
-
-
-// Configuração do Swagger
 app.use('/api/v1/docs', serve, setup(swaggerSpec));
 
 
 // Connect to MongoDB
-const DB_USER = process.env.DB_USER
-const DB_PASWORD = process.env.DB_PASWORD
-const DB_NAME = process.env.DB_NAME
-const CLUSTER = process.env.CLUSTER
 
-connect(`mongodb+srv://${DB_USER}:${DB_PASWORD}${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`)
-    .then(() => {
+
+client.then(() => {
         httpServer.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
             console.log('Connected to MongoDB');

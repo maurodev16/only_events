@@ -3,11 +3,7 @@ import mongoose from 'mongoose';
 import Like from '../models/Likes.js';
 import Post from '../models/Posts.js';
 import User from '../models/User.js';
-import { Server } from 'socket.io';
-import configureSocketServer from '../services/socketServer.js';
 const router = express.Router();
-const io = new Server(); // Criando uma instância do servidor Socket.IO
-configureSocketServer();
 // Rota para dar like e dislike em um post
 router.post("/post/:postId/:userId", async (req, res) => {
     try {
@@ -52,9 +48,6 @@ router.post("/post/:postId/:userId", async (req, res) => {
         }
 
         await post.save();
-
-        // Emitir evento de atualização de like/dislike para os clientes conectados
-        io.emit('likeUpdate', { postId, likesCount: post.likesCount });
 
         return res.status(200).json({ success: true });
     } catch (error) {
