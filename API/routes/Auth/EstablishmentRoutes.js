@@ -8,6 +8,7 @@ import Post from "../../models/Posts.js";
 import BarDetails from "../../models/Establishment/Details/BarDetail.js"
 import ClubDetails from "../../models/Establishment/Details/ClubDetail.js"
 import KioskDetails from "../../models/Establishment/Details/KioskDetail.js"
+import PromoterDetails from "../../models/Establishment/Details/PromoterDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/errorHandler.js"
@@ -28,11 +29,6 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
       establishmentName,
       email,
       password,
-      stateName,
-      cityName,
-      postalCode,
-      streetName,
-      number,
       phone,
       companyType,
     } = await req.body;
@@ -48,6 +44,7 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
       return res.status(400).json({ error: "No File provided." });
     }
     console.log("file down", file)
+
     const logo_name = `${file.originalname.split(".")[0]}`;
 
     // Cria uma instância do Establishment com os dados fornecidos
@@ -55,11 +52,6 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
         establishmentName,
         email,
         password,
-        stateName,
-        cityName,
-        postalCode,
-        streetName,
-        number,
         phone,
         companyType,
       });
@@ -87,9 +79,22 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
     newEstablishment.logoUrl = result.secure_url;
     await newEstablishment.save();
 
+ // Verifique se o companyType é válido antes de prosseguir
+if (!['promoter', 'bar', 'club', 'kiosk'].includes(newEstablishment.companyType)) {
+  res.status("400").json({error:"Invalid company type! Sorry, the specified company type is not valid. Please choose between, promoter, bar,club, or kiosk"})
+  res.status("400").json({error:"The establishment creation has been halted."})
+  res.status("400").json({error:"Please contact support if you need further assistance."})
+  res.status("400").json({error:"Please contact support if you need further assistance."})
+  console.error('Invalid company type.');
+  console.error('The establishment creation has been halted.');
+  console.error('Please contact support if you need further assistance.');
+ throw new Error('Comapny type invalid.');
+}
     // Crie os detalhes correspondentes automaticamente
     let details;
     switch (newEstablishment.companyType) {
+      case 'promoter':
+        details = await PromoterDetails.create({ establishment: newEstablishment._id });
       case 'bar':
         details = await BarDetails.create({ establishment: newEstablishment._id });
         break;
@@ -99,8 +104,9 @@ router.post("/signup-establishment", logoMiddleware.single("file"),async (req, r
       case 'kiosk':
         details = await KioskDetails.create({ establishment: newEstablishment._id });
         break;
+        
     }
-
+  
     // Associe os detalhes criados ao estabelecimento
     newEstablishment.details = details._id;
     await newEstablishment.save();

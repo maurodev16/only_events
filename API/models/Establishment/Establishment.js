@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate-v2';
-import Followers from '../Followers.js';
 import Details from './Details/Details.js';
 import User from '../User.js';
 import dotenv from 'dotenv';
@@ -15,17 +14,10 @@ const establishmentSchema = new mongoose.Schema(
     establishmentName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    stateName: { type: String, required: true },
-    cityName: { type: String, required: true },
-    postalCode: { type: String, required: true },
-    streetName: { type: String, required: true },
-    number: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
     companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
     details: { type: mongoose.Schema.Types.ObjectId, ref: 'Details' }, // Referência aos detalhes específicos
     token: { type: String  },
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Followers", default: [] }],
-    followersCount: { type: Number, default: 0 },
     passwordChanged_at: { type: Date },
     passwordResetToken: { type: String },
     passwordResetToken_expires: { type: Date },
