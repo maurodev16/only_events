@@ -141,32 +141,6 @@ router.post("/login-establishment", async (req, res) => {
   }
 });
 
-router.get("/establishmentProfile/:establishmentId", async (req, res) => {
-  try {
-    const establishmentId = req.params.establishmentId;
-
-    // Buscar o estabelecimento pelo ID
-    const establishment = await Establishment.findById(establishmentId).select("-password");
-
-    // Verificar se encontrou o estabelecimento
-    if (!establishment) {
-      return res.status(404).json({ error: "Estabelecimento não encontrado" });
-    }
-
-    // Buscar os detalhes do estabelecimento
-    const establishmentWithDetails = await Establishment.findById(establishmentId)
-    .populate('details')
-    .select("-password")
-    .select('-__v');
-
-    return res.status(200).json({ establishmentProfileData: establishmentWithDetails });
-  } catch (error) {
-    console.error("Erro ao buscar perfil do estabelecimento:", error);
-    return res.status(500).json({ error: "Erro interno do servidor" });
-  }
-});
-
-/// -- Establishment Profile Router
 router.get("/fetchEstablishmentByEstablishmentId/:id", async (req, res) => {
   const id = req.params.id;
   try {
