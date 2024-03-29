@@ -5,7 +5,7 @@ import cloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import ClubDetail from "../../models/Establishment/Details/ClubDetail.js";
-import checkRequiredFields from "../../middleware/errorHandler.js"
+import checkRequiredFields from "../../middleware/postMediaMiddleware.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 const router = Router();
 

@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import checkToken from "../../middleware/checkToken.js";
-import checkRequiredFields from "../../middleware/errorHandler.js"
+import checkRequiredFields from "../../middleware/checkRequiredFields.js"
 import mongoose from "mongoose";
 import sendEmail from "../../services/Emails/sendEmail.js";
 import Token from "../../models/Token.js";

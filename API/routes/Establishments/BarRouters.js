@@ -4,7 +4,7 @@ import Establishment from "../../models/Establishment/Establishment.js";
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import BarDetail from "../../models/Establishment/Details/BarDetail.js";
-import checkRequiredFields from "../../middleware/errorHandler.js"
+import checkRequiredFields from "../../middleware/postMediaMiddleware.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 const router = Router();
 

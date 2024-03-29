@@ -11,7 +11,7 @@ import KioskDetails from "../../models/Establishment/Details/KioskDetail.js"
 import PromoterDetails from "../../models/Establishment/Details/PromoterDetail.js"
 import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
-import checkRequiredFields from "../../middleware/errorHandler.js"
+import checkRequiredFields from "../../middleware/checkRequiredFields.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 import logoMiddleware from "../../middleware/logoMiddleware.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
@@ -22,7 +22,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
-router.post("/signup-establishment", async (req, res) => {
+router.post("/signup-establishment", checkRequiredFields(['establishmentName', 'email', 'password', 'phone','companyType']), async (req, res) => {
   try {
     const estabBodyData = await req.body;
 
