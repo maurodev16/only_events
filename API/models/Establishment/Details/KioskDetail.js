@@ -31,7 +31,6 @@ const kioskDetailSchema = new mongoose.Schema(
     mobilePayments: { type: Boolean, default: false },
     contactlessPayments: { type: Boolean, default: false },
     onlinePayments: { type: Boolean, default: false },
-    establishmentIsOnline: { type: Boolean, default: false },
     extraInfo: { type: String, default: "" },
   });
 

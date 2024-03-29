@@ -3,6 +3,7 @@ import Follower from "../../Followers.js";
 import dotenv from 'dotenv';
 dotenv.config();
 const detailsSchema = new mongoose.Schema({
+    logoUrl: { type: String, default: "" },
     stateName: { type: String, default: "" },
     cityName: { type: String, default: "" },
     postalCode: { type: String, default: "" },
@@ -10,6 +11,7 @@ const detailsSchema = new mongoose.Schema({
     number: { type: String, default: "" },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Follower", default: [] }],
     followersCount: { type: Number, default: 0 },
+    isOnline: { type: Boolean, default: false },
 
 },
     {

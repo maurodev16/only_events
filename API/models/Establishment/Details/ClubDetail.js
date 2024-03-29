@@ -111,7 +111,6 @@ const clubDetailSchema = new mongoose.Schema(
     splitBills: { type: Boolean, default: false },
     giftCards: { type: Boolean, default: false },
     cryptoCurrency: { type: Boolean, default: false },
-    establishmentIsOnline: { type: Boolean, default: false },
     extraInfo: { type: String, default: "" },
   });
 
