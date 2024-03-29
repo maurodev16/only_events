@@ -74,8 +74,9 @@ router.post("/signup-establishment", async (req, res) => {
     newEstablishment.details = details._id;
     await newEstablishment.save();
     const createdEstablishment = await Establishment.findById(newEstablishment._id)
-    .select('-password')// remove password from response
-    .select('-__v');
+    .select("-password")
+    .select('-__v')
+    .populate('details');
     // Respond with the created establishment
     console.log("Establishment created successfully:", createdEstablishment); // Add this log
     return res.status(201).json({ establishment: createdEstablishment });

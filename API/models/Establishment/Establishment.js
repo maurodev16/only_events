@@ -16,6 +16,8 @@ const establishmentSchema = new mongoose.Schema(
     phone: { type: String, required: true, unique: true },
     companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
     details: { type: mongoose.Schema.Types.ObjectId, ref: 'Details' }, // Referência aos detalhes específicos
+
+    /// --- ///
     token: { type: String  },
     passwordChanged_at: { type: Date },
     passwordResetToken: { type: String },
