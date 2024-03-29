@@ -153,12 +153,12 @@ router.get("/establishmentProfile/:establishmentId", async (req, res) => {
     }
 
     // Buscar os detalhes do estabelecimento
-    const establishmentProfileDataWithDetails = await Establishment.findById(establishmentId)
+    const establishmentWithDetails = await Establishment.findById(establishmentId)
     .populate('details')
     .select("-password")
     .select('-__v');
 
-    return res.status(200).json({ establishmentProfileData: establishmentProfileDataWithDetails });
+    return res.status(200).json({ establishmentProfileData: establishmentWithDetails });
   } catch (error) {
     console.error("Erro ao buscar perfil do estabelecimento:", error);
     return res.status(500).json({ error: "Erro interno do servidor" });
