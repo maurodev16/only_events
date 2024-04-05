@@ -22,7 +22,7 @@ const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
-router.post("/signup-establishment", checkRequiredFields(['establishmentName', 'email', 'password', 'phone','companyType']), async (req, res) => {
+router.post("/signup-establishment", checkRequiredFields(['establishmentName', 'email', 'password', 'phone', 'companyType']), async (req, res) => {
   try {
     const estabBodyData = await req.body;
 
@@ -74,9 +74,9 @@ router.post("/signup-establishment", checkRequiredFields(['establishmentName', '
     newEstablishment.details = details._id;
     await newEstablishment.save();
     const createdEstablishment = await Establishment.findById(newEstablishment._id)
-    .select("-password")
-    .select('-__v')
-    .populate('details');
+      .select("-password")
+      .select('-__v')
+      .populate('details');
     // Respond with the created establishment
     console.log("Establishment created successfully:", createdEstablishment); // Add this log
     return res.status(201).json({ establishment: createdEstablishment });
@@ -141,81 +141,7 @@ router.post("/login-establishment", async (req, res) => {
   }
 });
 
-router.get("/fetchEstablishmentByEstablishmentId/:id", async (req, res) => {
-  const id = req.params.id;
-  try {
-    const establishment = await Establishment.findById(
-      id,
-      "-isFeatured"
-    ).populate("city", "cityName");
-    if (!establishment) {
-      res.status(404).json({ error: `Establishment not found for id ${id}` });
-      return [];
-    }
-    res.status(200).json(establishment);
-  } catch (error) {
-    res.status(500).json({ error: error });
-  }
-});
 
-
-/// -- Establishment Get all Establishment with Details obs. only for User App
-router.get("/get-all-establishments-with-details", async (req, res) => {
-  try {
-    // Encontrar todos os estabelecimentos
-    const allEstablishments = await Establishment.find({}).sort({ createdAt: 1 });
-
-    // Array para armazenar os dados combinados de todos os estabelecimentos
-    const combinedDataArray = [];
-
-    // Iterar sobre cada estabelecimento
-    for (const establishment of allEstablishments) {
-      const establishmentsId = establishment._id;
-      const typeEstablishment = establishment.companyType;
-
-      // Recuperar dados com base no tipo de estabelecimento
-      let establishmentDetails;
-      switch (typeEstablishment) {
-        case 'promoter':
-          establishmentDetails = await PromoterDetails.findOne({ establishmentId: establishmentsId });
-        case 'bar':
-          establishmentDetails = await BarDetails.findOne({ establishmentId: establishmentsId });
-          break;
-        case 'club':
-          establishmentDetails = await ClubDetails.findOne({ establishmentId: establishmentsId });
-          break;
-        case 'kiosk':
-          establishmentDetails = await KioskDetails.findOne({ establishmentId: establishmentsId });
-          break;
-        default:
-          return res.status(400).json({ error: "Invalid establishment type." });
-      }
-
-      // Verificar se os detalhes do estabelecimento estão preenchidos
-      if (establishmentDetails && Object.keys(establishmentDetails).length > 0) {
-        // Dados combinados para o estabelecimento atual
-        const combinedData = {
-          _id: establishment._id,
-          logoUrl: establishment.logoUrl,
-          establishmentName: establishment.establishmentName,
-
-          email: establishment.email,
-          phone: establishment.phone,
-          companyType: establishment.companyType,
-          establishmentDetails,
-        };
-        // Adicionar os dados combinados ao array
-        combinedDataArray.push(combinedData);
-      }
-    }
-
-    // Retorna o array com os dados combinados de todos os estabelecimentos
-    return res.status(200).json(combinedDataArray);
-  } catch (error) {
-    console.error("Error when fetching establishments data:", error);
-    return res.status(500).json({ error: "Internal server error." });
-  }
-});
 
 /// -- Router fetch-establishment-type where u can filter from Comapany type and get pagination
 router.get("/fetch-establishment-type", async (req, res) => {
@@ -261,6 +187,26 @@ router.get("/fetch-establishment-type", async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+// Rota para buscar um estabelecimento específico e popular os detalhes
+router.get('/get-all-establishment/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Buscar o estabelecimento pelo ID e popular os detalhes
+    const establishment = await Establishment.findById(id).populate('details').select('-password');
+
+    if (!establishment) {
+      return res.status(404).json({ error: "Estabelecimento não encontrado." });
+    }
+
+    res.status(200).json({establishment});
+  } catch (error) {
+    console.error("Erro ao buscar estabelecimento:", error);
+    res.status(500).json({ error: "Erro interno do servidor." });
+  }
+});
+
 
 //fetch-all-establishment
 router.get("/fetch-all-establishment", async (req, res) => {
