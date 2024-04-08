@@ -7,13 +7,9 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendEmailConfig = async (receiver, subject, htmlContent) => {
     try {
-
-        // Define the email content by passing resetLink to the compiled template
-        const html = template({ resetLink });
-
         const data = {
             to: receiver,
-            from: process.env.SENDER_EMAIL, // Update with your sender email
+            from:"mauro.developer.br@gmail.com", ///process.env.SENDER_EMAIL, // Update with your sender email
             subject: subject,
             html: htmlContent,
         };
