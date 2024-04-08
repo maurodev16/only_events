@@ -17,7 +17,7 @@ const sendEmailConfig = async (receiver, subject, htmlContent) => {
             subject: subject,
             html: htmlContent,
         };
-console
+
         return sgMail.send(data);
     } catch (error) {
         return new Error(error);
