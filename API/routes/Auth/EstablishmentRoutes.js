@@ -1,15 +1,12 @@
 import mongoose from "mongoose";
 import { Router } from "express";
 import Establishment from "../../models/Establishment/Establishment.js";
-import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import Post from "../../models/Posts.js";
 import BarDetails from "../../models/Establishment/Details/BarDetail.js"
 import ClubDetails from "../../models/Establishment/Details/ClubDetail.js"
 import KioskDetails from "../../models/Establishment/Details/KioskDetail.js"
 import PromoterDetails from "../../models/Establishment/Details/PromoterDetail.js"
-import MusicCategory from "../../models/MusicCategory.js";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/checkRequiredFields.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
@@ -142,7 +139,6 @@ router.post("/login-establishment", async (req, res) => {
 });
 
 
-
 /// -- Router fetch-establishment-type where u can filter from Comapany type and get pagination
 router.get("/fetch-establishment-type", async (req, res) => {
   try {
@@ -200,7 +196,7 @@ router.get('/get-all-establishment/:id', async (req, res) => {
       return res.status(404).json({ error: "Estabelecimento não encontrado." });
     }
 
-    res.status(200).json({establishment});
+    res.status(200).json({ establishment });
   } catch (error) {
     console.error("Erro ao buscar estabelecimento:", error);
     res.status(500).json({ error: "Erro interno do servidor." });

@@ -9,10 +9,11 @@ const userSchema = new mongoose.Schema({
   nickname: { type: String, required: true, },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  token: { type: String },
-  passwordChangedAt: { type: Date },
+  ///
+  token: { type: String  },
+  passwordChanged_at: { type: Date },
   passwordResetToken: { type: String },
-  passwordResetTokenExpires: { type: Date },
+  passwordResetToken_expires: { type: Date },
 },
   {
     timestamps: true,
