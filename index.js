@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
 import http from 'http';
+import exphbs from 'express-handlebars'; // Importe express-handlebars corretamente
+import path from 'path';
+// Configurar o diretório de visualizações
+
 // Import routers
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
@@ -23,7 +27,18 @@ import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
 const app = express();
 
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
+// Crie uma instância do express-handlebars
+const hbs = exphbs.create();
+
+// Configure o Handlebars como mecanismo de visualização
+app.engine('handlebars', hbs.engine);
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+
+// Resto do código do seu aplicativo...
 // Inicialização do servidor HTTP
 const httpServer = http.createServer(app);
 const PORT = process.env.PORT || 3000;
