@@ -6,13 +6,18 @@ import sendEmailConfig from "../../services/Emails/sendEmailConfig.js";
 import TokenEstab from '../../models/TokenEstab.js'; // Importe o modelo TokenEstab
 import crypto from 'crypto'; // Importe o módulo 'crypto' para usar a função de hash
 import generateResetToken from '../../services/generateResetToken.js';
-
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
+const bcryptSalt = process.env.BCRYPT_SALT;
 const router = Router();
 
 ///- Router to send reset link to user email
 router.post('/send-link-reset-password', async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email } = await req.body;
 
     // Validate establishment data
     if (!email) {
@@ -50,23 +55,72 @@ router.post('/send-link-reset-password', async (req, res) => {
     // Salvar o token no banco de dados usando o modelo TokenEstab
     await TokenEstab.create({ establishmentId: establishment._id, token: resetToken });
 
-    const resetLink = `${req.protocol}://${req.get('host')}/api/v1/auth/request-reset-password/${resetToken}`;
+    const resetLink = `${req.protocol}://localhost:3000/api/v1/estab-request/request-reset-password/${resetToken}`;
     const htmlContent = `
-        <html>
-        <head>
-            <title>Password Reset</title>
-        </head>
-        <body>
-            <div class="container">
-                <h2>Password Reset</h2>
-                <p>Click the button below to reset your password. This reset password link will be valid only for 10 minutes.</p>
-                <a href="${resetLink}" target="_blank">Reset Password</a>
-                <div class="footer">
-                    <p>If you didn't request a password reset, you can safely ignore this email.</p>
-                </div>
-            </div>
-        </body>
-        </html>
+           <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Reset</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h2 {
+      color: #007bff;
+    }
+    p {
+      line-height: 1.6;
+    }
+   
+    a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+    a:hover {
+      background-color: #0056b3;
+    }
+    .footer {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Password Reset</h2>
+    <p>Dein neues Passwort.</p>
+    <p>Du bekommst diese E-Mail, weil du ein neues Passwort angefordet hast.</p></br>
+    <p>Bitte folge diesem Button, um ein neues Passwort zu vergeben.</p></br>
+    <a href="${resetLink}" target="_blank">Neus Passwort vergeben</a></br>
+    <div class="footer">
+      <p>Dieser Link is 10 Minuten gültig.</p>
+    </div>
+  </div>
+</body>
+</html>
     `;
 
 
@@ -87,9 +141,10 @@ router.post('/send-link-reset-password', async (req, res) => {
 
 
 //-- Router to Reset user Password
-router.patch("/request-reset-password/:token", async (req, res) => {
+
+router.post("/request-reset-password/:token", async (req, res) => {
   try {
-    const newPassword = req.body;
+    const { newPassword } = await req.body;
     const token = req.params.token;
 
     // Buscar o token no banco de dados
@@ -106,15 +161,14 @@ router.patch("/request-reset-password/:token", async (req, res) => {
       return res.status(404).json({ msg: "Establishment not found!" });
     }
 
-    // Atualizar a senha do estabelecimento
-    establishment.password = newPassword;
-    establishment.passwordChanged_at = Date.now();
+    // Gerar um hash seguro da nova senha
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Limpar o token de redefinição de senha do estabelecimento
-    await tokenEstab.remove();
+    await TokenEstab.deleteOne({ _id: tokenEstab._id });
 
-    // Salvar as alterações no estabelecimento
-    await establishment.save();
+    // Atualizar a senha do estabelecimento com o hash
+    await Establishment.updateOne({ _id: establishment._id }, { password: hashedPassword, passwordChanged_at: Date.now() });
 
     // Gerar um novo token de autenticação para o estabelecimento
     const loginToken = jwt.sign({ _id: establishment._id }, AUTH_SECRET_KEY, { expiresIn: "1h" });
@@ -126,5 +180,6 @@ router.patch("/request-reset-password/:token", async (req, res) => {
     res.status(500).json({ error: "There was an error resetting the password. Please try again later." });
   }
 });
+
 
 export default router;
