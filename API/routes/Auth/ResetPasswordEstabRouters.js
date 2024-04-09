@@ -46,7 +46,7 @@ router.post('/send-link-reset-password', async (req, res) => {
     await TokenEstab.create({ establishmentId: establishment._id, token: resetToken });
 
     // Construct reset link
-    const resetLink = `${req.protocol}://wasgehtab.cyclic.app/api/v1/estab-request/reset-password/${resetToken}`;
+    const resetLink = `https://wasgehtab.cyclic.app/api/v1/estab-request/reset-password/${resetToken}`;
     
   // Check if reset token was generated successfully
     if (!resetLink) {
@@ -149,7 +149,7 @@ router.get("/reset-password/:token", async (req, res) => {
       return res.status(401).json({ msg: "Token is invalid or has expired!" });
     }
  // Construct reset link
- const resetLink = `${req.protocol}://wasgehtab.cyclic.app/api/v1/estab-request/reset-password`;
+ const resetLink = `https://wasgehtab.cyclic.app/api/v1/estab-request/reset-password`;
     // Construir o formulário de redefinição de senha diretamente no código
     const resetPasswordForm = `
       <!DOCTYPE html>
