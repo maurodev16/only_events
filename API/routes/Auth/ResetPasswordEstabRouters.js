@@ -191,7 +191,7 @@ router.post("/reset-password", async (req, res) => {
     const tokenEstab = await TokenEstab.findOne({ token });
 
     if (!tokenEstab) {
-      return res.status(401).json({ msg: "Token is invalid!" });
+      return res.status(401).json({ error: "Token is invalid!" });
     }
 
     // Gerar um hash seguro da nova senha
