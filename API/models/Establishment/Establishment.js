@@ -11,17 +11,15 @@ const establishmentSchema = new mongoose.Schema(
   {
     // Dados iniciais obrigatorios para o primeiro registro
     establishmentName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    email: { type: String, lowercase: true, required: true, unique: true,  },
+    password: { type: String,  required: true, },
     phone: { type: String, required: true, unique: true },
     companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
     details: { type: mongoose.Schema.Types.ObjectId, ref: 'Details' }, // Referência aos detalhes específicos
 
-    /// --- ///
-    token: { type: String  },
-    passwordChanged_at: { type: Date },
+    passwordChangedAt: { type: Date },
     passwordResetToken: { type: String },
-    passwordResetToken_expires: { type: Date },
+    passwordResetTokenExpires: { type: Date },
   },
   {
     timestamps: true,

@@ -7,13 +7,11 @@ const bcryptSalt = process.env.BCRYPT_SALT;
 
 const userSchema = new mongoose.Schema({
   nickname: { type: String, required: true, },
-  email: { type: String, required: true, unique: true },
+  email: { type: String, lowercase: true, required: true, unique: true,   },
   password: { type: String, required: true },
-  ///
-  token: { type: String  },
-  passwordChanged_at: { type: Date },
+  passwordChangedAt: { type: Date },
   passwordResetToken: { type: String },
-  passwordResetToken_expires: { type: Date },
+  passwordResetTokenExpires: { type: Date },
 },
   {
     timestamps: true,

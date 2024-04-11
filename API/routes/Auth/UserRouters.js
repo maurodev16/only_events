@@ -3,17 +3,11 @@ dotenv.config();
 import { Router } from "express";
 const router = Router();
 import User from "../../models/User.js";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/checkRequiredFields.js"
 import mongoose from "mongoose";
-import Token from "../../models/TokenUser.js";
-
-
-const BCRYPT_SALT = process.env.BCRYPT_SALT;
-const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
-
+import signInFromJwt from "../../controllers/AuthController.js";
 /// Signup
 router.post("/signup-user", checkRequiredFields(['nickname', 'email', 'password']), async (req, res) => {
   const { nickname, email, password } = req.body;
@@ -98,12 +92,11 @@ router.post("/login-user", async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign({ _id: user._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
-    user.token = token;
+    const token = signInFromJwt(user._id);
 
     // Return the authentication token, ID, and email
     return res
-      .status(200).json({ login: user });
+      .status(200).json({status: true, login: user, token });
   } catch (error) {
     console.error(`Erro no login: ${error}`);
     res.status(500).json({ error: 'Erro no login' });

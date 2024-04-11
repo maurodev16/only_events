@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { Router } from "express";
 import Establishment from "../../models/Establishment/Establishment.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import BarDetails from "../../models/Establishment/Details/BarDetail.js"
 import ClubDetails from "../../models/Establishment/Details/ClubDetail.js"
 import KioskDetails from "../../models/Establishment/Details/KioskDetail.js"
@@ -12,10 +11,11 @@ import checkRequiredFields from "../../middleware/checkRequiredFields.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 import logoMiddleware from "../../middleware/logoMiddleware.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
+import { validationResult }  from 'express-validator';
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import signInFromJwt from "../../controllers/AuthController.js";
 dotenv.config();
-const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 configureCloudinary();
 const router = Router();
 
@@ -85,40 +85,35 @@ router.post("/signup-establishment", checkRequiredFields(['establishmentName', '
 });
 
 /// Login route
+
+// Login route
 router.post("/login-establishment", async (req, res) => {
   try {
-    const { email, password } = await req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
 
-    // Validate establishment data
+    const { email, password } = req.body;
+
+    // Check if the email is provided
     if (!email) {
-      console.log(email);
-
       return res.status(401).json({ error: "Please provide a valid email!" });
     }
 
-    let establishment;
-
-    // Check if Email is an email using regular expression
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-    if (isEmail) {
-      establishment = await Establishment.findOne({ email: email });
-      console.log(email);
-    } else {
-      // Find establishment using email
-      establishment = await Establishment.findOne({
-        email: { $regex: `^${email}`, $options: "i" },
-      });
-      console.log(establishment);
+    // Check if password is provided
+    if (!password) {
+      return res.status(422).json({ error: "Password is required!" });
     }
+
+    // Find establishment by email and exclude password field
+    const establishment = await Establishment.findOne({ email });
+
 
     if (!establishment) {
       return res.status(404).json({ error: "No establishment found with this email!" });
     }
 
-    if (!password) {
-      return res.status(422).json({ error: "Password is required!" });
-    }
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, establishment.password);
 
@@ -126,15 +121,13 @@ router.post("/login-establishment", async (req, res) => {
       return res.status(422).json({ error: "Incorrect password" });
     }
 
-    // Generate token
-    const token = jwt.sign({ _id: establishment._id, }, AUTH_SECRET_KEY, { expiresIn: "1h", });
-    establishment.token = token;
-    // Return the authentication token, ID, and email
-    return res
-      .status(200).json({ login: establishment });
+    // Generate token to login the user
+    const token = signInFromJwt(establishment._id)
+    // Return establishment details along with token
+    return res.status(200).json({ status: true, login: establishment, token });
   } catch (error) {
-    console.error(`Erro no login: ${error}`);
-    res.status(500).json({ error: 'Erro no login' });
+    console.error(`Error logging in: ${error}`);
+    res.status(500).json({ error: 'Error logging in' });
   }
 });
 

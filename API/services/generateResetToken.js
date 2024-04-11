@@ -11,7 +11,7 @@ const generateResetToken = (user) => {
 
   // Salvar as alterações no usuário
   user.save();
-
+console.log(resetToken,user.passwordResetToken )
   // Retornar o token
   return resetToken;
 };
