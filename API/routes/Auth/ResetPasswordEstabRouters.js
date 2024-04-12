@@ -40,7 +40,7 @@ router.post('/send-link-reset-password', async (req, res, next) => {
     }
 
     // Construct reset link
-    const resetLink = `${req.protocol}://localhost:3000/api/v1/estab-request/reset-password/${resetToken}`;
+    const resetLink = `${process.env.API_URL}/api/v1/estab-request/reset-password/${resetToken}`;
 
     // Construct HTML content for the email
      // Construct HTML content for the email

@@ -18,7 +18,7 @@ const sendEmailConfig = async (options) => {
     });
     try {
         const emailOptions =  {
-            from: "Was Geth Ab support<wga-support-wgaaa@gmail.com>", ///process.env.SENDER_EMAIL, // Update with your sender email
+            from: "Was Geth Ab support<wga-support-wga@gmail.com>", ///process.env.SENDER_EMAIL, // Update with your sender email
             to: options.email,
             subject: options.subject,
             html: options.htmlContent,
