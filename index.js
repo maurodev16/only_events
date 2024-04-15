@@ -21,10 +21,12 @@ import countriesRoutes from './API/routes/CityAndCountryRouters.js';
 import swaggerSpec from "./API/services/Swagger/swagger.js";
 import ResetPasswordEstabRouters from "./API/routes/Auth/ResetPasswordEstabRouters.js";
 import ResetPasswordUserRouters from "./API/routes/Auth/ResetPasswordUserRouters.js";
+import EmailVerificationRouters from "./API/routes/Auth/EmailVerificationRouters.js";
 import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
+import res from "express/lib/response.js";
 const app = express();
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -32,11 +34,8 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
 // Crie uma instância do express-handlebars
 const hbs = exphbs.create();
 
-// Configure o Handlebars como mecanismo de visualização
-app.engine('handlebars', hbs.engine);
-app.set('view engine', 'handlebars');
-app.set('views', path.join(__dirname, 'views'));
-
+// Set EJS as templating engine 
+app.set('view engine', 'ejs');
 
 // Resto do código do seu aplicativo...
 // Inicialização do servidor HTTP
@@ -45,6 +44,7 @@ const PORT = process.env.PORT || 3000;
 const uri = process.env.MONGO_CONNECTION_STRING;
 const client = connect(uri);
 app.use(urlencoded({ extended: true }));
+
 app.use(json());
 // Adicione uma referência ao objeto io ao app para que possa ser usado em outras partes do aplicativo
 
@@ -62,11 +62,17 @@ app.use('/api/v1/follow', followRouters);
 app.use('/api/v1/city-and-country', countriesRoutes);
 app.use("/api/v1/estab-request", ResetPasswordEstabRouters);
 app.use("/api/v1/user-request", ResetPasswordUserRouters);
+app.use("/api/v1/email-verification", EmailVerificationRouters);
 app.use("/api/v1/bar", barDetailRoutes);
 app.use("/api/v1/club", clubDetailRoutes);
 app.use("/api/v1/kiosk", kioskDetailRoutes);
 app.use("/api/v1/post", postRoutes);
 app.use('/api/v1/docs', serve, setup(swaggerSpec));
+
+app.get('/api/v1/',( req, res)=>{
+    res.render('home/index')
+
+})
 
 
 // Connect to MongoDB

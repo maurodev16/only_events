@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const generateResetToken = (user) => {
+const generateResetPasswordToken = (user) => {
   // Gerar e salvar um token de redefinição de senha
   const resetToken = crypto.randomBytes(32).toString("hex");
   user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
@@ -16,4 +16,7 @@ console.log(resetToken,user.passwordResetToken )
   return resetToken;
 };
 
-export default generateResetToken;
+export default generateResetPasswordToken;
+
+
+

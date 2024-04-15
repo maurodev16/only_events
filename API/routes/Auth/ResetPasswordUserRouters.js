@@ -3,7 +3,7 @@ import { Router } from 'express';
 import checkToken from '../../middleware/checkToken.js';
 import sendEmailConfig from "../../services/Emails/sendEmailConfig.js";
 import crypto from 'crypto'; // Importe o módulo 'crypto' para usar a função de hash
-import generateResetToken from '../../services/generateResetToken.js';
+import generateResetToken from '../../services/generateResetPasswordToken.js';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";

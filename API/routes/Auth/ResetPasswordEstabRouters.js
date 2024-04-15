@@ -4,7 +4,7 @@ import { Router } from 'express';
 import checkToken from '../../middleware/checkToken.js';
 import sendEmailConfig from "../../services/Emails/sendEmailConfig.js";
 import crypto from 'crypto'; // Importe o módulo 'crypto' para usar a função de hash
-import generateResetToken from '../../services/generateResetToken.js';
+import generateResetPasswordToken from '../../services/generateResetPasswordToken.js';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -32,7 +32,7 @@ router.post('/send-link-reset-password', async (req, res, next) => {
     }
 
     // Generate and save a password reset token
-    const resetToken = generateResetToken(establishment);
+    const resetToken = generateResetPasswordToken(establishment);
 
     // Check if reset token was generated successfully
     if (!resetToken) {
@@ -168,7 +168,6 @@ router.patch("/reset-password/:token", async (req, res, next) => {
     res.status(500).json({ error: "There was an error resetting the password." });
   }
 });
-
 
 
 export default router;

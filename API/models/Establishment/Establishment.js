@@ -11,12 +11,17 @@ const establishmentSchema = new mongoose.Schema(
   {
     // Dados iniciais obrigatorios para o primeiro registro
     establishmentName: { type: String, required: true },
-    email: { type: String, lowercase: true, required: true, unique: true,  },
-    password: { type: String,  required: true, },
+    email: { type: String, lowercase: true, required: true, unique: true },
+    password: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
-    companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true, },
+    companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true },
     details: { type: mongoose.Schema.Types.ObjectId, ref: 'Details' }, // Referência aos detalhes específicos
+    isEmailVerified: { type: Boolean, default: false }, // Campo para rastrear se o e-mail foi verificado
+    ///
+    verificationEmailToken: { type: String},
+    verificationEmailTokenExpires: { type: Date },
 
+    ///
     passwordChangedAt: { type: Date },
     passwordResetToken: { type: String },
     passwordResetTokenExpires: { type: Date },
@@ -25,6 +30,7 @@ const establishmentSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
 // Adicione o plugin de paginação ao seu esquema
 establishmentSchema.plugin(mongoosePaginate);
 
