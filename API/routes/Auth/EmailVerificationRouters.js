@@ -159,7 +159,6 @@ router.patch('/verify-email/:token', async (req, res, next) => {
 });
 
 
-
 router.get('/email-verification-result', (req, res) => {
   const { msg } = req.params;
   const resetLink = `${req.protocol}//wasgehtab.cyclic.app/api/v1/email-verification/verify-email/${msg}`;
