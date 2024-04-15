@@ -137,6 +137,7 @@ router.patch('/verify-email/:token', async (req, res, next) => {
       return res.render('email_verification_error');
     }
 
+    
     // Verificar se o token está vencido
     const currentToken = Establishment.findOne({ verificationEmailTokenExpires: { $gt: Date.now() } });
     if (!currentToken) {
