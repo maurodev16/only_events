@@ -27,7 +27,7 @@ router.post('/send-email-verification', async (req, res, next) => {
     const resetToken = generateConfirmeEmailToken(establishment);
 
     // Construa o link de verificação de e-mail
-    const resetLink = `${req.protocol}://localhost:3000/api/v1/email-verification/verify-email/${resetToken}`;
+    const resetLink = `${req.protocol}//wasgehtab.cyclic.app/api/v1/email-verification/verify-email/${resetToken}`;
 
     // Construa o conteúdo HTML do e-mail
 
@@ -137,7 +137,7 @@ router.patch('/verify-email/:token', async (req, res, next) => {
       return res.render('email_verification_error');
     }
 
-    
+
     // Verificar se o token está vencido
     const currentToken = Establishment.findOne({ verificationEmailTokenExpires: { $gt: Date.now() } });
     if (!currentToken) {
@@ -162,7 +162,7 @@ router.patch('/verify-email/:token', async (req, res, next) => {
 
 router.get('/email-verification-result', (req, res) => {
   const { msg } = req.params;
-  const resetLink = `${req.protocol}://localhost:3000/api/v1/email-verification/verify-email/${msg}`;
+  const resetLink = `${req.protocol}//wasgehtab.cyclic.app/api/v1/email-verification/verify-email/${msg}`;
   res.render('email-verification-result', { resetLink });
 });
 
