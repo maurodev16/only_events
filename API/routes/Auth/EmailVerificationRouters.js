@@ -27,7 +27,7 @@ router.post('/send-email-verification', async (req, res, next) => {
     const resetToken = generateConfirmeEmailToken(establishment);
 
     // Construa o link de verificação de e-mail
-    const resetLink = `${req.protocol}//wasgehtab.cyclic.app/api/v1/email-verification/verify-email/${resetToken}`;
+    const resetLink = `${req.protocol}://wasgehtab.cyclic.app/api/v1/email-verification/verify-email/${resetToken}`;
 
     // Construa o conteúdo HTML do e-mail
 
