@@ -2,11 +2,12 @@ import { Router } from "express";
 import Establishment from "../../models/Establishment/Establishment.js";
 import generateConfirmeEmailToken from '../../services/generateConfirmeEmailToken.js';
 import sendEmailConfig from "../../services/Emails/sendEmailConfig.js";
+import crypto from 'crypto'; // Importe o módulo 'crypto' para usar a função de hash
 import dotenv from "dotenv";
 const router = Router();
 dotenv.config();
 
-router.post('/send-email-verification', async (req, res, next) => {
+router.post('/send-email-verification-link', async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -27,10 +28,9 @@ router.post('/send-email-verification', async (req, res, next) => {
     const resetToken = generateConfirmeEmailToken(establishment);
 
     // Construa o link de verificação de e-mail
-    const resetLink = `${req.protocol}://wasgehtab.cyclic.app/api/v1/email-verification/verify-email/${resetToken}`;
+    const resetLink = `${process.env.API_URL}/api/v1/email-verification/confirm-email/${resetToken}`;
 
     // Construa o conteúdo HTML do e-mail
-
     const htmlContent = `
         <!DOCTYPE html>
         <html lang="en">
@@ -98,22 +98,21 @@ router.post('/send-email-verification', async (req, res, next) => {
           </div>
         </body>
         </html>
-        
         `;
     // Envie o e-mail de verificação
     const isEmailSent = await sendEmailConfig({
       email: establishment.email,
       subject: "Email Verification received",
-      htmlContent: htmlContent
+      htmlContent: htmlContent,
     });
 
     // Se o e-mail não puder ser enviado, limpe o token de verificação
     if (!isEmailSent) {
       establishment.verificationEmailToken = undefined;
-      await establishment.save();
-      return res.status(500).json({ error: "Failed to send email verification!" });
+      establishment.verificationEmailTokenExpires = undefined;
+      establishment.isEmailVerified = false;
     }
-
+    await establishment.save({ validateBeforeSave: false });
     // Responda com uma mensagem de sucesso
     return res.status(200).json({ message: "Email verification sent successfully!" });
   } catch (error) {
@@ -124,33 +123,31 @@ router.post('/send-email-verification', async (req, res, next) => {
 });
 
 
-router.patch('/verify-email/:token', async (req, res, next) => {
+router.patch('/confirm-email/:token', async (req, res, next) => {
   try {
     // Extrair o token da URL
-    const { token } = req.params;
+    const token = req.params.token;
 
-    // Encontrar o estabelecimento com o token de verificação fornecido
-    const establishment = await Establishment.findOne({ verificationEmailToken: token });
+    // Encontrar o estabelecimento com base no token de verificação fornecido
+    const establishment = await Establishment.findOne({
+      verificationEmailToken: token,
+      verificationEmailTokenExpires: { $gt: Date.now() },
+    });
 
-    // Se não encontrar o estabelecimento, retorne um erro
-    if (!establishment) { 
-      return res.render('email_verification_error');
-    }
-
-
-    // Verificar se o token está vencido
-    const currentToken = Establishment.findOne({ verificationEmailTokenExpires: { $gt: Date.now() } });
-    if (!currentToken) {
-      return res.render('email_verification_error');
+    // Verificar se o estabelecimento foi encontrado
+    if (!establishment) {
+      // Se o estabelecimento não for encontrado ou o token expirar, enviar erro 401
+      return res.status(401).json({ error: "Token is invalid or has expired!" });
     }
 
     // Marcar o e-mail como verificado e limpar o token de verificação
     establishment.isEmailVerified = true;
     establishment.verificationEmailToken = undefined;
+    establishment.verificationEmailTokenExpires = undefined;
     await establishment.save();
 
     // Retornar sucesso e o novo token
-    return res.render('email_verify_success');
+    return res.status(200).json({ status: true });
   } catch (error) {
     // Se ocorrer algum erro durante o processo, retorne um erro 500
     console.error(`Error verifying email: ${error}`);
@@ -158,11 +155,30 @@ router.patch('/verify-email/:token', async (req, res, next) => {
   }
 });
 
+//-- Only for the app verification
+router.get('/email-verification-result/:id', async (req, res) => {
+  try {
+    const establishmentId = req.params.id;
 
-router.get('/email-verification-result', (req, res) => {
-  const { msg } = req.params;
-  const resetLink = `${req.protocol}//wasgehtab.cyclic.app/api/v1/email-verification/verify-email/${msg}`;
-  res.render('email-verification-result', { resetLink });
+    // Encontrar o estabelecimento com base no ID fornecido
+    const establishment = await Establishment.findById(establishmentId);
+
+    if (!establishment) {
+      // Se o estabelecimento não for encontrado, retorne um erro
+      return res.status(404).json({ error: "Establishment not found" });
+    }
+
+    // Verifique se o e-mail foi verificado com sucesso
+    if (establishment.isEmailVerified) {
+      return res.status(200).json({ status: true, message: "Email successfully verified" });
+    } else {
+      return res.status(200).json({ status: false, message: "Email not verified" });
+    }
+  } catch (error) {
+    console.error(`Error getting email verification result: ${error}`);
+    res.status(500).json({ error: "Error getting email verification result" });
+  }
 });
+
 
 export default router;

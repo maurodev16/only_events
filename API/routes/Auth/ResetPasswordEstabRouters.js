@@ -123,7 +123,6 @@ router.post('/send-link-reset-password', async (req, res, next) => {
     if (!isEmailSend) {
       establishment.passwordResetToken = undefined;
       establishment.passwordResetTokenExpires = undefined;
-      
     }
 
     // Save establishment after all operations are completed

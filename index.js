@@ -4,8 +4,8 @@ import express, { urlencoded, json } from "express";
 import { serve, setup } from "swagger-ui-express";
 import http from 'http';
 import exphbs from 'express-handlebars'; // Importe express-handlebars corretamente
-import path from 'path';
 // Configurar o diretório de visualizações
+import session from 'express-session'; // Importe o módulo express-session
 
 // Import routers
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
@@ -26,14 +26,20 @@ import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
 import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
-import res from "express/lib/response.js";
 const app = express();
-
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+app.use(session({
+    secret: 'seuSegredoAqui',
+    resave: false,
+    saveUninitialized: false
+  }));
+//const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 // Crie uma instância do express-handlebars
 const hbs = exphbs.create();
+import path from 'path';
 
+// Configurar pasta de visualizações
+//app.set("views", path.join(__dirname, "views"));
 // Set EJS as templating engine 
 app.set('view engine', 'ejs');
 
@@ -71,13 +77,9 @@ app.use('/api/v1/docs', serve, setup(swaggerSpec));
 
 app.get('/api/v1/',( req, res)=>{
     res.render('home/index')
-
 })
 
-
 // Connect to MongoDB
-
-
 client.then(() => {
         httpServer.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
