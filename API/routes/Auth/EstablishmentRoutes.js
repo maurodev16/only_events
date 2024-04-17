@@ -76,15 +76,15 @@ router.post("/signup-establishment", checkRequiredFields(['establishmentName', '
       .populate('details');
     // Respond with the created establishment
     console.log("Establishment created successfully:", createdEstablishment); // Add this log
-    return res.status(201).json({ establishment: createdEstablishment });
+      // Generate token to login the user
+      const token = signInFromJwt(newEstablishment._id)
+    return res.status(201).json({ establishment: createdEstablishment, token });
   } catch (error) {
     // If an error occurs during the process
     console.error("Error creating Establishment: ", error);
     return res.status(500).json({ error: 'Error creating establishment, please try again later!' });
   }
 });
-
-/// Login route
 
 // Login route
 router.post("/login-establishment", async (req, res) => {
