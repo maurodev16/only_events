@@ -29,7 +29,7 @@ router.post('/send-email-verification-link', async (req, res, next) => {
 
     // Construa o link de verificação de e-mail
     const resetLink = `${process.env.API_URL}/api/v1/email-verification/confirm-email/${resetToken}`;
-
+console.log(resetLink)
     // Construa o conteúdo HTML do e-mail
     const htmlContent = `
         <!DOCTYPE html>

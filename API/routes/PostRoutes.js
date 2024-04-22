@@ -77,6 +77,50 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
   }
 });
 
+router.get('/get-posts-by-user-id', async (req, res) => {
+  try {
+    const { userId, page = 1, limit = 10 } = req.query;
+    const query = { userId }; // Initialize the query with the userId
+
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      sort: { createdAt: -1 } // Sort the posts by creation date in descending order
+    };
+
+    // Execute the query to find posts by user ID
+    const posts = await Post.paginate(query, options);
+
+    if (posts.docs.length === 0) {
+      return res.status(404).json({ error: 'Posts not found' });
+    }
+
+    // Array to store the populated posts
+    const populatedPosts = [];
+
+    // Populate each post document individually
+    for (const post of posts.docs) {
+      // Use the establishment ID of each post to find the establishment data
+      const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
+      if (establishment) {
+        // Create a new post object with the populated establishment field and likes count
+        const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
+        // Add the populated post to the array of populated posts
+        populatedPosts.push(populatedPost);
+      }
+    }
+
+    // Return the populated posts
+    return res.status(200).json({
+      posts: populatedPosts,
+      total: posts.totalDocs,
+      totalPages: posts.totalPages,
+    });
+
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
 
 //
 router.get('/get-posts-with-filters', async (req, res) => {

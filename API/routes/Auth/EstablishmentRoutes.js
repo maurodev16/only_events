@@ -73,7 +73,7 @@ router.post("/signup-establishment", checkRequiredFields(['establishmentName', '
     const createdEstablishment = await Establishment.findById(newEstablishment._id)
       .select("-password")
       .select('-__v')
-      // .populate('details');
+     .populate('details');
     // Respond with the created establishment
     console.log("Establishment created successfully:", createdEstablishment); // Add this log
       // Generate token to login the user
