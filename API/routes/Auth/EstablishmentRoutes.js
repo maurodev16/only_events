@@ -107,7 +107,7 @@ router.post("/login-establishment", async (req, res) => {
     }
 
     // Find establishment by email and exclude password field
-    const establishment = await Establishment.findOne({ email });
+    const establishment = await Establishment.findOne({ email })
 
 
     if (!establishment) {
@@ -124,7 +124,7 @@ router.post("/login-establishment", async (req, res) => {
     // Generate token to login the user
     const token = signInFromJwt(establishment._id)
     // Return establishment details along with token
-    return res.status(200).json({ status: true, login: establishment, token });
+    return res.status(200).json({ token:token });
   } catch (error) {
     console.error(`Error logging in: ${error}`);
     res.status(500).json({ error: 'Error logging in' });

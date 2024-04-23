@@ -43,17 +43,17 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
     console.log("file down", file)
 
     const file_name = `${file.originalname.split(".")[0]}`;
- 
+
     const post = new Post({
       establishmentObjId: establishmentObjId,
       content: postData.content,
       eventType: postData.eventType,
       products: postData.products,
       tags: postData.tags,
-      likes:postData.likes,
-      likesCount:postData.likesCount,
+      likes: postData.likes,
       likesCount: postData.likesCount,
-      favorites:postData.favorites,
+      likesCount: postData.likesCount,
+      favorites: postData.favorites,
       favoritesCount: postData.favoritesCount,
       location: postData.location,
       postStatus: postData.postStatus,
@@ -61,13 +61,13 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
       eventStartTime: postData.eventStartTime,
       eventEndTime: postData.eventEndTime,
       isRecurring: postData.isRecurring,
-      comments:postData.comments,
+      comments: postData.comments,
     });
     const newPost = await post.save();
     console.log("newPost", newPost)
 
     // // Envio do arquivo para o Cloudinary
-    const result_mediaUrl = await uploadImageToCloudinary(file.path,establishmentObjId, "post", newPost._id)
+    const result_mediaUrl = await uploadImageToCloudinary(file.path, establishmentObjId, "post", newPost._id)
     newPost.mediaUrl = result_mediaUrl;
     await newPost.save();
     res.status(201).json({ post: newPost });
@@ -77,10 +77,27 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
   }
 });
 
-router.get('/get-posts-by-user-id', async (req, res) => {
+router.get('/get-posts-by-user-id/:establishmentObjId', async (req, res) => {
   try {
-    const { userId, page = 1, limit = 10 } = req.query;
-    const query = { userId }; // Initialize the query with the userId
+    const establishmentObjId = req.params.establishmentObjId;
+
+    const { page = 1, limit = 10 } = req.query;
+    console.log("establishmentObjId", establishmentObjId)
+    const query = {}; // Initialize empty
+
+    const postData = await req.body;
+
+    console.log("content", postData.content)
+
+    // Verificar se o estabelecimento existe
+    const establishment = await Establishment.findById(establishmentObjId);
+    console.log("establishment", establishment)
+
+    if (!establishment) {
+      console.log("2::: establishment", establishment)
+      console.log("3::: establishmentObjId", establishmentObjId)
+      return res.status(404).json({ error: "Establishment not found." });
+    }
 
     const options = {
       page: parseInt(page, 10),
@@ -91,7 +108,7 @@ router.get('/get-posts-by-user-id', async (req, res) => {
     // Execute the query to find posts by user ID
     const posts = await Post.paginate(query, options);
 
-    if (posts.docs.length === 0) {
+    if (posts.docs.length === null) {
       return res.status(404).json({ error: 'Posts not found' });
     }
 
@@ -121,6 +138,7 @@ router.get('/get-posts-by-user-id', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
 
 //
 router.get('/get-posts-with-filters', async (req, res) => {
