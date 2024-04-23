@@ -178,7 +178,7 @@ router.get("/fetch-establishment-type", async (req, res) => {
 });
 
 // Rota para buscar um estabelecimento específico e popular os detalhes
-router.get('/get-all-establishment/:id', async (req, res) => {
+router.get('/get-establishment-by-user-id/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
