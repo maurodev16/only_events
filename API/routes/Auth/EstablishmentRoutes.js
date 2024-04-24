@@ -125,7 +125,7 @@ router.post("/login-establishment", async (req, res) => {
     // Generate token to login the user
     const token = signInFromJwt(establishment._id)
     // Return establishment details along with token
-    return res.status(200).json({ token: token });
+    return res.status(200).json({ id:establishment._id, token: token });
   } catch (error) {
     console.error(`Error logging in: ${error}`);
     res.status(500).json({ error: 'Error logging in' });
