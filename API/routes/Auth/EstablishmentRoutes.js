@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Router } from "express";
 import Establishment from "../../models/Establishment/Establishment.js";
 import bcrypt from "bcrypt";
+import Details from "../../models/Establishment/Details/Details.js";
 import BarDetails from "../../models/Establishment/Details/BarDetail.js"
 import ClubDetails from "../../models/Establishment/Details/ClubDetail.js"
 import KioskDetails from "../../models/Establishment/Details/KioskDetail.js"
@@ -11,7 +12,7 @@ import checkRequiredFields from "../../middleware/checkRequiredFields.js"
 import CityAndCountry from "../../models/CityAndCountry.js";
 import logoMiddleware from "../../middleware/logoMiddleware.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
-import { validationResult }  from 'express-validator';
+import { validationResult } from 'express-validator';
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import signInFromJwt from "../../controllers/AuthController.js";
@@ -73,11 +74,11 @@ router.post("/signup-establishment", checkRequiredFields(['establishmentName', '
     const createdEstablishment = await Establishment.findById(newEstablishment._id)
       .select("-password")
       .select('-__v')
-     .populate('details');
+      .populate('details');
     // Respond with the created establishment
     console.log("Establishment created successfully:", createdEstablishment); // Add this log
-      // Generate token to login the user
-      const token = signInFromJwt(newEstablishment._id)
+    // Generate token to login the user
+    const token = signInFromJwt(newEstablishment._id)
     return res.status(201).json({ establishment: createdEstablishment, token });
   } catch (error) {
     // If an error occurs during the process
@@ -124,7 +125,7 @@ router.post("/login-establishment", async (req, res) => {
     // Generate token to login the user
     const token = signInFromJwt(establishment._id)
     // Return establishment details along with token
-    return res.status(200).json({ token:token });
+    return res.status(200).json({ token: token });
   } catch (error) {
     console.error(`Error logging in: ${error}`);
     res.status(500).json({ error: 'Error logging in' });
@@ -359,11 +360,44 @@ router.get(
     }
   }
 );
+// Rota PATCH para atualizar os detalhes do estabelecimento
+router.patch('/update/:establishmentId/details', async (req, res) => {
+  try {
+    const establishmentId = req.params.establishmentId;
 
-router.put(
-  "/editEstablishment/:establishmentId",
-  checkToken,
-  async (req, res) => {
+    // Encontre o documento Establishment pelo ID
+    const establishment = await Establishment.findById(establishmentId);
+    if (!establishment) {
+      return res.status(404).json({ error: 'Estabelecimento não encontrado' });
+    }
+
+    // Obtenha o ID dos detalhes do estabelecimento
+    const detailsId = establishment.details;
+
+    // Encontre o documento Details pelo ID
+    const details = await Details.findById(detailsId);
+    if (!details) {
+      return res.status(404).json({ error: 'Detalhes não encontrados' });
+    }
+
+    // Atualize os dados dos detalhes do estabelecimento com base nos dados da solicitação
+    for (const field in req.body) {
+      if (details[field] !== undefined) {
+        details[field] = req.body[field];
+      }
+    }
+
+    // Salve as alterações
+    await details.save();
+
+    res.status(200).json({ message: 'Detalhes do estabelecimento atualizados com sucesso' });
+  } catch (error) {
+    console.error('Erro ao atualizar detalhes do estabelecimento:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+router.patch("/edit/:establishmentId",async (req, res) => {
     try {
       const establishmentData = await req.body;
       const establishmentId = req.params.establishmentId;
@@ -404,7 +438,7 @@ router.put(
 );
 
 router.delete(
-  "/deleteEstablishment/:establishmentId",
+  "/delete/:establishmentId",
   checkToken,
   async (req, res) => {
     try {
