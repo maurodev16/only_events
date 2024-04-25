@@ -395,7 +395,7 @@ router.patch('/update/:establishmentId/details', async (req, res) => {
     // Save the changes
     await details.save();
 
-    res.status(200).json({ detailsId: establishment.details, companyType: details.companyType, status: 'success' });
+    res.status(200).json({ details, status: 'success' });
   } catch (error) {
     console.error('Error updating establishment details:', error);
     res.status(500).json({ error: 'Internal server error' });
