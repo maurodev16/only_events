@@ -361,7 +361,7 @@ router.get(
   }
 );
 // PATCH route to update establishment details
-router.patch('/update/:establishmentId/details', async (req, res) => {
+router.put('/update/:establishmentId/details', async (req, res) => {
   try {
     const establishmentId = req.params.establishmentId;
 
