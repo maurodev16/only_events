@@ -125,7 +125,7 @@ router.post("/login-establishment", async (req, res) => {
     // Generate token to login the user
     const token = signInFromJwt(establishment._id)
     // Return establishment details along with token
-    return res.status(200).json({ id:establishment._id, token: token });
+    return res.status(200).json({ id: establishment._id, token: token });
   } catch (error) {
     console.error(`Error logging in: ${error}`);
     res.status(500).json({ error: 'Error logging in' });
@@ -360,81 +360,86 @@ router.get(
     }
   }
 );
-// Rota PATCH para atualizar os detalhes do estabelecimento
+// PATCH route to update establishment details
 router.patch('/update/:establishmentId/details', async (req, res) => {
   try {
     const establishmentId = req.params.establishmentId;
 
-    // Encontre o documento Establishment pelo ID
+    // Find the Establishment document by ID
     const establishment = await Establishment.findById(establishmentId);
     if (!establishment) {
-      return res.status(404).json({ error: 'Estabelecimento não encontrado' });
+      return res.status(404).json({ error: 'Establishment not found' });
     }
 
-    // Obtenha o ID dos detalhes do estabelecimento
-    const detailsId = establishment.details;
+    // Get the ID of the establishment details
+    const establishmentDetailsId = establishment.details;
 
-    // Encontre o documento Details pelo ID
-    const details = await Details.findById(detailsId);
+    // Find the Details document by ID
+    const details = await Details.findById(establishmentDetailsId);
+
     if (!details) {
-      return res.status(404).json({ error: 'Detalhes não encontrados' });
+      return res.status(404).json({ error: 'Details not found' });
     }
 
-    // Atualize os dados dos detalhes do estabelecimento com base nos dados da solicitação
+    if (establishmentDetailsId !== details._id) {
+      return res.status(404).json({ error: 'Details IDs do not match' });
+    }
+
+    // Update establishment details data based on request data
     for (const field in req.body) {
       if (details[field] !== undefined) {
         details[field] = req.body[field];
       }
     }
 
-    // Salve as alterações
+    // Save the changes
     await details.save();
 
-    res.status(200).json({ message: 'Detalhes do estabelecimento atualizados com sucesso' });
+    res.status(200).json({ detailsId: details._id, companyType: details.companyType, status: 'success' });
   } catch (error) {
-    console.error('Erro ao atualizar detalhes do estabelecimento:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    console.error('Error updating establishment details:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.patch("/edit/:establishmentId",async (req, res) => {
-    try {
-      const establishmentData = await req.body;
-      const establishmentId = req.params.establishmentId;
-      // Verificar se o evento existe
-      const establishment = await Establishment.findById(establishmentId)
-        .select("-isFeatured")
-        .populate("cityId");
-      if (!establishment) {
-        return res.status(404).json({ error: "Establishment not found" });
-      }
-
-      // Verificar se o Promoter tem permissão para editar o evento
-      if (establishment.promoter.toString() !== req.promoter._id) {
-        console.log(establishment.promoter.toString());
-        return res.status(403).json({ msg: "Unauthorized access" });
-      }
-      // Atualizar os dados do evento
-      establishment.establishmentName = establishmentData.establishmentName,
-        establishment.email = establishmentData.email,
-        establishment.password = establishmentData.password,
-        establishment.stateName = establishmentData.stateName,
-        establishment.cityName = establishmentData.cityName,
-        establishment.postalCode = establishmentData.postalCode,
-        establishment.streetName = establishmentData.streetName,
-        establishment.number = establishmentData.number,
-        establishment.phone = establishmentData.phone,
-        establishment.companyType = establishmentData.companyType,
-        establishment.updatedAt = Date.now();
-
-      // Salvar as alterações no banco de dados
-      const updatedEstablishment = await establishmentData.save();
-
-      res.status(200).json(updatedEstablishment);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+router.patch("/edit/:establishmentId", async (req, res) => {
+  try {
+    const establishmentData = await req.body;
+    const establishmentId = req.params.establishmentId;
+    // Verificar se o evento existe
+    const establishment = await Establishment.findById(establishmentId)
+      .select("-isFeatured")
+      .populate("cityId");
+    if (!establishment) {
+      return res.status(404).json({ error: "Establishment not found" });
     }
+
+    // Verificar se o Promoter tem permissão para editar o evento
+    if (establishment.promoter.toString() !== req.promoter._id) {
+      console.log(establishment.promoter.toString());
+      return res.status(403).json({ msg: "Unauthorized access" });
+    }
+    // Atualizar os dados do evento
+    establishment.establishmentName = establishmentData.establishmentName,
+      establishment.email = establishmentData.email,
+      establishment.password = establishmentData.password,
+      establishment.stateName = establishmentData.stateName,
+      establishment.cityName = establishmentData.cityName,
+      establishment.postalCode = establishmentData.postalCode,
+      establishment.streetName = establishmentData.streetName,
+      establishment.number = establishmentData.number,
+      establishment.phone = establishmentData.phone,
+      establishment.companyType = establishmentData.companyType,
+      establishment.updatedAt = Date.now();
+
+    // Salvar as alterações no banco de dados
+    const updatedEstablishment = await establishmentData.save();
+
+    res.status(200).json(updatedEstablishment);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
+}
 );
 
 router.delete(
