@@ -381,7 +381,7 @@ router.patch('/update/:establishmentId/details', async (req, res) => {
       return res.status(404).json({ error: 'Details not found' });
     }
 
-    if (establishmentDetailsId !== details._id) {
+    if (establishmentDetailsId.toString() !== details._id.toString() ) {
       return res.status(404).json({ error: 'Details IDs do not match' });
     }
 
