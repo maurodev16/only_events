@@ -16,6 +16,7 @@ import { validationResult } from 'express-validator';
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import signInFromJwt from "../../controllers/AuthController.js";
+import uploadImageToCloudinary from "../../services/Cloudinary/uploadImage_to_cloudinary.js";
 dotenv.config();
 configureCloudinary();
 const router = Router();
@@ -267,9 +268,6 @@ router.get("/get-details/:establishmentsId", async (req, res) => {
 });
 
 
-
-
-
 router.get("/fetchEstablishmentByCity/:cityName", async (req, res) => {
   try {
     const cityName = req.params.cityName;
@@ -360,6 +358,48 @@ router.get(
     }
   }
 );
+
+/// logo update router
+router.post("/update/logo/:establishmentId", logoMiddleware.single("logo"), async (req, res, next) => {
+  const establishmentId = req.params.establishmentId;
+  // Verifica se há um arquivo na requisição
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  const establishment = await Establishment.findById(establishmentId);
+
+  if (!establishment) {
+    return res.status(404).json({ error: 'Establishment not found' });
+  }
+
+  // Get the ID of the establishment details
+  const establishmentDetailsId = establishment.details;
+
+
+  // Find the Details document by ID
+  const details = await Details.findById(establishmentDetailsId);
+
+  if (!details) {
+    return res.status(404).json({ error: 'Details not found' });
+  }
+
+  const secure_url = await uploadImageToCloudinary(req.file.path, establishmentId, "logo", details._id);
+  console.log(secure_url)
+
+  if (!secure_url) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ error: 'Error uploading image' });
+  }
+
+  details.logoUrl = secure_url;
+  console.log(secure_url);
+  // Save the changes
+  await details.save();
+
+  res.status(200).json({ details, status: 'success' });
+
+})
+
 // PATCH route to update establishment details
 router.put('/update/:establishmentId/details', async (req, res) => {
   try {
@@ -381,7 +421,7 @@ router.put('/update/:establishmentId/details', async (req, res) => {
       return res.status(404).json({ error: 'Details not found' });
     }
 
-    if (establishmentDetailsId.toString() !== details._id.toString() ) {
+    if (establishmentDetailsId.toString() !== details._id.toString()) {
       return res.status(404).json({ error: 'Details IDs do not match' });
     }
 
