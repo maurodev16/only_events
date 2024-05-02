@@ -393,7 +393,7 @@ router.patch("/update/logo/:establishmentId", logoMiddleware.single("logo"), asy
   details.logoUrl = secure_url;
   console.log( "details.logoUrl::::", details.logoUrl);
   // Save the changes
- await Details.updateOne({_id: details._id})
+const updated= await Details.updateOne({_id: details._id})
 
   res.status(200).json({status: 'success' });
 
