@@ -360,7 +360,7 @@ router.get(
 );
 
 /// logo update router
-router.post("/update/logo/:establishmentId", logoMiddleware.single("logo"), async (req, res, next) => {
+router.patch("/update/logo/:establishmentId", logoMiddleware.single("logo"), async (req, res, next) => {
   const establishmentId = req.params.establishmentId;
   // Verifica se há um arquivo na requisição
   if (!req.file) {
@@ -383,8 +383,7 @@ router.post("/update/logo/:establishmentId", logoMiddleware.single("logo"), asyn
     return res.status(404).json({ error: 'Details not found' });
   }
 
-  const secure_url = await uploadImageToCloudinary(req.file.path, establishmentId, "logo", details._id);
-  console.log(secure_url)
+  const secure_url = await uploadImageToCloudinary(req.file.path, establishmentId, establishment.establishmentName);
 
   if (!secure_url) {
     console.error('Error uploading image:', error);
@@ -392,11 +391,11 @@ router.post("/update/logo/:establishmentId", logoMiddleware.single("logo"), asyn
   }
 
   details.logoUrl = secure_url;
-  console.log(secure_url);
+  console.log( "details.logoUrl::::", details.logoUrl);
   // Save the changes
-  await details.save();
+const estabUpdated = await Details.findOneAndUpdate(details._id).select("-__v");
 
-  res.status(200).json({ details, status: 'success' });
+  res.status(200).json({status: 'success', estabUpdated });
 
 })
 
