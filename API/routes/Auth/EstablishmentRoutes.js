@@ -377,7 +377,7 @@ router.patch("/update/logo/:establishmentId", logoMiddleware.single("logo"), asy
 
 
   // Find the Details document by ID
-  const details = await Details.findById(establishmentDetailsId);
+  const details = await Details.findOne({_id: establishmentDetailsId});
 
   if (!details) {
     return res.status(404).json({ error: 'Details not found' });
@@ -393,9 +393,9 @@ router.patch("/update/logo/:establishmentId", logoMiddleware.single("logo"), asy
   details.logoUrl = secure_url;
   console.log( "details.logoUrl::::", details.logoUrl);
   // Save the changes
-const estabUpdated = await Details.findOneAndUpdate(details._id).select("-__v");
+ await Details.updateOne({_id: details._id})
 
-  res.status(200).json({status: 'success', estabUpdated });
+  res.status(200).json({status: 'success' });
 
 })
 
