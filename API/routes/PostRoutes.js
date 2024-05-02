@@ -7,7 +7,7 @@ import express from "express";
 import Establishment from "../models/Establishment/Establishment.js";
 import logoMiddleware from "../middleware/logoMiddleware.js"
 import checkToken from '../middleware/checkToken.js';
-import uploadImageToCloudinary from "../services/Cloudinary/uploadImage_to_cloudinary.js";
+import uploadPostImageToCloudinary from "../services/Cloudinary/uploadPostImageToCloudinary.js";
 import configureCloudinary from "../services/Cloudinary/cloudinary_config.js";
 import { v2 as cloudinary } from "cloudinary";
 configureCloudinary();
@@ -67,7 +67,7 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
     console.log("newPost", newPost)
 
     // // Envio do arquivo para o Cloudinary
-    const result_mediaUrl = await uploadImageToCloudinary(file.path, establishmentObjId, "post", newPost._id)
+    const result_mediaUrl = await uploadPostImageToCloudinary(file.path, establishmentObjId,establishment.establishmentName, newPost._id)
     newPost.mediaUrl = result_mediaUrl;
     await newPost.save();
     res.status(201).json({ post: newPost });
@@ -77,7 +77,7 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
   }
 });
 
-router.get('/get-posts-by-user-id/:establishmentObjId', async (req, res) => {
+router.get('/get-profile-posts/:establishmentObjId', async (req, res) => {
   try {
     const establishmentObjId = req.params.establishmentObjId;
 
@@ -112,24 +112,9 @@ router.get('/get-posts-by-user-id/:establishmentObjId', async (req, res) => {
       return res.status(404).json({ error: 'Posts not found' });
     }
 
-    // Array to store the populated posts
-    const populatedPosts = [];
-
-    // Populate each post document individually
-    for (const post of posts.docs) {
-      // Use the establishment ID of each post to find the establishment data
-      const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
-      if (establishment) {
-        // Create a new post object with the populated establishment field and likes count
-        const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
-        // Add the populated post to the array of populated posts
-        populatedPosts.push(populatedPost);
-      }
-    }
-
     // Return the populated posts
     return res.status(200).json({
-      posts: populatedPosts,
+      posts,
       total: posts.totalDocs,
       totalPages: posts.totalPages,
     });

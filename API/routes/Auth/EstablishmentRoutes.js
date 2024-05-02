@@ -16,7 +16,7 @@ import { validationResult } from 'express-validator';
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import signInFromJwt from "../../controllers/AuthController.js";
-import uploadImageToCloudinary from "../../services/Cloudinary/uploadImage_to_cloudinary.js";
+import uploadLogoToCloudinary from "../../services/Cloudinary/uploadLogoToCloudinary.js";
 dotenv.config();
 configureCloudinary();
 const router = Router();
@@ -387,7 +387,7 @@ router.put("/update/logo/:establishmentId", logoMiddleware.single("logo"), async
   const logoUrlBeforeUpdate = details.logoUrl;
 
   // Upload image to Cloudinary
-  const secure_url = await uploadImageToCloudinary(req.file.path, establishmentId, establishment.establishmentName);
+  const secure_url = await uploadLogoToCloudinary(req.file.path, establishmentId, establishment.establishmentName);
 
   if (!secure_url) {
     console.error('Error uploading image:', error);
@@ -440,7 +440,6 @@ router.put('/update/:establishmentId/details', async (req, res) => {
         details[field] = req.body[field];
       }
     }
-
     // Save the changes
     await details.save();
 

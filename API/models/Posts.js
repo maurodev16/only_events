@@ -18,7 +18,7 @@ const postSchema = new mongoose.Schema({
     favoritesCount: { type: Number, default: 0 },
     viewsCount: { type: Number, default: 0 }, // Contador de visualizações do post
     location: { type: String }, // Pode ser um endereço ou nome do local
-    postStatus: { type: String, default: "active", enum: ["active", "inactive", "rascunho"] },
+    postStatus: { type: String, default: "active", enum: ["active", "inactive", "draft"] },
     expirationDate: { type: Date }, //Promoção Expirada:
     eventStartTime: { type: Date },
     eventEndTime: { type: Date },

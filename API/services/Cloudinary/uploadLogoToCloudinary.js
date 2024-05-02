@@ -3,11 +3,10 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 dotenv.config();
 
-const uploadImageToCloudinary = async (filePath, estabId, estanName) => {
+const uploadLogoToCloudinary = async (filePath, estabId, estanName) => {
     try {
          // Verifica se já existe uma imagem na pasta específica
       const folderPath = `was_geht_ab_project/establishments/${estabId}/${estanName}/logo/`;
-  
 
       const resources = await cloudinary.api.resources({
         type: 'upload',
@@ -40,4 +39,4 @@ const uploadImageToCloudinary = async (filePath, estabId, estanName) => {
       throw error;
     }
   };
-  export default  uploadImageToCloudinary;
+  export default  uploadLogoToCloudinary;
