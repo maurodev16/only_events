@@ -360,7 +360,8 @@ router.get(
 );
 
 /// logo update router
-router.patch("/update/logo/:establishmentId", logoMiddleware.single("logo"), async (req, res, next) => {
+/// logo update router
+router.put("/update/logo/:establishmentId", logoMiddleware.single("logo"), async (req, res, next) => {
   const establishmentId = req.params.establishmentId;
   // Verifica se há um arquivo na requisição
   if (!req.file) {
@@ -375,29 +376,38 @@ router.patch("/update/logo/:establishmentId", logoMiddleware.single("logo"), asy
   // Get the ID of the establishment details
   const establishmentDetailsId = establishment.details;
 
-
   // Find the Details document by ID
-  const details = await Details.findOne({_id: establishmentDetailsId});
+  const details = await Details.findOne({ _id: establishmentDetailsId });
 
   if (!details) {
     return res.status(404).json({ error: 'Details not found' });
   }
 
+  // Save the current logoUrl before update
+  const logoUrlBeforeUpdate = details.logoUrl;
+
+  // Upload image to Cloudinary
   const secure_url = await uploadImageToCloudinary(req.file.path, establishmentId, establishment.establishmentName);
 
   if (!secure_url) {
     console.error('Error uploading image:', error);
-    res.status(500).json({ error: 'Error uploading image' });
+    return res.status(500).json({ error: 'Error uploading image' });
   }
 
+  // Update logoUrl with the new secure_url
   details.logoUrl = secure_url;
-  console.log( "details.logoUrl::::", details.logoUrl);
+
   // Save the changes
-const updated= await Details.updateOne({_id: details._id})
+  const updated = await Details.findOneAndUpdate(details._id, details, { new: true });
+  // Save the updated logoUrl after update
+  const logoUrlAfterUpdate = details.logoUrl;
+  // Check if logoUrl was changed
+  const logoUrlChanged = logoUrlBeforeUpdate !== logoUrlAfterUpdate;
 
-  res.status(200).json({status: 'success' });
+  // Send response
+  res.status(200).json({ status: 'success', logoUrlChanged });
+});
 
-})
 
 // PATCH route to update establishment details
 router.put('/update/:establishmentId/details', async (req, res) => {
