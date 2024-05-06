@@ -184,7 +184,7 @@ router.put("/edit-post/:establishmentObjId/:postId", logoMiddleware.single("file
     .select("-comments")
     .select("-__v");
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, updatedPost:updatedPost  });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error updating post." });
