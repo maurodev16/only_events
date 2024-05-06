@@ -67,7 +67,7 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
     console.log("newPost", newPost)
 
     // // Envio do arquivo para o Cloudinary
-    const result_mediaUrl = await uploadPostImageToCloudinary(file.path, establishmentObjId,establishment.establishmentName, newPost._id)
+    const result_mediaUrl = await uploadPostImageToCloudinary(file.path, establishmentObjId, establishment.establishmentName, newPost._id)
     newPost.mediaUrl = result_mediaUrl;
     await newPost.save();
     res.status(201).json({ post: newPost });
@@ -123,6 +123,74 @@ router.get('/get-profile-posts/:establishmentObjId', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+///
+router.put("/edit-post/:establishmentObjId/:postId", logoMiddleware.single("file"), async (req, res) => {
+  const file = req.file; // Imagem enviada na solicitação
+  const postId = req.params.postId;
+  const establishmentObjId = req.params.establishmentObjId;
+
+
+  try {
+    const postData = req.body;
+
+    // Verificar se o post existe
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found." });
+    }
+
+    // Verificar se o estabelecimento existe
+    const establishment = await Establishment.findById(establishmentObjId);
+    if (!establishment) {
+      return res.status(404).json({ error: "Establishment not found." });
+    }
+
+    // Verificar se o usuário é o proprietário do post
+    if (post.establishmentObjId.toString() !== establishment._id.toString()) {
+      return res.status(403).json({ error: "Unauthorized to edit this post." });
+    }
+
+    // Construir um objeto com os campos que serão atualizados
+    const updateFields = {};
+    let unauthorizedUpdate = false; // Flag para identificar campos não autorizados
+    Object.keys(postData).forEach((key) => {
+      if (key === "establishmentObjId" || key === "likes" || key === "likesCount" || key === "favorites" || key === "favoritesCount" || key === "viewsCount" || key === "comments") {
+        unauthorizedUpdate = true; // Definir a flag como true
+        return; // Sair do loop imediatamente
+      }
+
+      // Adicionar o campo ao objeto de atualização
+      updateFields[key] = postData[key];
+    });
+    // Verificar se uma atualização não autorizada foi encontrada
+    if (unauthorizedUpdate) {
+      return res.status(403).json({ error: "Unauthorized to edit this post." });
+    }
+    // Verificar se uma nova imagem foi enviada e fazer upload para o Cloudinary
+    if (file) {
+      // Faça upload da nova imagem para o Cloudinary
+      const result_mediaUrl = await uploadPostImageToCloudinary(file.path, establishmentObjId, establishment.establishmentName, postId);
+      updateFields.mediaUrl = result_mediaUrl;
+    }
+
+    // Atualizar o post no banco de dados
+    const updatedPost = await Post.findOneAndUpdate({ _id: postId }, { $set: updateFields }, { new: true })
+    .select("-likes")
+    .select("-likesCount")
+    .select("-favorites")
+    .select("-favoritesCount")
+    .select("-viewsCount")
+    .select("-createdAt")
+    .select("-comments")
+    .select("-__v");
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error updating post." });
+  }
+});
+
 
 
 //
