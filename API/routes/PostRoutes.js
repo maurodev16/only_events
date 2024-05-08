@@ -58,6 +58,7 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
       location: postData.location,
       postStatus: postData.postStatus,
       expirationDate: postData.expirationDate,
+      eventData: postData.eventData,
       eventStartTime: postData.eventStartTime,
       eventEndTime: postData.eventEndTime,
       isRecurring: postData.isRecurring,

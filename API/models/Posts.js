@@ -20,8 +20,9 @@ const postSchema = new mongoose.Schema({
     location: { type: String }, // Pode ser um endereço ou nome do local
     postStatus: { type: String, default: "active", enum: ["active", "inactive", "draft"] },
     expirationDate: { type: Date }, //Promoção Expirada:
-    eventStartTime: { type: Date },
-    eventEndTime: { type: Date },
+    eventData: { type: Date },
+    eventStartTime: { type: String },
+    eventEndTime: { type: String },
     isRecurring: { type: Boolean, default: false }, // Evento que se repete sempre
     comments: [{
         userObjId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Referência ao modelo de usuário, se aplicável
