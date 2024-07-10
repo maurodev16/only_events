@@ -81,41 +81,38 @@ router.post("/create-post/:establishmentObjId", logoMiddleware.single("file"), a
 router.get('/get-profile-posts/:establishmentObjId', async (req, res) => {
   try {
     const establishmentObjId = req.params.establishmentObjId;
-
     const { page = 1, limit = 10 } = req.query;
-    console.log("establishmentObjId", establishmentObjId)
-    const query = {}; // Initialize empty
 
-    const postData = await req.body;
-
-    console.log("content", postData.content)
+    console.log("establishmentObjId", establishmentObjId);
 
     // Verificar se o estabelecimento existe
     const establishment = await Establishment.findById(establishmentObjId);
-    console.log("establishment", establishment)
+    console.log("establishment", establishment);
 
     if (!establishment) {
-      console.log("2::: establishment", establishment)
-      console.log("3::: establishmentObjId", establishmentObjId)
+      console.log("2::: establishment", establishment);
+      console.log("3::: establishmentObjId", establishmentObjId);
       return res.status(404).json({ error: "Establishment not found." });
     }
+
+    const query = { establishmentObjId }; // Filtra os posts pelo ID do estabelecimento
 
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
-      sort: { createdAt: -1 } // Sort the posts by creation date in descending order
+      sort: { createdAt: -1 } // Ordena os posts por data de criação em ordem decrescente
     };
 
-    // Execute the query to find posts by user ID
+    // Execute the query to find posts by establishment ID
     const posts = await Post.paginate(query, options);
 
-    if (posts.docs.length === null) {
+    if (posts.docs.length === 0) {
       return res.status(404).json({ error: 'Posts not found' });
     }
 
     // Return the populated posts
     return res.status(200).json({
-      posts,
+      posts: posts.docs,
       total: posts.totalDocs,
       totalPages: posts.totalPages,
     });
@@ -124,6 +121,8 @@ router.get('/get-profile-posts/:establishmentObjId', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+
 ///
 router.put("/edit-post/:establishmentObjId/:postId", logoMiddleware.single("file"), async (req, res) => {
   const file = req.file; // Imagem enviada na solicitação
