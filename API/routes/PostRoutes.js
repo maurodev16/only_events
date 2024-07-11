@@ -241,7 +241,7 @@ router.get('/get-posts-with-filters', async (req, res) => {
       sort: { createdAt: -1 } // Sort the posts by creation date in descending order
     };
 
-    // Execute the query, populating the establishment data
+    // Execute the query, populating the establishment data and the details field
     const posts = await Post.paginate(query, options);
 
     if (posts.docs.length === 0) {
@@ -253,8 +253,10 @@ router.get('/get-posts-with-filters', async (req, res) => {
 
     // Populate each post document individually
     for (const post of posts.docs) {
-      // Use the establishment ID of each post to find the establishment data
-      const establishment = await Establishment.findById(post.establishmentObjId).select('-password').select('-__v');
+      // Use the establishment ID of each post to find the establishment data including details
+      const establishment = await Establishment.findById(post.establishmentObjId)
+        .select('-password -__v')
+        .populate('details'); // Populating the details field
       if (establishment) {
         // Create a new post object with the populated establishment field and likes count
         const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
@@ -274,6 +276,7 @@ router.get('/get-posts-with-filters', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
 
 export default router;
 
