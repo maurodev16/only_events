@@ -10,6 +10,7 @@ import session from 'express-session'; // Importe o módulo express-session
 // Import routers
 import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
 import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
+import highLightRouters from './API/routes/HighlightRouters/HighLightRouter.js';
 import likeRoutes from './API/routes/LikeRoutes.js';
 import favoriteRouters from './API/routes/FavoriteRouters.js';
 import followRouters from "./API/routes/FollowRouters.js";
@@ -61,6 +62,7 @@ app.use('/api/v1/auth', authUserRoutes);
 app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
+app.use('/api/v1/highLight', highLightRouters);
 app.use('/api/v1/establishment', establishmentRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/favorite', favoriteRouters);
