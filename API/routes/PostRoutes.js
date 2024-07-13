@@ -196,76 +196,48 @@ router.put("/edit-post/:establishmentObjId/:postId", logoMiddleware.single("file
 //
 router.get('/get-posts-with-filters', async (req, res) => {
   try {
-    const { cityName, companyType, page = 1, limit = 10 } = req.query;
-    let query = {}; // Initialize the query as an empty query
+    const { companyType, page = 1, limit = 10 } = req.query;
 
-    // Check if cityName and companyType are present in the request
-    if (cityName && companyType) {
-      // Find the establishment based on the city name and company type
-      const establishment = await Establishment.findOne({ cityName, companyType });
+    let query = {};
 
-      if (establishment) {
-        // If the establishment is found, filter the posts by this establishment
-        query.establishmentObjId = establishment._id;
-      } else {
-        // If there is no corresponding establishment, return 404
-        return res.status(404).send('No establishment found for the specified city and company type');
-      }
-    } else if (cityName) {
-      // If only the cityName is present, filter the posts by the city name
-      const establishment = await Establishment.findOne({ cityName });
+    if (companyType) {
+      // Divide a string companyType em um array de tipos de empresas
+      const companyTypes = companyType.split(',');
 
-      if (establishment) {
-        query.establishmentObjId = establishment._id;
-      } else {
-        // If there is no establishment with the provided city name, bring all posts
-        query = {};
-      }
-    } else if (companyType) {
-      // If only the companyType is present, filter the posts by the company type
-      const establishments = await Establishment.find({ companyType });
+      // Busca estabelecimentos que correspondam a qualquer um dos tipos de empresa
+      const establishments = await Establishment.find({ companyType: { $in: companyTypes } });
 
       if (establishments.length > 0) {
-        // If there are corresponding establishments, get the IDs and filter the posts by those IDs
         const establishmentIds = establishments.map(est => est._id);
         query.establishmentObjId = { $in: establishmentIds };
       } else {
-        // If there are no corresponding establishments, return 404
-        return res.status(404).json({ error: 'No establishment found for the specified company type' });
+        return res.status(404).json({ error: 'No establishment found for the specified company types' });
       }
     }
 
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
-      sort: { createdAt: -1 } // Sort the posts by creation date in descending order
+      sort: { createdAt: -1 }
     };
 
-    // Execute the query, populating the establishment data and the details field
     const posts = await Post.paginate(query, options);
 
     if (posts.docs.length === 0) {
       return res.status(404).json({ error: 'Posts not found' });
     }
 
-    // Array to store the posts populated with establishment data
     const populatedPosts = [];
-
-    // Populate each post document individually
     for (const post of posts.docs) {
-      // Use the establishment ID of each post to find the establishment data including details
       const establishment = await Establishment.findById(post.establishmentObjId)
         .select('-password -__v')
-        .populate('details'); // Populating the details field
+        .populate('details');
       if (establishment) {
-        // Create a new post object with the populated establishment field and likes count
         const populatedPost = { ...post.toObject(), establishmentObjId: establishment };
-        // Add the populated post to the array of populated posts
         populatedPosts.push(populatedPost);
       }
     }
 
-    // Return the populated posts
     return res.status(200).json({
       posts: populatedPosts,
       total: posts.totalDocs,
@@ -276,6 +248,7 @@ router.get('/get-posts-with-filters', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
 
 
 export default router;

@@ -9,7 +9,7 @@ router.get("/fetch-highlight-posts", async (req, res) => {
   try {
     // Calcular a data de 24 horas atrás
     const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 3); // Ajuste para 24 horas atrás
+    yesterday.setDate(yesterday.getDate() - 2); // Ajuste para 24 horas atrás
 
     // Encontrar postagens feitas nas últimas 24 horas
     const recentPosts = await Post.find({
