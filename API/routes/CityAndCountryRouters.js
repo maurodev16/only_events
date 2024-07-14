@@ -2,8 +2,41 @@ import mongoose from "mongoose";
 import { Router } from "express";
 import CityAndCountry from "../models/CityAndCountry.js";
 import checkToken from "../middleware/checkToken.js";
-
+import NodeCache from "node-cache";
 const router = Router();
+const cityCache = new NodeCache({ stdTTL: 3600 }); // Cache for 1 hour
+
+
+// Middleware para verificar o cache
+const checkCache = (req, res, next) => {
+  const cachedCities = cityCache.get("germanyCities");
+  if (cachedCities) {
+    console.log("Dados do cache:", cachedCities);
+    return res.status(200).json({ cities: cachedCities });
+  }
+  next();
+};
+
+router.get("/fetch-all-cities-from-germany", checkCache, async (req, res) => {
+  try {
+    const cities = await CityAndCountry.find({ country_name: "Germany" })
+      .sort({ city_name: 1 })
+      .select("-__v");
+      
+    if (!cities || cities.length === 0) {
+      return res.status(404).json({ msg: "Cities not found" });
+    }
+
+    // Cache the result in NodeCache for future requests
+    cityCache.set("germanyCities", cities); // Cache for 1 hour by default
+    console.log(`Cached ${cities.length} cities in NodeCache`);
+
+    return res.status(200).json({ cities });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 router.post("/register", checkToken, async (req, res) => {
@@ -33,7 +66,7 @@ router.post("/register", checkToken, async (req, res) => {
     const createdCityCountry = await cityCountry.save();
     if (createdCityCountry) {
       res.status(200).json({
-        msg: `${createdCityCountry.cityName} and ${createdCityCountry.countryName} Created!`,
+        msg: `${createdCityCountry.city_name} and ${createdCityCountry.country_name} Created!`,
       });
     }
   } catch (error) {
@@ -44,21 +77,8 @@ router.post("/register", checkToken, async (req, res) => {
   }
 });
 
-router.get("/fetch-city-countries", async (req, res) => {
-  try {
-    const cities = await CityAndCountry.find()
-      .sort({ cityName: 1 })
-      .select("-__v");
-    if (!cities || cities.length === 0) {
-      return res.status(404).json({ msg: "Cities not found" });
-    }
-    return res.status(201).json(cities);
-  } catch (error) {
-    res.status(500).json({ error: error });
-  }
-});
 
-router.get("/fetch-city-countries/:cityName", async (req, res) => {
+router.get("/fetch-city-by-cityname/:cityName", async (req, res) => {
   try {
     const cityName = req.params.cityName;
     const city = await CityAndCountry.find({cityName: cityName }).select("-__v");
