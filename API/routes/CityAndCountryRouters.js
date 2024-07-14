@@ -11,7 +11,6 @@ const cityCache = new NodeCache({ stdTTL: 3600 }); // Cache for 1 hour
 const checkCache = (req, res, next) => {
   const cachedCities = cityCache.get("germanyCities");
   if (cachedCities) {
-    console.log("Dados do cache:", cachedCities);
     return res.status(200).json({ cities: cachedCities });
   }
   next();
@@ -29,7 +28,6 @@ router.get("/fetch-all-cities-from-germany", checkCache, async (req, res) => {
 
     // Cache the result in NodeCache for future requests
     cityCache.set("germanyCities", cities); // Cache for 1 hour by default
-    console.log(`Cached ${cities.length} cities in NodeCache`);
 
     return res.status(200).json({ cities });
   } catch (error) {
@@ -70,7 +68,6 @@ router.post("/register", checkToken, async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(`Erro ao criar cidade: ${error}`);
     res
       .status(500)
       .json({ msg: "Erro ao cadastrar Cidade, tente novamente mais tarde!" });
