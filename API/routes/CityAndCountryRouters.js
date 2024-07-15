@@ -4,29 +4,31 @@ import CityAndCountry from "../models/CityAndCountry.js";
 import checkToken from "../middleware/checkToken.js";
 const router = Router();
 
-router.get("/fetch-all-cities-from-germany", async (req, res) => {
+router.get("/fetch-cities-by-initial", async (req, res) => {
   try {
-    const { page = 1, limit = 100 } = req.query;
+    const initial = req.query.initial.toUpperCase(); // Obtém a letra inicial da consulta GET
 
-    const cities = await CityAndCountry.find({ country_name: "Germany" })
+    // Consulta no banco de dados usando o modelo CityAndCountry
+    const cities = await CityAndCountry.find({
+      country_name: "Germany",
+      city_name: { $regex: `^${initial}`, $options: "i" } // $regex para casar com a inicial, $options: "i" para case-insensitive
+    })
       .sort({ city_name: 1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit))
-      .select("city_name");
+      .select("-__v -country_name"); // Exclui os campos __v e country_name da resposta
 
     if (!cities || cities.length === 0) {
       return res.status(404).json({ msg: "Cities not found" });
     }
 
-    return res.status(200).json({
-      germany: cities,
-      totalPages: Math.ceil(await CityAndCountry.countDocuments({ country_name: "Germany" }) / limit),
-      currentPage: page
-    });
+    // Retorna as cidades encontradas como resposta
+    res.status(200).json({ germany: cities });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 });
+
+
 
 router.post("/register", checkToken, async (req, res) => {
   const { cityName, countryName } = req.body;
@@ -59,17 +61,19 @@ router.post("/register", checkToken, async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(`Erro ao criar cidade: ${error}`);
     res
       .status(500)
       .json({ msg: "Erro ao cadastrar Cidade, tente novamente mais tarde!" });
   }
 });
 
-
 router.get("/fetch-city-by-cityname/:cityName", async (req, res) => {
   try {
     const cityName = req.params.cityName;
-    const city = await CityAndCountry.find({cityName: cityName }).select("-__v");
+    const city = await CityAndCountry.find({ cityName: cityName }).select(
+      "-__v"
+    );
 
     if (city) {
       return res.status(201).json(city);
