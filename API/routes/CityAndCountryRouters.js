@@ -28,8 +28,6 @@ router.get("/fetch-all-cities-from-germany", async (req, res) => {
   }
 });
 
-
-
 router.post("/register", checkToken, async (req, res) => {
   const { cityName, countryName } = req.body;
   try {
