@@ -58,10 +58,13 @@ router.post(
         likesCount: postData.likesCount,
         favorites: postData.favorites,
         favoritesCount: postData.favoritesCount,
-        location: postData.location,
+        cityName: postData.cityName,
+        postalCode: postData.postalCode,
+        streetName: postData.streetName,
+        number: postData.number,
         postStatus: postData.postStatus,
         expirationDate: postData.expirationDate,
-        eventData: postData.eventData,
+        eventStartDate: postData.eventStartDate,
         eventStartTime: postData.eventStartTime,
         eventEndTime: postData.eventEndTime,
         isRecurring: postData.isRecurring,
@@ -225,12 +228,25 @@ router.put(
 //
 router.get("/get-posts-with-filters", async (req, res) => {
   try {
-    const { cityName, companyType, page = 1, limit = 10 } = req.query;
+    const {
+      cityName,
+      postalCode,
+      companyType,
+      page = 1,
+      limit = 10,
+    } = req.query;
 
     let query = {};
 
+    // Filtragem por cityName no Post
+    if (cityName) {
+      query.cityName = cityName;
+    }
+    if (postalCode) {
+      query.postalCode = postalCode;
+    }
+    // Filtragem por companyType
     if (companyType) {
-      // Divide a string companyType em um array de tipos de empresas
       const companyTypes = companyType.split(",");
 
       // Busca estabelecimentos que correspondam a qualquer um dos tipos de empresa
@@ -242,11 +258,9 @@ router.get("/get-posts-with-filters", async (req, res) => {
         const establishmentIds = establishments.map((est) => est._id);
         query.establishmentObjId = { $in: establishmentIds };
       } else {
-        return res
-          .status(404)
-          .json({
-            error: "No establishment found for the specified company types",
-          });
+        return res.status(404).json({
+          error: "No establishment found for the specified company types",
+        });
       }
     }
 

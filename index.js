@@ -26,7 +26,6 @@ import ResetPasswordUserRouters from "./API/routes/Auth/ResetPasswordUserRouters
 import EmailVerificationRouters from "./API/routes/Auth/EmailVerificationRouters.js";
 import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
 import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
-import kioskDetailRoutes from "./API/routes/Establishments/KioskRouters.js";
 import postRoutes from "./API/routes/PostRoutes.js";
 
 dotenv.config();
@@ -45,6 +44,7 @@ const hbs = exphbs.create();
 
 const PORT = process.env.PORT || 3000;
 const uri = process.env.MONGO_CONNECTION_STRING;
+const uri_local = process.env.MONGO_LOCAL_STRING_CONN;
 const client = connect(uri);
 app.use(urlencoded({ extended: true }));
 app.use(json());
@@ -62,10 +62,9 @@ io.on('connection', (socket) => {
     });
 });
 
-// Pass io to routers that need it
-app.use('/api/v1/favorite', favoriteRouters(io)); // Passando io para favoriteRouters
 
 // Register other routers
+app.use('/api/v1/favorite', favoriteRouters(io)); // Passando io para favoriteRouters
 app.use('/api/v1/auth', authEstablRoutes);
 app.use('/api/v1/auth', authUserRoutes);
 app.use('/api/v1/anonimous', authAnonimousRoutes);
@@ -81,7 +80,6 @@ app.use("/api/v1/user-request", ResetPasswordUserRouters);
 app.use("/api/v1/email-verification", EmailVerificationRouters);
 app.use("/api/v1/bar", barDetailRoutes);
 app.use("/api/v1/club", clubDetailRoutes);
-app.use("/api/v1/kiosk", kioskDetailRoutes);
 app.use("/api/v1/post", postRoutes);
 app.use('/api/v1/docs', serve, setup(swaggerSpec));
 

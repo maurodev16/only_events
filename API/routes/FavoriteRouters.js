@@ -126,43 +126,7 @@ const favoriteRouter = (io) => {
         }
     });
 
-    // Rota para obter os estabelecimentos seguidos por um usuário
-    router.get("/:userId/follow-estab", checkToken, async (req, res) => {
-        try {
-            const userId = req.params.userId;
-
-            // Verifique se o User existe
-            const user = await User.findById(userId);
-            if (!user) {
-                return res
-                    .status(404)
-                    .json({ success: false, message: "User not found" });
-            }
-
-            // Encontre os registros de seguidores para o usuário
-            const favorites = await Favorite.find({ user: userId });
-
-            // Extraia os IDs dos posts favoritados
-            const favoritedPostIds = favorites.map((favorites) => favorites.post);
-
-            // Encontre os favoritados correspondentes aos IDs
-            const favoritedPosts = await Favorite.find({
-                _id: { $in: favoritedPostIds },
-            });
-
-            return res.status(200).json({
-                success: true,
-                favoritedPosts: favoritedPosts,
-            });
-        } catch (error) {
-            console.error("Error fetching favorited Posts:", error);
-            return res.status(500).json({
-                success: false,
-                message: "An error occurred while processing the request",
-            });
-        }
-    });
-
+   
     return router;
 };
 

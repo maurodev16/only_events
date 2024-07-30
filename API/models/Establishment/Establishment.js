@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import mongoosePaginate from 'mongoose-paginate-v2';
-import Details from './Details/Details.js';
-import User from '../User.js';
-import dotenv from 'dotenv';
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import mongoosePaginate from "mongoose-paginate-v2";
+import Details from "./Details/Details.js";
+import User from "../User.js";
+import dotenv from "dotenv";
 dotenv.config();
 const bcryptSalt = process.env.BCRYPT_SALT;
 
@@ -14,12 +14,20 @@ const establishmentSchema = new mongoose.Schema(
     email: { type: String, lowercase: true, required: true, unique: true },
     password: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
-    companyType: { type: String, enum: ['promoter', 'bar', 'club', 'kiosk'], required: true },
-    details: { type: mongoose.Schema.Types.ObjectId, ref: 'Details' }, // Referência aos detalhes específicos
+    companyType: {
+      type: String,
+      enum: ["promoter", "bar", "club"],
+      required: true,
+    },
+    cityName: { type: String },
+    postalCode: { type: String },
+    streetName: { type: String },
+    number: { type: String },
+    details: { type: mongoose.Schema.Types.ObjectId, ref: "Details" }, // Referência aos detalhes específicos
     ///
-    
+
     isEmailVerified: { type: Boolean, default: false }, // Campo para rastrear se o e-mail foi verificado
-    verificationEmailToken: { type: String},
+    verificationEmailToken: { type: String },
     verificationEmailTokenExpires: { type: Date },
 
     ///

@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 import Details from "../../models/Establishment/Details/Details.js";
 import BarDetails from "../../models/Establishment/Details/BarDetail.js";
 import ClubDetails from "../../models/Establishment/Details/ClubDetail.js";
-import KioskDetails from "../../models/Establishment/Details/KioskDetail.js";
 import PromoterDetails from "../../models/Establishment/Details/PromoterDetail.js";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/checkRequiredFields.js";
@@ -29,6 +28,10 @@ router.post(
     "password",
     "phone",
     "companyType",
+    "cityName",
+    "postalCode",
+    "streetName",
+    "number",
   ]),
   async (req, res) => {
     try {
@@ -57,6 +60,10 @@ router.post(
         password: estabBodyData.password,
         phone: estabBodyData.phone,
         companyType: estabBodyData.companyType,
+        cityName: estabBodyData.cityName,
+        postalCode: estabBodyData.postalCode,
+        streetName: estabBodyData.streetName,
+        number: estabBodyData.number,
       });
 
       // Save the establishment to the database
@@ -80,11 +87,7 @@ router.post(
             establishment: newEstablishment._id,
           });
           break;
-        case "kiosk":
-          details = await KioskDetails.create({
-            establishment: newEstablishment._id,
-          });
-          break;
+
         default:
           // If the establishment type is invalid
           return res.status(400).json({ error: "Invalid establishment type." });
@@ -109,11 +112,9 @@ router.post(
     } catch (error) {
       // If an error occurs during the process
       console.error("Error creating Establishment: ", error);
-      return res
-        .status(500)
-        .json({
-          error: "Error creating establishment, please try again later!",
-        });
+      return res.status(500).json({
+        error: "Error creating establishment, please try again later!",
+      });
     }
   }
 );
