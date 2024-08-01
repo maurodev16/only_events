@@ -402,7 +402,6 @@ router.get(
 );
 
 /// logo update router
-/// logo update router
 router.put(
   "/update/logo/:establishmentId",
   logoMiddleware.single("logo"),
@@ -445,11 +444,12 @@ router.put(
 
     // Update logoUrl with the new secure_url
     details.logoUrl = secure_url;
-
+console.log(details.logoUrl)
     // Save the changes
     const updated = await Details.findOneAndUpdate(details._id, details, {
       new: true,
     });
+    console.log(updated)
     // Save the updated logoUrl after update
     const logoUrlAfterUpdate = details.logoUrl;
     // Check if logoUrl was changed
