@@ -223,16 +223,16 @@ router.get("/get-establishment-by-user-id/:id", async (req, res) => {
     // Buscar o estabelecimento pelo ID e popular os detalhes
     const establishment = await Establishment.findById(id)
       .populate("details")
-      .select("-password");
+      .select("-password -isEmailVerified");
 
     if (!establishment) {
-      return res.status(404).json({ error: "Estabelecimento não encontrado." });
+      return res.status(404).json({ error: "Establishment not found." });
     }
 
     res.status(200).json({ establishment });
   } catch (error) {
     console.error("Erro ao buscar estabelecimento:", error);
-    res.status(500).json({ error: "Erro interno do servidor." });
+    res.status(500).json({ error: "server internal Error." });
   }
 });
 

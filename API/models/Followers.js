@@ -6,10 +6,8 @@ const followerSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   establishment: { type: mongoose.Schema.Types.ObjectId, ref: 'Establishment' },
   isFollowed: {type:Boolean, default: false},
-}, {
-  timestamps: true,
-}
-);
+  createdAt: { type: Date, default: Date.now }
+});
 
 const Follower = mongoose.model("Follower", followerSchema);
 

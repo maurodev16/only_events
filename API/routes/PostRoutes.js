@@ -225,7 +225,7 @@ router.put(
   }
 );
 
-//
+//get-posts-with-filters
 router.get("/get-posts-with-filters", async (req, res) => {
   try {
     const {
@@ -236,46 +236,63 @@ router.get("/get-posts-with-filters", async (req, res) => {
       limit = 10,
     } = req.query;
 
-    let query = {};
+    let postQuery = {};
+    let establishmentQuery = {};
 
-    // Filtragem por cityName no Post
-    if (cityName) {
-      query.cityName = cityName;
-    }
-    if (postalCode) {
-      query.postalCode = postalCode;
-    }
-    // Filtragem por companyType
+    // Verificação de companyType nos Estabelecimentos
     if (companyType) {
       const companyTypes = companyType.split(",");
-
-      // Busca estabelecimentos que correspondam a qualquer um dos tipos de empresa
-      const establishments = await Establishment.find({
-        companyType: { $in: companyTypes },
-      });
-
-      if (establishments.length > 0) {
-        const establishmentIds = establishments.map((est) => est._id);
-        query.establishmentObjId = { $in: establishmentIds };
-      } else {
-        return res.status(404).json({
-          error: "No establishment found for the specified company types",
-        });
-      }
+      establishmentQuery.companyType = { $in: companyTypes };
     }
 
+    // Verificação de cityName e postalCode nos Posts
+    if (cityName) {
+      postQuery.cityName = cityName;
+    }
+
+    if (postalCode) {
+      postQuery.postalCode = postalCode;
+    }
+
+    // Lista de IDs de estabelecimentos que correspondem aos critérios
+    let establishmentIds = [];
+
+    // Se cityName ou postalCode forem fornecidos, buscamos nos Estabelecimentos
+    if (cityName || postalCode) {
+      establishmentQuery = {
+        ...establishmentQuery,
+        ...(cityName ? { cityName } : {}),
+        ...(postalCode ? { postalCode } : {}),
+      };
+      const establishments = await Establishment.find(establishmentQuery);
+
+      if (establishments.length > 0) {
+        establishmentIds = establishments.map((est) => est._id);
+      }
+
+      // Adiciona os IDs dos estabelecimentos ao postQuery
+      if (establishmentIds.length > 0) {
+        postQuery.establishmentObjId = { $in: establishmentIds };
+      }
+    }
+    console.log(postQuery.establishmentObjId);
+    // Busca de posts com base no postQuery
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
       sort: { createdAt: -1 },
     };
+    console.log(options); // aqui me retorna isso { page: 1, limit: 10, sort: { createdAt: -1 } }
 
-    const posts = await Post.paginate(query, options);
+    const posts = await Post.paginate(postQuery, options);
 
+    // Verificação se nenhum post foi encontrado
     if (posts.docs.length === 0) {
       return res.status(404).json({ error: "Posts not found" });
     }
+    console.log(posts);
 
+    // Populando os posts encontrados com os detalhes dos estabelecimentos
     const populatedPosts = [];
     for (const post of posts.docs) {
       const establishment = await Establishment.findById(

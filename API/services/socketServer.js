@@ -3,7 +3,7 @@ import { Server } from 'socket.io';
 function configureSocketServer(server) {
     const io = new Server(server, {
         cors: {
-            origin: "ws://192.168.1.5:3000",
+            origin: "wss://velhodalancha.onrender.com",
             methods: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"],
         }
     });
