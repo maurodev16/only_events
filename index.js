@@ -9,24 +9,21 @@ import path from 'path';
 import configureSocketServer from "./API/services/socketServer.js";
 
 // Import routers
-import establishmentRoutes from './API/routes/Auth/EstablishmentRoutes.js';
-import musicCategoryRouters from './API/routes/MusicCategoryRouters.js';
+import musicCategoryRouters from './API/routes/MusicCategoryRouters/MusicCategoryRouters.js';
 import highLightRouters from './API/routes/HighlightRouters/HighLightRouter.js';
-import likeRoutes from './API/routes/LikeRoutes.js';
-import favoriteRouters from './API/routes/FavoriteRouters.js'; // Importar a função de ordem superior
-import followRouters from "./API/routes/FollowRouters.js";
-import userRoutes from './API/routes/UserRouter.js';
-import authEstablRoutes from './API/routes/Auth/EstablishmentRoutes.js';
+import likeRoutes from './API/routes/LikeRouters/LikeRoutes.js';
+import favoriteRouters from './API/routes/FavoriteRouters/FavoriteRouters.js'; // Importar a função de ordem superior
+import followRouters from "./API/routes/FollowRouters/FollowRouters.js";
+import userRoutes from './API/routes/Auth/UserRouters.js';
 import authUserRoutes from './API/routes/Auth/UserRouters.js';
-import authAnonimousRoutes from './API/routes/Auth/AnonymousRouters.js';
-import countriesRoutes from './API/routes/CityAndCountryRouters.js';
+import countriesRoutes from './API/routes/CityAndCountryRouters/CityAndCountryRouters.js';
 import swaggerSpec from "./API/services/Swagger/swagger.js";
 import ResetPasswordEstabRouters from "./API/routes/Auth/ResetPasswordEstabRouters.js";
 import ResetPasswordUserRouters from "./API/routes/Auth/ResetPasswordUserRouters.js";
 import EmailVerificationRouters from "./API/routes/Auth/EmailVerificationRouters.js";
-import barDetailRoutes from "./API/routes/Establishments/BarRouters.js";
-import clubDetailRoutes from "./API/routes/Establishments/ClubRouters.js";
-import postRoutes from "./API/routes/PostRoutes.js";
+import barDetailRoutes from "./API/routes/CompanyRouter/BarRouters.js";
+import clubDetailRoutes from "./API/routes/CompanyRouter/ClubRouters.js";
+import postRoutes from "./API/routes/PostRouters/PostRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -65,17 +62,14 @@ io.on('connection', (socket) => {
 
 // Register other routers
 app.use('/api/v1/favorite', favoriteRouters(io)); // Passando io para favoriteRouters
-app.use('/api/v1/auth', authEstablRoutes);
 app.use('/api/v1/auth', authUserRoutes);
-app.use('/api/v1/anonimous', authAnonimousRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/highLight', highLightRouters);
-app.use('/api/v1/establishment', establishmentRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/follow', followRouters);
 app.use('/api/v1/city-and-country', countriesRoutes);
-app.use("/api/v1/estab-request", ResetPasswordEstabRouters);
+app.use("/api/v1/company-request", ResetPasswordEstabRouters);
 app.use("/api/v1/user-request", ResetPasswordUserRouters);
 app.use("/api/v1/email-verification", EmailVerificationRouters);
 app.use("/api/v1/bar", barDetailRoutes);
@@ -92,6 +86,7 @@ client.then(() => {
     httpServer.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
         console.log('Connected to MongoDB');
+        
     });
 })
 .catch((err) => {

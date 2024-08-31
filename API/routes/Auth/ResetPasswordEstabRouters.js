@@ -1,5 +1,4 @@
-import User from '../../models/User.js';
-import Establishment from '../../models/Establishment/Establishment.js';
+import User from '../../models/UserModel/User.js';
 import { Router } from 'express';
 import checkToken from '../../middleware/checkToken.js';
 import sendEmailConfig from "../../services/Emails/sendEmailConfig.js";
@@ -25,14 +24,14 @@ router.post('/send-link-reset-password', async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    // Find establishment by email
-    const establishment = await Establishment.findOne({ email });
-    if (!establishment) {
-      return res.status(404).json({ error: "No establishment found with this email!" });
+    // Find company by email
+    const company = await Company.findOne({ email });
+    if (!company) {
+      return res.status(404).json({ error: "No company found with this email!" });
     }
 
     // Generate and save a password reset token
-    const resetToken = generateResetPasswordToken(establishment);
+    const resetToken = generateResetPasswordToken(company);
 
     // Check if reset token was generated successfully
     if (!resetToken) {
@@ -40,7 +39,7 @@ router.post('/send-link-reset-password', async (req, res, next) => {
     }
 
     // Construct reset link
-    const resetLink = `${process.env.API_URL}/api/v1/estab-request/reset-password/${resetToken}`;
+    const resetLink = `${process.env.API_URL}/api/v1/company-request/reset-password/${resetToken}`;
 
     // Construct HTML content for the email
      // Construct HTML content for the email
@@ -116,17 +115,17 @@ router.post('/send-link-reset-password', async (req, res, next) => {
      `;
     // Send email with password reset link
     const isEmailSend = await sendEmailConfig({ 
-      email: establishment.email, 
+      email: company.email, 
       subject: "Password change request received", 
       htmlContent: htmlContent 
     });
     if (!isEmailSend) {
-      establishment.passwordResetToken = undefined;
-      establishment.passwordResetTokenExpires = undefined;
+      company.passwordResetToken = undefined;
+      company.passwordResetTokenExpires = undefined;
     }
 
-    // Save establishment after all operations are completed
-    await establishment.save({ validateBeforeSave: false });
+    // Save company after all operations are completed
+    await company.save({ validateBeforeSave: false });
 
     // Return success message
     return res.status(200).json({ status: true, msg: `Password reset link has been successfully sent to email ${email}` });
@@ -143,22 +142,22 @@ router.patch("/reset-password/:token", async (req, res, next) => {
     const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
     
     // Verificar se o token é válido e se não expirou
-    const establishment = await Establishment.findOne({ passwordResetToken: token, passwordResetTokenExpires: { $gt: Date.now() } });
+    const company = await Company.findOne({ passwordResetToken: token, passwordResetTokenExpires: { $gt: Date.now() } });
 
-    if (!establishment) {
-      // Se o estabelecimento não for encontrado ou o token expirar, enviar erro 401
+    if (!company) {
+      // Se o companyelecimento não for encontrado ou o token expirar, enviar erro 401
       return res.status(401).json({ error: "Token is invalid or has expired!" });
     }
 
-    // Resetar a senha do estabelecimento
-    establishment.password = newPassword;
-    establishment.passwordResetToken = undefined;
-    establishment.passwordResetTokenExpires = undefined;
-    establishment.passwordChangedAt = Date.now();
-    await establishment.save();
+    // Resetar a senha do companyelecimento
+    company.password = newPassword;
+    company.passwordResetToken = undefined;
+    company.passwordResetTokenExpires = undefined;
+    company.passwordChangedAt = Date.now();
+    await company.save();
 
-    // Fazer login do estabelecimento e gerar um novo token
-    const loginToken = signInFromJwt(establishment._id);
+    // Fazer login do companyelecimento e gerar um novo token
+    const loginToken = signInFromJwt(company._id);
 
     // Retornar sucesso e o novo token
     return res.status(200).json({ status: true, token: loginToken });

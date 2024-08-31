@@ -3,17 +3,17 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 dotenv.config();
 
-const uploadPostImageToCloudinary = async (filePath, estabId, estanName, postId) => {
+const uploadPostImageToCloudinary = async (filePath, companyId, estanName, postId) => {
     try {
          // Verifica se já existe uma imagem na pasta específica
-      const folderPath = `was_geht_ab_project/establishments/${estabId}/${estanName}/posts/${postId}`;
+      const folderPath = `was_geht_ab_project/companys/${companyId}/${estanName}/posts/${postId}`;
   
       // Faz o upload da nova imagem
       const result = await cloudinary.uploader.upload(filePath, {
         folder: folderPath,
         resource_type: "auto",
         allowedFormats: ["jpg", "png", "jpeg"],
-        public_id: `${estabId+Date.now()}`,
+        public_id: `${companyId+Date.now()}`,
         overwrite: false,
         upload_preset: "wasGehtAb_preset",
       });

@@ -1,4 +1,4 @@
-import User from '../../models/User.js';
+import User from '../../models/UserModel/User.js';
 import { Router } from 'express';
 import checkToken from '../../middleware/checkToken.js';
 import sendEmailConfig from "../../services/Emails/sendEmailConfig.js";
@@ -29,7 +29,7 @@ router.post('/send-link-reset-password', async (req, res) => {
     }
 
     // Find User by email
-    const user = await Establishment.findOne({ email });
+    const user = await Company.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: "No user found with this email!" });
     }
@@ -45,7 +45,7 @@ router.post('/send-link-reset-password', async (req, res) => {
     await TokenUser.create({ userId: user._id, token: resetToken });
 
     // Construct reset link
-    const resetLink = `${req.protocol}://localhost:3000/api/v1/estab-request/request-reset-password/${resetToken}`;
+    const resetLink = `${req.protocol}://localhost:3000/api/v1/company-request/request-reset-password/${resetToken}`;
     
   // Check if reset token was generated successfully
     if (!resetLink) {
@@ -114,7 +114,7 @@ router.get("/reset-password/:token", async (req, res, next) => {
     user.save();
 
     // Construct reset link
-    const resetLink = `${req.protocol}://localhost:3000/api/v1/estab-request/reset-password`;
+    const resetLink = `${req.protocol}://localhost:3000/api/v1/company-request/reset-password`;
     // Construir o formulário de redefinição de senha diretamente no código
     const resetPasswordForm = `
     <!DOCTYPE html>

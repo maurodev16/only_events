@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { Router } from "express";
-import Establishment from "../../models/Establishment/Establishment.js";
-import Post from "../../models/Posts.js";
+import Post from "../../models/PostModel/Posts.js";
 
 const router = Router();
 
@@ -15,8 +14,8 @@ router.get("/fetch-highlight-posts", async (req, res) => {
     const recentPosts = await Post.find({
       createdAt: { $gte: yesterday },
     }).populate({
-      path: "establishmentObjId",
-      select: "establishmentName companyType details", // Selecionar apenas campos necessários
+      path: "companyObjId",
+      select: "companyName companyType details", // Selecionar apenas campos necessários
       populate: {
         path: "details",
         select: "logoUrl", // Selecionar apenas o campo "logoUrl"
@@ -32,21 +31,21 @@ router.get("/fetch-highlight-posts", async (req, res) => {
         .json({ error: "No posts found in the last 24 hours" });
     }
 
-    // Agrupar postagens por estabelecimento
-    const establishmentsWithRecentPosts = recentPosts.reduce((acc, post) => {
-      const establishmentId = post.establishmentObjId._id;
-      if (!acc[establishmentId]) {
-        acc[establishmentId] = {
-          establishment: {
-            _id: post.establishmentObjId._id,
-            establishmentName: post.establishmentObjId.establishmentName,
-            companyType: post.establishmentObjId.companyType,
-            details: post.establishmentObjId.details,
+    // Agrupar postagens por companyelecimento
+    const companysWithRecentPosts = recentPosts.reduce((acc, post) => {
+      const companyId = post.companyObjId._id;
+      if (!acc[companyId]) {
+        acc[companyId] = {
+          company: {
+            _id: post.companyObjId._id,
+            companyName: post.companyObjId.companyName,
+            companyType: post.companyObjId.companyType,
+            details: post.companyObjId.details,
           },
           posts: [],
         };
       }
-      acc[establishmentId].posts.push({
+      acc[companyId].posts.push({
         _id: post._id,
         content: post.content,
         products: post.products,
@@ -67,7 +66,7 @@ router.get("/fetch-highlight-posts", async (req, res) => {
     }, {});
 
     // Converter o resultado em um array para facilitar o retorno
-    const result = Object.values(establishmentsWithRecentPosts);
+    const result = Object.values(companysWithRecentPosts);
 
     // Retornar o resultado
     return res.status(200).json({ highlightPosts: result });

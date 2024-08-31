@@ -8,7 +8,7 @@
 /**
  * @swagger
  * /signup:
- *   establishment:
+ *   company:
  *     summary: Registrar um novo usuário
  *     tags: [Autenticação]
  *     requestBody:

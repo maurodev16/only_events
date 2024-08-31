@@ -1,5 +1,4 @@
 import { Router } from "express";
-import Establishment from "../../models/Establishment/Establishment.js";
 import generateConfirmeEmailToken from '../../services/generateConfirmeEmailToken.js';
 import sendEmailConfig from "../../services/Emails/sendEmailConfig.js";
 import crypto from 'crypto'; // Importe o módulo 'crypto' para usar a função de hash
@@ -16,16 +15,16 @@ router.post('/send-email-verification-link', async (req, res, next) => {
       return res.status(400).json({ error: "Email address is required!" });
     }
 
-    // Encontre o estabelecimento pelo e-mail
-    const establishment = await Establishment.findOne({ email });
+    // Encontre o companyelecimento pelo e-mail
+    const company = await Company.findOne({ email });
 
-    // Se não encontrar o estabelecimento, retorne um erro
-    if (!establishment) {
-      return res.status(404).json({ error: "No establishment found with this email!" });
+    // Se não encontrar o companyelecimento, retorne um erro
+    if (!company) {
+      return res.status(404).json({ error: "No company found with this email!" });
     }
 
     // Gere e salve o token de verificação de e-mail
-    const resetToken = generateConfirmeEmailToken(establishment);
+    const resetToken = generateConfirmeEmailToken(company);
 
     // Construa o link de verificação de e-mail
     const resetLink = `${process.env.API_URL}/api/v1/email-verification/confirm-email/${resetToken}`;
@@ -101,18 +100,18 @@ console.log(resetLink)
         `;
     // Envie o e-mail de verificação
     const isEmailSent = await sendEmailConfig({
-      email: establishment.email,
+      email: company.email,
       subject: "Email Verification received",
       htmlContent: htmlContent,
     });
 
     // Se o e-mail não puder ser enviado, limpe o token de verificação
     if (!isEmailSent) {
-      establishment.verificationEmailToken = undefined;
-      establishment.verificationEmailTokenExpires = undefined;
-      establishment.isEmailVerified = false;
+      company.verificationEmailToken = undefined;
+      company.verificationEmailTokenExpires = undefined;
+      company.isEmailVerified = false;
     }
-    await establishment.save({ validateBeforeSave: false });
+    await company.save({ validateBeforeSave: false });
     // Responda com uma mensagem de sucesso
     return res.status(200).json({ message: "Email verification sent successfully!" });
   } catch (error) {
@@ -128,23 +127,23 @@ router.patch('/confirm-email/:token', async (req, res, next) => {
     // Extrair o token da URL
     const token = req.params.token;
 
-    // Encontrar o estabelecimento com base no token de verificação fornecido
-    const establishment = await Establishment.findOne({
+    // Encontrar o companyelecimento com base no token de verificação fornecido
+    const company = await Company.findOne({
       verificationEmailToken: token,
       verificationEmailTokenExpires: { $gt: Date.now() },
     });
 
-    // Verificar se o estabelecimento foi encontrado
-    if (!establishment) {
-      // Se o estabelecimento não for encontrado ou o token expirar, enviar erro 401
+    // Verificar se o companyelecimento foi encontrado
+    if (!company) {
+      // Se o companyelecimento não for encontrado ou o token expirar, enviar erro 401
       return res.status(401).json({ error: "Token is invalid or has expired!" });
     }
 
     // Marcar o e-mail como verificado e limpar o token de verificação
-    establishment.isEmailVerified = true;
-    establishment.verificationEmailToken = undefined;
-    establishment.verificationEmailTokenExpires = undefined;
-    await establishment.save();
+    company.isEmailVerified = true;
+    company.verificationEmailToken = undefined;
+    company.verificationEmailTokenExpires = undefined;
+    await company.save();
 
     // Retornar sucesso e o novo token
     return res.status(200).json({ status: true });
@@ -158,18 +157,18 @@ router.patch('/confirm-email/:token', async (req, res, next) => {
 //-- Only for the app verification
 router.get('/email-verification-result/:id', async (req, res) => {
   try {
-    const establishmentId = req.params.id;
+    const companyId = req.params.id;
 
-    // Encontrar o estabelecimento com base no ID fornecido
-    const establishment = await Establishment.findById(establishmentId);
+    // Encontrar o companyelecimento com base no ID fornecido
+    const company = await Company.findById(companyId);
 
-    if (!establishment) {
-      // Se o estabelecimento não for encontrado, retorne um erro
-      return res.status(404).json({ error: "Establishment not found" });
+    if (!company) {
+      // Se o companyelecimento não for encontrado, retorne um erro
+      return res.status(404).json({ error: "Company not found" });
     }
 
     // Verifique se o e-mail foi verificado com sucesso
-    if (establishment.isEmailVerified) {
+    if (company.isEmailVerified) {
       return res.status(200).json({ status: true, message: "Email successfully verified" });
     } else {
       return res.status(200).json({ status: false, message: "Email not verified" });

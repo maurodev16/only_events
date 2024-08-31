@@ -3,10 +3,10 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 dotenv.config();
 
-const uploadLogoToCloudinary = async (filePath, estabId, estanName) => {
+const uploadLogoToCloudinary = async (filePath, companyId, estanName) => {
     try {
          // Verifica se já existe uma imagem na pasta específica
-      const folderPath = `was_geht_ab_project/establishments/${estabId}/${estanName}/logo/`;
+      const folderPath = `was_geht_ab_project/companys/${companyId}/${estanName}/logo/`;
 
       const resources = await cloudinary.api.resources({
         type: 'upload',
@@ -23,10 +23,10 @@ const uploadLogoToCloudinary = async (filePath, estabId, estanName) => {
 
       const result = await cloudinary.uploader.upload(filePath, {
      
-        folder: `was_geht_ab_project/establishments/${estabId}/${estanName}/logo/`,
+        folder: `was_geht_ab_project/companys/${companyId}/${estanName}/logo/`,
         resource_type: "auto",
         allowedFormats: ["jpg", "png", "jpeg"],
-        public_id: `${estabId+Date.now()}`,
+        public_id: `${companyId+Date.now()}`,
         overwrite: false,
         upload_preset: "wasGehtAb_preset",
       });
