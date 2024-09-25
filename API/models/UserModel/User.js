@@ -13,7 +13,9 @@ const userSchema = new mongoose.Schema(
     nickname: {
       type: String,
       required: [true, "Nickname is required"],
+      unique: true, 
       trim: true,
+      minlength: 3
     },
     email: {
       type: String,
@@ -26,12 +28,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-    },
-    phone: {
-      type: String,
-      unique: true,
-      sparse: true, // Permite que o campo seja opcional
-      match: [/^\+?[1-9]\d{1,14}$/, "Phone number is invalid"],
     },
     isEmailVerified: {
       type: Boolean,
@@ -57,6 +53,12 @@ const userSchema = new mongoose.Schema(
         type: String,
         trim: true,
       },
+      phone: {
+        type: String,
+        unique: true,
+        sparse: true, // Permite que o campo seja opcional
+        match: [/^\+?[1-9]\d{1,14}$/, "Phone number is invalid"],
+      },
       address: {
         type: String,
         trim: true,
@@ -64,7 +66,6 @@ const userSchema = new mongoose.Schema(
       postalCode: {
         type: String,
         trim: true,
-        match: [/^\d{5}-\d{3}$/, "Postal code is invalid"],
       },
       streetName: {
         type: String,

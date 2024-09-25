@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import signInFromJwt from '../../controllers/AuthController.js';
+import signInFromJwt from '../../middleware/signInFromJwt.js';
 
 // Obtenha o diretório atual do arquivo
 const __dirname = dirname(fileURLToPath(import.meta.url));

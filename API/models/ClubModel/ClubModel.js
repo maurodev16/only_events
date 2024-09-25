@@ -1,11 +1,16 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import MusicCategory from "../MusicCategoryModel/MusicCategory.js";
-import Details from "./Details.js";
+import User from "../UserModel/User.js";
 dotenv.config();
 
 const clubDetailSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
     isAgeVerified: { type: Boolean, default: false },
     selectedAge: { type: String },
     isFreeEntry: { type: Boolean, default: false },

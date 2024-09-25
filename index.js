@@ -14,7 +14,6 @@ import highLightRouters from './API/routes/HighlightRouters/HighLightRouter.js';
 import likeRoutes from './API/routes/LikeRouters/LikeRoutes.js';
 import favoriteRouters from './API/routes/FavoriteRouters/FavoriteRouters.js'; // Importar a função de ordem superior
 import followRouters from "./API/routes/FollowRouters/FollowRouters.js";
-import userRoutes from './API/routes/Auth/UserRouters.js';
 import authUserRoutes from './API/routes/Auth/UserRouters.js';
 import countriesRoutes from './API/routes/CityAndCountryRouters/CityAndCountryRouters.js';
 import swaggerSpec from "./API/services/Swagger/swagger.js";
@@ -63,7 +62,6 @@ io.on('connection', (socket) => {
 // Register other routers
 app.use('/api/v1/favorite', favoriteRouters(io)); // Passando io para favoriteRouters
 app.use('/api/v1/auth', authUserRoutes);
-app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/music-category', musicCategoryRouters);
 app.use('/api/v1/highLight', highLightRouters);
 app.use('/api/v1/like', likeRoutes);

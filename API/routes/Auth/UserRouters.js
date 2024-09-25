@@ -1,11 +1,14 @@
 import dotenv from "dotenv";
 import { Router } from "express";
 import User from "../../models/UserModel/User.js";
+import Bar from "../../models/BarModel/BarModel.js";
+import Club from "../../models/ClubModel/ClubModel.js";
+import Promoter from "../../models/PromoterModel/PromoterModel.js";
 import bcrypt from "bcrypt";
 import checkToken from "../../middleware/checkToken.js";
 import checkRequiredFields from "../../middleware/checkRequiredFields.js";
 import mongoose from "mongoose";
-import signInFromJwt from "../../controllers/AuthController.js";
+import signInFromJwt from "../../middleware/generateToken.js";
 dotenv.config();
 const router = Router();
 
@@ -20,14 +23,7 @@ const handleSession = async (callback) => {
     throw error;
   } finally {
     session.endSession();
-}
-  };
-// Expressão regular melhorada para validação de e-mail
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-// Função de validação de e-mail
-const validateEmail = (email) => {
-  return emailRegex.test(email);
+  }
 };
 
 /// Signup
@@ -45,8 +41,21 @@ router.post(
           return res.status(422).json({ error: "EmailAlreadyExistsException" });
         }
 
+        // Adicionar '@' ao nickname se não estiver presente
+        let formattedNickname = nickname;
+        if (!formattedNickname.startsWith('@')) {
+          formattedNickname = `@${formattedNickname}`;
+        }
+
+        // Verifica se o nickname já está em uso
+        const nicknameExists = await User.findOne({ nickname: formattedNickname });
+        if (nicknameExists) {
+          return res.status(422).json({ error: "NicknameAlreadyExistsException" });
+        }
+
+        // Criação de um novo usuário
         const newUser = new User({
-          nickname,
+          nickname: formattedNickname,
           email,
           password,
           phone,
@@ -75,40 +84,71 @@ router.post(
   }
 );
 
-  /// Login route
+// Expressão regular para validação de e-mail
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Função para verificar se é um e-mail ou nickname
+const validateEmailOrNickname = (input) => {
+  if (emailRegex.test(input)) {
+    return 'email';
+  } else if (input.trim().length > 0) {
+    return 'nickname';
+  } else {
+    return null; // Se não for nem um e-mail válido nem um nickname válido
+  }
+};
+
+// Rota de Login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { emailORnickname, password } = req.body;
 
-  // Validate User data
-  if (!email) {
-    return res.status(401).json({ error: "Please provide a valid email!" });
+  // Verifica se o input (email ou nickname) e a senha foram fornecidos
+  if (!emailORnickname || !password) {
+    return res.status(401).json({ error: "Please provide a valid email or nickname and password!" });
   }
 
-  // Verifica se o e-mail é válido
-  if (!validateEmail(email)) {
-    return res.status(400).json({ error: "Invalid email format!" });
+  // Determina se o input é um email ou nickname
+  const inputType = validateEmailOrNickname(emailORnickname);
+
+  if (!inputType) {
+    return res.status(400).json({ error: "Invalid email or nickname format!" });
   }
+
   try {
-    // Encontra o usuário pelo e-mail
-    const user = await User.findOne({
-      email: { $regex: `^${email}$`, $options: "i" },
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "No user found with this email!" });
+    let user;
+    if (inputType === 'email') {
+      // Encontra o usuário pelo e-mail
+      user = await User.findOne({
+        email: { $regex: `^${emailORnickname}$`, $options: "i" },
+      });
+    } else if (inputType === 'nickname') {
+      // Encontra o usuário pelo nickname
+      user = await User.findOne({
+        nickname: { $regex: `^${emailORnickname}$`, $options: "i" },
+      });
     }
 
-    // Verify password
+    // Verifica se o usuário foi encontrado
+    if (!user) {
+      return res.status(404).json({ error: `No user found with this ${inputType}!` });
+    }
+
+    // Verifica a senha
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(422).json({ error: "Incorrect password" });
+      return res.status(401).json({ error: "Incorrect password!" });
     }
 
-    // Generate token
+    // Verifica se o e-mail foi verificado, se aplicável
+    if (!user.isEmailVerified) {
+      return res.status(403).json({ error: "Email not verified!" });
+    }
+
+    // Gera o token JWT
     const token = signInFromJwt(user._id);
 
-    // Create response object without password
+    // Cria o objeto de resposta sem o campo de senha
     const userResponse = {
       _id: user._id,
       nickname: user.nickname,
@@ -119,7 +159,7 @@ router.post("/login", async (req, res) => {
       updatedAt: user.updatedAt,
     };
 
-    // Return the authentication token, ID, and email
+    // Retorna o token de autenticação, ID, e email/nickname
     return res.status(200).json({ login: userResponse });
   } catch (error) {
     console.error(`Erro no login: ${error}`);
@@ -127,36 +167,97 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/// Upgrade to Company route
-router.put("/upgrade-to-company", checkToken, async (req, res) => {
-  const { companyName, companyType, cityName, postalCode, streetName, number } =
-    req.body;
 
+// Rota para atualizar um usuário para tipo 'company'
+router.patch("/upgrade-to-company", checkToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const userId = req.auth._id;
+    console.log("User ID from token:", userId); // Adicione este log para depuração
+
+    const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ error: "UserNotFoundException" });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    // Update user to company
-    user.isCompany = true;
-    user.companyName = companyName;
-    user.companyType = companyType;
-    user.cityName = cityName;
-    user.postalCode = postalCode;
-    user.streetName = streetName;
-    user.number = number;
+    if (user.role === "company") {
+      return res.status(400).json({ error: "User is already a company" });
+    }
 
-    // Save changes
-    const updatedUser = await user.save();
+    const {
+      companyName,
+      address,
+      postalCode,
+      streetName,
+      number,
+      cityName,
+      companyType,
+    } = req.body;
 
-    return res.status(200).json({ updatedUser });
+    // Verificar se já existe uma empresa com o mesmo endereço
+    const existingCompany = await User.findOne({
+      role: "company",
+      "companyInfo.address": address,
+      "companyInfo.postalCode": postalCode,
+      "companyInfo.streetName": streetName,
+      "companyInfo.number": number,
+      "companyInfo.cityName": cityName,
+    });
+
+    if (existingCompany) {
+      return res.status(400).json({
+        error: "A company with the exact same address already exists",
+      });
+    }
+
+    // Atualizar o perfil para 'company'
+    user.role = "company";
+    user.companyInfo = {
+      logoUrl:
+        "https://res.cloudinary.com/dhkyslgft/image/upload/v1704488249/logo_no_avaliable_fehssq.png",
+      companyName: companyName || "",
+      address: address || "",
+      postalCode: postalCode || "",
+      streetName: streetName || "",
+      number: number || "",
+      cityName: cityName || "",
+      companyType: companyType || "",
+    };
+
+    // Salvar as alterações no banco de dados
+    await user.save();
+
+    // Determinar qual modelo usar com base no tipo de empresa
+    let specificModel;
+
+    if (companyType === "promoter") {
+      specificModel = Promoter;
+    } else if (companyType === "club") {
+      specificModel = Club;
+    } else if (companyType === "bar") {
+      specificModel = Bar;
+    } else {
+      return res.status(400).json({ error: "Invalid company type" });
+    }
+
+    // Criar ou atualizar o documento específico para o tipo de empresa
+    const specificCompany = await specificModel.findOneAndUpdate(
+      { userId: user._id },
+      {
+        ...req.body, // Dados específicos do tipo de empresa vindos do corpo da requisição
+        userId: user._id, // Associe o documento da empresa ao usuário
+      },
+      { upsert: true, new: true, strict: true }
+    );
+
+    return res.status(200).json({
+      message: "User upgraded to company successfully",
+      user,
+      specificCompany,
+    });
   } catch (error) {
-    console.error(`Erro ao promover usuário para empresa: ${error}`);
-    return res
-      .status(500)
-      .json({ error: "Erro ao promover usuário para empresa" });
+    console.error(`Error upgrading user to company: ${error}`);
+    return res.status(500).json({ error: "Error upgrading user to company" });
   }
 });
 

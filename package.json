@@ -57,7 +57,8 @@
     "socket.io": "^4.7.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "velhodalancha_api_node_mongo": "file:"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
