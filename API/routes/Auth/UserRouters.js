@@ -101,15 +101,14 @@ const validateEmailOrNickname = (input) => {
 // Rota de Login
 router.post("/login", async (req, res) => {
   const { emailORnickname, password } = req.body;
+  console.log(emailORnickname)
 
-  // Verifica se o input (email ou nickname) e a senha foram fornecidos
   if (!emailORnickname || !password) {
     return res.status(401).json({ error: "Please provide a valid email or nickname and password!" });
   }
 
-  // Determina se o input é um email ou nickname
   const inputType = validateEmailOrNickname(emailORnickname);
-
+   console.log(inputType)
   if (!inputType) {
     return res.status(400).json({ error: "Invalid email or nickname format!" });
   }
@@ -117,49 +116,48 @@ router.post("/login", async (req, res) => {
   try {
     let user;
     if (inputType === 'email') {
-      // Encontra o usuário pelo e-mail
+      // Busca pelo e-mail
       user = await User.findOne({
         email: { $regex: `^${emailORnickname}$`, $options: "i" },
       });
     } else if (inputType === 'nickname') {
-      // Encontra o usuário pelo nickname
+      // Remove o "@" do início do nickname, caso esteja presente
+      let formattedNickname = emailORnickname.startsWith('@')
+        ? emailORnickname.substring(1)
+        : emailORnickname;
+
+      // Busca pelo nickname com ou sem o "@" no banco de dados
       user = await User.findOne({
-        nickname: { $regex: `^${emailORnickname}$`, $options: "i" },
+        nickname: { $regex: `^@?${formattedNickname}$`, $options: "i" },
       });
     }
 
-    // Verifica se o usuário foi encontrado
     if (!user) {
       return res.status(404).json({ error: `No user found with this ${inputType}!` });
     }
 
-    // Verifica a senha
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Incorrect password!" });
     }
 
-    // Verifica se o e-mail foi verificado, se aplicável
     if (!user.isEmailVerified) {
       return res.status(403).json({ error: "Email not verified!" });
     }
 
-    // Gera o token JWT
     const token = signInFromJwt(user._id);
 
-    // Cria o objeto de resposta sem o campo de senha
     const userResponse = {
       _id: user._id,
       nickname: user.nickname,
       email: user.email,
-      isCompany: user.isCompany, // Inclui o status de empresa na resposta
+      isCompany: user.isCompany,
       token: token,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
 
-    // Retorna o token de autenticação, ID, e email/nickname
     return res.status(200).json({ login: userResponse });
   } catch (error) {
     console.error(`Erro no login: ${error}`);
