@@ -40,8 +40,8 @@ const userSchema = new mongoose.Schema(
     passwordResetTokenExpires: Date,
     role: {
       type: String,
-      enum: ["user", "company", "admin"],
-      default: "user",
+      enum: ["normal", "company", "admin" ],
+      default: "normal",
     },
     companyInfo: {
       logoUrl: {
@@ -52,32 +52,40 @@ const userSchema = new mongoose.Schema(
       companyName: {
         type: String,
         trim: true,
+        default:"",
       },
       phone: {
         type: String,
         unique: true,
         sparse: true, // Permite que o campo seja opcional
         match: [/^\+?[1-9]\d{1,14}$/, "Phone number is invalid"],
+        
+        default:"",
       },
       address: {
         type: String,
         trim: true,
+        default:"",
       },
       postalCode: {
         type: String,
         trim: true,
+        default:"",
       },
       streetName: {
         type: String,
         trim: true,
+        default:"",
       },
       number: {
         type: String,
         trim: true,
+        default:"",
       },
       cityName: {
         type: String,
         trim: true,
+        default:"",
       },
       companyType: {
         type: String,
