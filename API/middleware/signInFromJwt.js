@@ -1,15 +1,15 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
-const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const EXPIRES_IN = process.env.EXPIRES_IN;
 dotenv.config();
-if (!AUTH_SECRET_KEY) {
-  throw new Error('AUTH_SECRET_KEY is not defined');
+if (!ACCESS_TOKEN_SECRET) {
+  throw new Error('ACCESS_TOKEN_SECRET is not defined');
 }
 
 function signInFromJwt(userId) {
-  const token = jwt.sign({ id: userId }, AUTH_SECRET_KEY, { expiresIn: EXPIRES_IN });
+  const token = jwt.sign({ id: userId }, ACCESS_TOKEN_SECRET, { expiresIn: EXPIRES_IN });
   return token;
 }
 

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Router } from "express";
 import CityAndCountry from "../../models/CityCountryModel/CityAndCountry.js";
-import checkToken from "../../middleware/checkToken.js";
+import checkToken from "../../middleware/checkRefreshToken.js";
 const router = Router();
 
 router.get("/fetch-cities-by-initial", async (req, res) => {

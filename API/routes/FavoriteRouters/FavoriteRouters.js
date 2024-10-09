@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Post from "../../models/PostModel/Posts.js";
 import User from "../../models/UserModel/User.js";
 import Favorite from "../../models/FavoriteModel/Favorite.js";
-import checkToken from "../../middleware/checkToken.js";
+import checkToken from "../../middleware/checkRefreshToken.js";
 
 const favoriteRouter = (io) => {
     const router = Router();

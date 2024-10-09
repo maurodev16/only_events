@@ -13,9 +13,9 @@ const userSchema = new mongoose.Schema(
     nickname: {
       type: String,
       required: [true, "Nickname is required"],
-      unique: true, 
+      unique: true,
       trim: true,
-      minlength: 3
+      minlength: 3,
     },
     email: {
       type: String,
@@ -33,14 +33,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    verificationEmailToken: String,
-    verificationEmailTokenExpires: Date,
-    passwordChangedAt: Date,
-    passwordResetToken: String,
-    passwordResetTokenExpires: Date,
+    verificationEmailToken: { type: String },
+    verificationEmailTokenExpires: { type: Date },
+    passwordChangedAt: { type: Date },
+    passwordResetToken: { type: String },
+    passwordResetTokenExpires: { type: Date },
     role: {
       type: String,
-      enum: ["normal", "company", "admin" ],
+      enum: ["normal", "company", "admin"],
       default: "normal",
     },
     companyInfo: {
@@ -52,40 +52,39 @@ const userSchema = new mongoose.Schema(
       companyName: {
         type: String,
         trim: true,
-        default:"",
+        default: "",
       },
       phone: {
         type: String,
         unique: true,
         sparse: true, // Permite que o campo seja opcional
         match: [/^\+?[1-9]\d{1,14}$/, "Phone number is invalid"],
-        
-        default:"",
+     
       },
       address: {
         type: String,
         trim: true,
-        default:"",
+        default: "",
       },
       postalCode: {
         type: String,
         trim: true,
-        default:"",
+        default: "",
       },
       streetName: {
         type: String,
         trim: true,
-        default:"",
+        default: "",
       },
       number: {
         type: String,
         trim: true,
-        default:"",
+        default: "",
       },
       cityName: {
         type: String,
         trim: true,
-        default:"",
+        default: "",
       },
       companyType: {
         type: String,

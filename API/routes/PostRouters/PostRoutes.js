@@ -5,7 +5,7 @@ import Like from "../../models/LikeModel/Likes.js";
 import dotenv from "dotenv";
 import express from "express";
 import logoMiddleware from "../../middleware/logoMiddleware.js";
-import checkToken from "../../middleware/checkToken.js";
+import checkToken from "../../middleware/checkRefreshToken.js";
 import uploadPostImageToCloudinary from "../../services/Cloudinary/uploadPostImageToCloudinary.js";
 import configureCloudinary from "../../services/Cloudinary/cloudinary_config.js";
 import { v2 as cloudinary } from "cloudinary";

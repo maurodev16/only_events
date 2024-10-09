@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { Router } from "express";
 import Follower from "../../models/FollowModel/Followers.js";
 import User from "../../models/UserModel/User.js";
-import checkToken from "../../middleware/checkToken.js";
+import checkToken from "../../middleware/checkRefreshToken.js";
 
 const router = Router();
 // Configure o servidor Socket.IO
