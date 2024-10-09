@@ -6,7 +6,7 @@ import {
   loginRouter,
   signupRouter,
   refreshTokenRouter,
-  forgotPasswordRouter,
+  sendResetLinkRouter,
   resetPasswordRouter,
   confirmEmailRouter,
   emailVerificationResultRouter,
@@ -17,7 +17,7 @@ const router = Router();
 router.post("/login", loginRouter);
 router.post("/signup",checkRequiredFields(["nickname", "email", "password"]),signupRouter); 
 router.post("/refresh-token", checkRefreshToken, refreshTokenRouter);
-router.post("/forgot-password", forgotPasswordRouter);
+router.post("/send-reset-link", sendResetLinkRouter);
 router.post("/reset-password/:token", resetPasswordRouter);
 router.patch("/confirm-email/:token", confirmEmailRouter);
 router.get("/email-verification-result/:id", emailVerificationResultRouter);

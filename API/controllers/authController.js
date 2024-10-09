@@ -12,7 +12,7 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const bcryptSalt = process.env.BCRYPT_SALT;
 
 ///- Router to send reset link to user email
-export const forgotPasswordRouter = async (req, res) => {
+export const sendResetLinkRouter = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -40,12 +40,8 @@ export const forgotPasswordRouter = async (req, res) => {
         .json({ error: "Failed to generate password reset token." });
     }
 
-    //await User.create({ userId: user._id, token: resetToken });
-
     // Construct reset link
-    const resetLink = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/company-request/request-reset-password/${resetToken}`;
+    const resetLink = `${req.protocol}://${req.hostname}/api/v1/auth/reset-password/${resetToken}`;
     console.log(resetLink);
 
     // Check if reset token was generated successfully
@@ -55,16 +51,18 @@ export const forgotPasswordRouter = async (req, res) => {
 
     // Conteúdo do e-mail em HTML
     const htmlContent = `
-        <h1>Reset Your Password</h1>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}">Reset Password</a>
-      `;
+    <h1>Reset Your Password</h1>
+    <p>Click the link below to reset your password:</p>
+    <a href="${resetLink}">Reset Password</a>
+  `;
+
     // Envia o e-mail usando o SendGrid
-    await sendGridConfig({
-      email: email,
-      subject: "Password Reset Request",
-      htmlContent: htmlContent,
-    });
+    await sendGridConfig(
+      email,
+      "mauro.developer.br@gmail.com",
+      "Password Reset Request",
+      htmlContent
+    );
 
     console.log(sendGridConfig);
     // Return success message
@@ -83,11 +81,10 @@ export const forgotPasswordRouter = async (req, res) => {
 // Rota para renderizar o formulário de redefinição de senha
 export const resetPasswordRouter = async (req, res, next) => {
   try {
+    const { password } = req.body.password;
+    const { token } = req.params.token;
     // 1 - IF THE USER EXISTS WITH THE GIVEN TOKEN AND TOKEN HAS NOT EXPIRED
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(req.params.token)
-      .digest("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
     const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetTokenExpires: { $gt: Date.now() },
@@ -100,7 +97,7 @@ export const resetPasswordRouter = async (req, res, next) => {
       next(error);
     }
     // 2- RESET THE USER PASSWORD
-    user.password = req.body.password;
+    user.password = password;
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
     user.passwordChangedAt = Date.now();

@@ -5,30 +5,27 @@ dotenv.config();
 // Configure SendGrid API Key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendGridConfig = async (options) => {
-
-
-  const msg = {
-    from: process.env.NO_REPLY_EMAIL,
-    to: options.email, // Recipient email
-    subject: options.subject,
-    html: options.htmlContent, // HTML body content
-  };
-
+const sendGridConfig = async (receiver, source, subject, htmlContent) => {
   try {
+    const msg = {
+      to: receiver,
+      from: source, // process.env.NO_REPLY_EMAIL, eu email
+      subject: subject,
+      html: htmlContent, // HTML body content
+    };
     // Envia o email e recebe a resposta
-    const [response] = await sgMail.send(msg); // SendGrid retorna um array
+   return await sgMail.send(msg); // SendGrid retorna um array
 
-    // Verifica se o status do envio foi 202
-    if (response.statusCode === 202) {
-      console.log(
-        `Email sent to ${options.email} successfully with status code: ${response.statusCode}`
-      );
-    } else {
-      console.error(
-        `Failed to send email. Status code: ${response.statusCode}`
-      );
-    }
+    // // Verifica se o status do envio foi 202
+    // if (response.statusCode === 202) {
+    //   console.log(
+    //     `Email sent to ${options.email} successfully with status code: ${response.statusCode}`
+    //   );
+    // } else {
+    //   console.error(
+    //     `Failed to send email. Status code: ${response.statusCode}`
+    //   );
+    // }
   } catch (error) {
     // Exibe o erro detalhado no console
     console.error(
