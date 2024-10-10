@@ -4,8 +4,10 @@ import crypto from "crypto"; // Importe o módulo 'crypto' para usar a função 
 import generateResetToken from "../services/generateResetPasswordToken.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sendGridConfig from "../services/Emails/sendgridConfig.js";
+import nodemailerConfig from "../services/Emails/nodemailerConfig.js";
 import generateToken from "../middleware/generateToken.js";
+import { sendLinkResetPasswordTemplate } from "../../views/sendLinkResetPasswordTemplate.js";
+import { resetPasswordFormTemplate } from "../../views/resetPasswordFormTemplate.js";
 import mongoose from "mongoose";
 dotenv.config();
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -24,48 +26,35 @@ export const sendResetLinkRouter = async (req, res) => {
         .json({ error: "Please provide a valid email address!" });
     }
 
-    // Find User by email
+    // Encontra o usuário pelo e-mail
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: "No user found with this email!" });
     }
 
-    // Generate and save a password reset token
+    // Gera e salva um token de redefinição de senha
     const resetToken = generateResetToken(user);
-
-    // Check if reset token was generated successfully
     if (!resetToken) {
       return res
         .status(500)
         .json({ error: "Failed to generate password reset token." });
     }
 
-    // Construct reset link
-    const resetLink = `${req.protocol}://${req.hostname}/api/v1/auth/reset-password/${resetToken}`;
-    console.log(resetLink);
+    // Constrói o link de redefinição
+    const resetLink = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/auth/reset-password-form/${resetToken}`;
+    console.log("Reset Link:", resetLink);
 
-    // Check if reset token was generated successfully
-    if (!resetLink) {
-      return res.status(500).json({ error: "Failed to generate reset link." });
-    }
-
-    // Conteúdo do e-mail em HTML
-    const htmlContent = `
-    <h1>Reset Your Password</h1>
-    <p>Click the link below to reset your password:</p>
-    <a href="${resetLink}">Reset Password</a>
-  `;
-
-    // Envia o e-mail usando o SendGrid
-    await sendGridConfig(
+    // Utiliza o template de e-mail
+    const htmlContent = sendLinkResetPasswordTemplate(resetLink);
+    await nodemailerConfig(
       email,
-      "mauro.developer.br@gmail.com",
-      "Password Reset Request",
+      "Solicitação de Redefinição de Senha",
       htmlContent
     );
 
-    console.log(sendGridConfig);
-    // Return success message
+    // Retorna mensagem de sucesso
     return res.status(200).json({
       msg: "Password reset link has been successfully sent to your email",
     });
@@ -78,43 +67,55 @@ export const sendResetLinkRouter = async (req, res) => {
   }
 };
 
-// Rota para renderizar o formulário de redefinição de senha
-export const resetPasswordRouter = async (req, res, next) => {
+// Função para renderizar o formulário de redefinição de senha
+export const resetPasswordFormRouter = (req, res) => {
+  const token = req.params.token; // Acessa o token corretamente
+  const formHtml = resetPasswordFormTemplate(token); // Gera o HTML do formulário com o token
+  res.send(formHtml); // Envia o HTML como resposta
+};
+
+// Rota para redefinir a senha
+// Rota para redefinir a senha
+export const resetPasswordRouter = async (req, res) => {
   try {
-    const { password } = req.body.password;
-    const { token } = req.params.token;
-    // 1 - IF THE USER EXISTS WITH THE GIVEN TOKEN AND TOKEN HAS NOT EXPIRED
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    // Verifica se o token é válido e não expirou
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
     const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetTokenExpires: { $gt: Date.now() },
     });
 
     if (!user) {
-      const error = res
+      return res
         .status(401)
         .json({ error: "Token is invalid or has expired!" });
-      next(error);
     }
-    // 2- RESET THE USER PASSWORD
-    user.password = password;
+
+    // Redefine a senha do usuário
+    user.password = req.body.newPassword; // Altere isso para usar newPassword
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
     user.passwordChangedAt = Date.now();
+console.log(user.password)
     await user.save();
-    // Retornar resposta de sucesso
+
+    // Retorna resposta de sucesso
     return res
       .status(200)
       .json({ message: "Password has been reset successfully!" });
   } catch (error) {
-    console.error(`Error rendering password reset form: ${error}`);
-
-    res.status(500).json({
+    console.error(`Error resetting password: ${error}`);
+    return res.status(500).json({
       error:
         "There was an error resetting your password. Please try again later.",
     });
   }
 };
+
 
 export const confirmEmailRouter = async (req, res, next) => {
   try {

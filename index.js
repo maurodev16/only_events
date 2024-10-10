@@ -5,6 +5,7 @@ import { serve, setup } from "swagger-ui-express";
 import http from "http";
 import exphbs from "express-handlebars";
 import session from "express-session";
+import bodyParser from "body-parser";
 import path from "path";
 import configureSocketServer from "./API/services/socketServer.js";
 
@@ -14,8 +15,8 @@ import highLightRouters from "./API/routes/HighlightRouters/HighLightRouter.js";
 import likeRoutes from "./API/routes/LikeRouters/LikeRoutes.js";
 import favoriteRouters from "./API/routes/FavoriteRouters/FavoriteRouters.js"; // Importar a função de ordem superior
 import followRouters from "./API/routes/FollowRouters/FollowRouters.js";
-import authRouters from "./API/routes/AuthRouters/AuthRouters.js"
-import userRouters from "./API/routes/UserRouters/UserRouters.js"
+import authRouters from "./API/routes/AuthRouters/AuthRouters.js";
+import userRouters from "./API/routes/UserRouters/UserRouters.js";
 import countriesRoutes from "./API/routes/CityAndCountryRouters/CityAndCountryRouters.js";
 import swaggerSpec from "./API/services/Swagger/swagger.js";
 import barDetailRoutes from "./API/routes/CompanyRouters/BarRouters.js";
@@ -23,8 +24,11 @@ import clubDetailRoutes from "./API/routes/CompanyRouters/ClubRouters.js";
 import postRoutes from "./API/routes/PostRouters/PostRoutes.js";
 
 dotenv.config();
+
 const app = express();
 app.set("view engine", "ejs");
+// Middleware para permitir que o Express processe o corpo da requisição
+app.use(bodyParser.urlencoded({ extended: true }));
 const httpServer = http.createServer(app);
 const io = configureSocketServer(httpServer); // Configura o servidor Socket.IO
 

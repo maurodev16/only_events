@@ -1,7 +1,8 @@
-import { Server } from 'socket.io';
+import pkg from 'socket.io';
+
 
 function configureSocketServer(server) {
-    const io = new Server(server, {
+    const io = new pkg(server, {
         cors: {
             origin: "wss://velhodalancha.onrender.com",
             methods: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"],

@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/maurodev16/only_party#readme",
   "dependencies": {
-    "@sendgrid/mail": "^8.1.0",
+    "@sendgrid/mail": "^8.1.3",
     "accounting": "^0.4.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
@@ -55,7 +55,7 @@
     "mongoose-paginate-v2": "^1.8.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.5",
-    "socket.io": "^4.7.5",
+    "socket.io": "^1.5.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.0",
