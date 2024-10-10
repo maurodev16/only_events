@@ -13,7 +13,7 @@ export const sendLinkResetPasswordTemplate = (resetLink) => {
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
-    <style>
+       <style>
       body {
         font-family: "Arial", sans-serif;
         background-image: url("https://example.com/background-image.jpg"); /* Substitua pelo URL da sua imagem de fundo */
@@ -27,7 +27,7 @@ export const sendLinkResetPasswordTemplate = (resetLink) => {
         max-width: 600px;
         margin: 50px auto;
         padding: 20px;
-        background-color: #E6EEF7FF;
+        background-color:#022011ff;
         border-radius: 10px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         text-align: center;
@@ -39,18 +39,18 @@ export const sendLinkResetPasswordTemplate = (resetLink) => {
         max-width: 100px; /* Tamanho do logotipo */
       }
       h2 {
-        color: #ffffff; /* Cor do título */
+        color: rgba(167, 240, 240, 1); /* Cor do título */
         font-size: 24px;
       }
       p {
         line-height: 1.6;
-        color: #ffffff; /* Cor do texto */
+        color: #A7F0F0; /* Cor do texto */
         font-size: 18px;
       }
       a {
         display: inline-block;
         padding: 15px 30px;
-        background-color: #42A4FFFF; /* Cor personalizada para o botão */
+        background-color: #C922F3; /* Cor personalizada para o botão */
         color: #fff;
         text-decoration: none;
         border-radius: 25px;
@@ -64,27 +64,28 @@ export const sendLinkResetPasswordTemplate = (resetLink) => {
       .footer {
         margin-top: 20px;
         padding-top: 10px;
-        border-top: 1px solid #ddd;
+        border-top: 1px solid rgba(167, 240, 240, 1);
         text-align: center;
-        color: #ffffff; /* Cor personalizada para o rodapé */
+        color: rgba(167, 240, 240, 1); /* Cor personalizada para o rodapé */
       }
       .social-icons {
         margin-top: 10px;
       }
       .social-icons a {
         margin: 0 10px;
-        color: #ffffff; /* Cor dos ícones */
+        color: rgba(167, 240, 240, 1); /* Cor dos ícones */
         font-size: 10px;
         text-decoration: none;
         transition: color 0.3s;
       }
       .social-icons a:hover {
-        color: #007bff; /* Cor de hover para os ícones */
+        color: rgba(167, 240, 240, 1); /* Cor de hover para os ícones */
       }
       .social-icons img {
-        width: 30px; /* Ajuste o valor para o tamanho desejado */
+        width: 20px; /* Ajuste o valor para o tamanho desejado */
         height: auto;
         margin: 0 10px; /* Espaçamento entre os ícones */
+        
       }
       
     </style>
