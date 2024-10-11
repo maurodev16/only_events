@@ -3,52 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Was Geht Ab - API</title>
-    <!-- Bootstrap CSS CDN -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Event Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Custom CSS styles can be added here */
         body {
-            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
         }
-        .container {
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #ff4081; /* Cor chamativa para o título */
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 40px;
+            color: #bdbdbd; /* Texto em cinza claro */
+        }
+
+        .button {
+            background-color: #ff4081; /* Cor do botão */
+            color: #ffffff;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #e91e63; /* Cor do botão ao passar o mouse */
+        }
+
+        .features {
             margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .feature {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .feature:hover {
+            transform: scale(1.05);
+        }
+
+        .feature i {
+            font-size: 40px;
+            color: #ff4081; /* Cor chamativa para ícones */
+            margin-bottom: 10px;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #bdbdbd;
+        }
+
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .download-button {
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .download-button img {
+            width: 150px; /* Ajuste o tamanho da imagem conforme necessário */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center">Was Geht Ab - API</h1>
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">Welcome to Our API</h5>
-                <p class="card-text">This is the home page of our API. You can find information about our API endpoints and how to use them here.</p>
-            </div>
+    <h1>Welcome to Event Finder</h1>
+    <h2>Your ultimate guide to discovering events, clubs, and bars!</h2>
+
+    <div class="download-buttons">
+        <a href="google-play-link" class="download-button">
+            <img src="../assets/images/store-google.png" alt="Download on Google Play">
+        </a>
+        <a href="app-store-link" class="download-button">
+            <img src="../assets/images/app-store-button.png" alt="Download on the App Store">
+        </a>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Find Events</h3>
+            <p>Discover upcoming events in your area.</p>
         </div>
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5>API Endpoints</h5>
-            </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">GET /api/v1/users - Get all users</li>
-                <li class="list-group-item">GET /api/v1/users/:id - Get a specific user by ID</li>
-                <li class="list-group-item">POST /api/v1/users - Create a new user</li>
-                <li class="list-group-item">PUT /api/v1/users/:id - Update a user by ID</li>
-                <li class="list-group-item">DELETE /api/v1/users/:id - Delete a user by ID</li>
-                <!-- You can add more endpoints here -->
-            </ul>
+        <div class="feature">
+            <i class="fas fa-music"></i>
+            <h3>Explore Clubs</h3>
+            <p>Check out the best clubs and their events.</p>
         </div>
-        <div class="mt-4 text-center">
-            <a href="https://example.com/documentation" class="btn btn-primary"><i class="fas fa-book"></i> API Documentation</a>
-            <!-- Replace "https://example.com/documentation" with your actual documentation URL -->
+        <div class="feature">
+            <i class="fas fa-glass-cheers"></i>
+            <h3>Best Bars</h3>
+            <p>Find great bars for your night out.</p>
         </div>
     </div>
 
-    <!-- Bootstrap JS CDN (optional, only if you need Bootstrap JavaScript features) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <footer>
+        &copy; 2024 Event Finder. All rights reserved.
+    </footer>
 </body>
 </html>

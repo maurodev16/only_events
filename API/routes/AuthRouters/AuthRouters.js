@@ -27,6 +27,9 @@ router.get("/reset-password-form/:token", resetPasswordFormRouter);
 
 // Rota para redefinir a senha usando o token
 router.post("/reset-password/:token", resetPasswordRouter);
+
+
+///
 router.patch("/confirm-email/:token", confirmEmailRouter);
 router.get("/email-verification-result/:id", emailVerificationResultRouter);
 
