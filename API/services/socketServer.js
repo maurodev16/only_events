@@ -1,11 +1,12 @@
-import socketIO from 'socket.io'; // Importa socket.io como padrão
+import pkg from 'socket.io';
+
 
 function configureSocketServer(server) {
-    const io = socketIO(server, { // Aqui você cria uma instância de Socket.io
+    const io = new pkg(server, {
         cors: {
-            origin: "https://velhodalancha.onrender.com", // Ajuste para a origem correta
+            origin: "wss://velhodalancha.onrender.com",
             methods: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"],
-        },
+        }
     });
 
     io.on('connection', (socket) => {
@@ -16,7 +17,7 @@ function configureSocketServer(server) {
         });
     });
 
-    return io; // Retorna a instância do Socket.io
+    return io;
 }
 
 export default configureSocketServer;
