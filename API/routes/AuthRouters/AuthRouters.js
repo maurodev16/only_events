@@ -8,8 +8,7 @@ import {
   refreshTokenRouter,
   sendResetLinkRouter,
   resetPasswordRouter,
-  confirmEmailRouter,
-  emailVerificationResultRouter,
+  verifyEmailRouter,
   resetPasswordFormRouter,
 } from "../../controllers/authController.js";
 
@@ -30,7 +29,7 @@ router.post("/reset-password/:token", resetPasswordRouter);
 
 
 ///
-router.patch("/confirm-email/:token", confirmEmailRouter);
-router.get("/email-verification-result/:id", emailVerificationResultRouter);
+router.get("/verify-email/:token", verifyEmailRouter);
+
 
 export default router;

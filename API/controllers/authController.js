@@ -9,6 +9,9 @@ import generateToken from "../middleware/generateToken.js";
 import { sendLinkResetPasswordTemplate } from "../../views/resetPasswordTemplates/sendLinkResetPasswordTemplate.js";
 import { resetPasswordFormTemplate } from "../../views/resetPasswordTemplates/resetPasswordFormTemplate.js";
 import mongoose from "mongoose";
+import { emailVerifySuccess } from "../../views/emailVerificationTemplates/email_verification_success.js";
+import { emailVerificationError } from "../../views/emailVerificationTemplates/email_verification_error.js";
+import { sendEmailVerificationLink } from "../../views/emailVerificationTemplates/send_email_verification_link.js";
 dotenv.config();
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const bcryptSalt = process.env.BCRYPT_SALT;
@@ -75,7 +78,6 @@ export const resetPasswordFormRouter = (req, res) => {
 };
 
 // Rota para redefinir a senha
-// Rota para redefinir a senha
 export const resetPasswordRouter = async (req, res) => {
   try {
     // Verifica se o token é válido e não expirou
@@ -100,7 +102,7 @@ export const resetPasswordRouter = async (req, res) => {
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
     user.passwordChangedAt = Date.now();
-console.log(user.password)
+    console.log(user.password);
     await user.save();
 
     // Retorna resposta de sucesso
@@ -113,72 +115,6 @@ console.log(user.password)
       error:
         "There was an error resetting your password. Please try again later.",
     });
-  }
-};
-
-
-export const confirmEmailRouter = async (req, res, next) => {
-  try {
-    // Extrair o token da URL
-    const token = req.params.token;
-
-    // Encontrar o companyelecimento com base no token de verificação fornecido
-    const user = await User.findOne({
-      verificationEmailToken: token,
-      verificationEmailTokenExpires: { $gt: Date.now() },
-    });
-
-    // Verificar se o companyelecimento foi encontrado
-    if (!company) {
-      // Se o companyelecimento não for encontrado ou o token expirar, enviar erro 401
-      return res
-        .status(401)
-        .json({ error: "Token is invalid or has expired!" });
-    }
-
-    // Marcar o e-mail como verificado e limpar o token de verificação
-    company.isEmailVerified = true;
-    company.verificationEmailToken = undefined;
-    company.verificationEmailTokenExpires = undefined;
-    await company.save();
-
-    // Retornar sucesso e o novo token
-    return res.status(200).json({ status: true });
-  } catch (error) {
-    // Se ocorrer algum erro durante o processo, retorne um erro 500
-    console.error(`Error verifying email: ${error}`);
-    res
-      .status(500)
-      .json({ error: "Error verifying email. Please try again later." });
-  }
-};
-
-//-- Only for the app verification
-export const emailVerificationResultRouter = async (req, res) => {
-  try {
-    const companyId = req.params.id;
-
-    // Encontrar o companyelecimento com base no ID fornecido
-    const user = await User.findById(companyId);
-
-    if (!user) {
-      // Se o companyelecimento não for encontrado, retorne um erro
-      return res.status(404).json({ error: "user not found" });
-    }
-
-    // Verifique se o e-mail foi verificado com sucesso
-    if (user.isEmailVerified) {
-      return res
-        .status(200)
-        .json({ status: true, message: "Email successfully verified" });
-    } else {
-      return res
-        .status(200)
-        .json({ status: false, message: "Email not verified" });
-    }
-  } catch (error) {
-    console.error(`Error getting email verification result: ${error}`);
-    res.status(500).json({ error: "Error getting email verification result" });
   }
 };
 
@@ -272,6 +208,9 @@ export const signupRouter = async (req, res) => {
           .status(422)
           .json({ error: "NicknameAlreadyExistsException" });
       }
+      // Geração do token de verificação de e-mail
+      const verificationEmailToken = crypto.randomBytes(32).toString("hex");
+      const verificationEmailTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // Expira em 24 horas
 
       // Criação de um novo usuário
       const newUser = new User({
@@ -281,6 +220,8 @@ export const signupRouter = async (req, res) => {
         phone,
         role,
         companyInfo,
+        verificationEmailToken,
+        verificationEmailTokenExpires,
       });
 
       const newCreatedUser = await newUser.save({ session });
@@ -293,7 +234,28 @@ export const signupRouter = async (req, res) => {
       const userObject = newCreatedUser.toObject();
       delete userObject.password;
 
-      return res.status(201).json({ newUser: userObject });
+      // Cria o link de verificação (você pode ajustar a URL)
+      const verificationLink = `${req.protocol}://${req.get(
+        "host"
+      )}/api/v1/auth/verify-email/${verificationEmailToken}`;
+      // Conteúdo do e-mail
+
+    // Gerar o conteúdo do e-mail usando o template
+    const emailContent = sendEmailVerificationLink(nickname, verificationLink);
+      // Envia o e-mail de verificação
+      const emailResponse = await nodemailerConfig(
+        email,
+        "Verificação de E-mail",
+        emailContent
+      );
+
+      if (!emailResponse.success) {
+        return res.status(500).json({ error: "FailedToSendVerificationEmail" });
+      }
+      return res.status(201).json({
+        message: "User created successfully. Please verify your email.",
+        newUser: userObject,
+      });
     });
   } catch (error) {
     console.error(`Erro ao registrar: ${error}`);
@@ -317,16 +279,54 @@ const validateEmailOrNickname = (input) => {
   }
 };
 
+export const verifyEmailRouter = async (req, res, next) => {
+  try {
+    // Extrair o token da URL
+    const token = req.params.token;
+
+    // Encontrar o User com base no token de verificação fornecido
+    const user = await User.findOne({
+      verificationEmailToken: token,
+      verificationEmailTokenExpires: { $gt: Date.now() },
+    });
+    const erroHtml = emailVerificationError();
+    // Verificar se o user foi encontrado
+    if (!user) {
+      // Se o user não for encontrado ou o token expirar, enviar erro 401
+      return res.status(401).send(erroHtml);
+    }
+
+    // Marcar o e-mail como verificado e limpar o token de verificação
+    user.isEmailVerified = true;
+    user.verificationEmailToken = undefined;
+    user.verificationEmailTokenExpires = undefined;
+    await user.save();
+    // Gera o HTML da página de confirmação
+    const successHtml = emailVerifySuccess();
+
+    // Retornar sucesso e o novo token
+    return res.status(200).send(successHtml); // Envia o HTML como resposta
+  } catch (error) {
+    // Se ocorrer algum erro durante o processo, retorne um erro 500
+    console.error(`Error verifying email: ${error}`);
+    res
+      .status(500)
+      .json({ error: "Error verifying email. Please try again later." });
+  }
+};
+
 // Rota de Login
 export const loginRouter = async (req, res) => {
   const { emailORnickname, password } = req.body;
 
+  // Verifica se ambos os campos foram fornecidos
   if (!emailORnickname || !password) {
     return res.status(401).json({
       error: "Please provide a valid email or nickname and password!",
     });
   }
 
+  // Verifica se o input é um email ou nickname
   const inputType = validateEmailOrNickname(emailORnickname);
   if (!inputType) {
     return res.status(400).json({ error: "Invalid email or nickname format!" });
@@ -334,11 +334,15 @@ export const loginRouter = async (req, res) => {
 
   try {
     let user;
+
+    // Se for email, pesquisa pelo campo de email
     if (inputType === "email") {
       user = await User.findOne({
         email: { $regex: `^${emailORnickname}$`, $options: "i" },
       });
-    } else if (inputType === "nickname") {
+    }
+    // Se for nickname, pesquisa pelo campo de nickname
+    else if (inputType === "nickname") {
       let formattedNickname = emailORnickname.startsWith("@")
         ? emailORnickname.substring(1)
         : emailORnickname;
@@ -348,15 +352,18 @@ export const loginRouter = async (req, res) => {
       });
     }
 
+    // Se o usuário não for encontrado, retorna um erro
     if (!user) {
       return res.status(404).json({ error: `No user found!` });
     }
 
+    // Verifica se a senha fornecida é válida
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Incorrect password!" });
     }
 
+    // Verifica se o e-mail foi verificado
     if (!user.isEmailVerified) {
       return res.status(403).json({ error: "Email not verified!" });
     }

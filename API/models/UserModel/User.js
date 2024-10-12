@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
     },
     verificationEmailToken: { type: String },
     verificationEmailTokenExpires: { type: Date },
+    ///
     passwordChangedAt: { type: Date },
     passwordResetToken: { type: String },
     passwordResetTokenExpires: { type: Date },

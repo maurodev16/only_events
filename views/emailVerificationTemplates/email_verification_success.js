@@ -1,3 +1,6 @@
+export const emailVerifySuccess = () => {
+  return `
+    
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,3 +28,6 @@
     <p>Your email has been successfully verified. You can now proceed to login.</p>
 </body>
 </html>
+    
+    `;
+};

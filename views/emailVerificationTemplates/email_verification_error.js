@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+export const emailVerificationError = () => {
+  return `
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,3 +27,7 @@
     <p>The email verification token is invalid or has expired. Please try again with a valid token.</p>
 </body>
 </html>
+
+    
+    `;
+};
