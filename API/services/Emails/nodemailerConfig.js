@@ -22,22 +22,22 @@ const nodemailerConfig = async (to, subject, html) => {
 
     // Verificando se o e-mail foi aceito ou rejeitado
     if (info.accepted.length > 0) {
-      console.log(`E-mail enviado com sucesso para: ${info.accepted.join(', ')}`);
+      console.log(`Email successfully sent to: ${info.accepted.join(', ')}`);
       return {
         success: true,
-        message: `E-mail enviado com sucesso para: ${info.accepted.join(', ')}`
+        message: `Email successfully sent to: ${info.accepted.join(', ')}`
       };
     } else if (info.rejected.length > 0) {
-      console.error(`Falha ao enviar e-mail para: ${info.rejected.join(', ')}`);
+      console.error(`Failed to send email to: ${info.rejected.join(', ')}`);
       return {
         success: false,
-        message: `Falha ao enviar e-mail para: ${info.rejected.join(', ')}`
+        message: `Failed to send email to: ${info.rejected.join(', ')}`
       };
     } else {
-      console.error("O e-mail foi enviado, mas não há confirmação de aceitação.");
+      console.error("The email was sent, but there is no confirmation of acceptance.");
       return {
         success: false,
-        message: "O e-mail foi enviado, mas não há confirmação de aceitação."
+        message: "The email was sent, but there is no confirmation of acceptance."
       };
     }
 
@@ -45,7 +45,7 @@ const nodemailerConfig = async (to, subject, html) => {
     console.error(`Erro ao enviar o e-mail: ${error}`);
     return {
       success: false,
-      message: `Erro ao enviar o e-mail: ${error.message}`
+      message: `Error sending email: ${error.message}`
     };
   }
 };

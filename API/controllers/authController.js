@@ -245,7 +245,7 @@ export const signupRouter = async (req, res) => {
       // Envia o e-mail de verificação
       const emailResponse = await nodemailerConfig(
         email,
-        "Verificação de E-mail",
+        "Email Verification",
         emailContent
       );
 
@@ -258,7 +258,7 @@ export const signupRouter = async (req, res) => {
       });
     });
   } catch (error) {
-    console.error(`Erro ao registrar: ${error}`);
+    console.error(`Error registering: ${error}`);
     return res
       .status(500)
       .json({ error: error.message || "Error registering user" });
